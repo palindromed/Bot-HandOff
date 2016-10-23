@@ -1,14 +1,16 @@
 # Bot-HandOff
-# Bot-HandOff
 
 This is example code to show how a bot built in node.js with the Microsfot Bot Builder could hand off control to a human.
 This could be helpful in a bot where clients may have questions not answered by the bot.
 
 For each of these scenarios there are two parties involved:
+
 1. User - this is the client using the bot
 2. Call Center - this would be a staff person supporting the bot and answering questions
 
+
 There are threee scenarios included in this repository:
+
 1. This is the Simple escalate example. The User interacts with the bot then explicitly asks for help.
    The request for help can come from a button or user input depending on how you prefer your bot to function.
    Once the user asks for help, there is a db query to find available Call Center then the User sends a message to Call Center asking for help.
