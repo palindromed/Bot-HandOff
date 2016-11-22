@@ -90,7 +90,7 @@ const wrapper = function () {
                 });
             });
         },
-        self.addUser = (item, myText) => {
+        self.addUser = (item) => {
             storageTableService.createTableIfNotExists('User', (error, result, response) => {
                 if (error) {
                     console.log(error);
@@ -101,7 +101,7 @@ const wrapper = function () {
                 RowKey: entityGen.String(item.channelId + item.user.id),
                 userId: entityGen.String(item.user.id),
                 conversationId: entityGen.String(item.conversation.id),
-                transcript: entityGen.String(myText),
+                transcript: entityGen.String(item.text),
             };
             storageTableService.insertOrMergeEntity('User', userDetails, (error, result, response) => {
                 if (error) {
@@ -113,11 +113,6 @@ const wrapper = function () {
         // TODO decide if saving text is enough
         // Could also store zipped conversation
         self.transcribeUser = (data, botText, userText, callback) => {
-            storageTableService.createTableIfNotExists('User', (error, result, response) => {
-                if (error) {
-                    console.log(error);
-                }
-            })
             let query = new azure.TableQuery()
                 .where('PartitionKey eq ?', 'User')
                 .and('conversationId eq ?', data.conversation.id)

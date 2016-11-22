@@ -47,6 +47,7 @@ intents.onDefault([
         // if user is not call center and is not yet connected to a call center
         if (session.privateConversationData.isUser && !session.privateConversationData.contactInfo) {
             // capture and transcribe user input not captured in an intent dialog
+            storage.addUser(session.message);
             let texting = transcribeConversation(session);
             storage.transcribeUser(session.message.address, texting, session.message.text);
             session.send('Type \'help\' to get help or \'greet\' to be greeted');
