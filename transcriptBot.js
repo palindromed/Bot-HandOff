@@ -39,8 +39,8 @@ bot.dialog('/', intents);
 intents.onDefault([
     (session, result, next) => {
         // Have a way to distinguish between the user and call center
-        // Any user in Slack is the call center in this example
-        if (session.message.address.channelId !== 'slack') {
+        // Any user in Skype is the call center in this example
+        if (session.message.address.channelId !== 'skype') {
             session.privateConversationData['isUser'] = 'yes';
             session.userData.name = '';
         }
