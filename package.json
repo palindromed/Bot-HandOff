@@ -5,7 +5,7 @@
   "description": "Create example to escalate to a human",
   "main": "anotherBot.js",
   "scripts": {
-    "start": "node anotherBot.js",
+    "start": "node transcriptBot.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
