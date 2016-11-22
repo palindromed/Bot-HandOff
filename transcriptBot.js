@@ -48,8 +48,8 @@ intents.onDefault([
         if (session.privateConversationData.isUser && !session.privateConversationData.contactInfo) {
             // capture and transcribe user input not captured in an intent dialog
             storage.addUser(session.message);
-            let texting = transcribeConversation(session);
-            storage.transcribeUser(session.message.address, texting, session.message.text);
+            // let texting = transcribeConversation(session);
+            // storage.transcribeUser(session.message.address, texting, session.message.text);
             session.send('Type \'help\' to get help or \'greet\' to be greeted');
         }
         // This is where a call center adds itself to the persistance level and is set to available
