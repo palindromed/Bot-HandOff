@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "license": "MIT",
   "description": "Create example to escalate to a human",
-  "main": "anotherBot.js",
+  "main": "simpleHandOff.js",
   "scripts": {
-    "start": "node transcriptBot.js",
+    "start": "node simpleHandOff.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
