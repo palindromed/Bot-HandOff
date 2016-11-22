@@ -35,7 +35,7 @@ const wrapper = function () {
         self.findCallCenter = (contactInfo, callback) => {
             let query = new azure.TableQuery()
                 .where('PartitionKey eq ?', 'Staff')
-                .and('channelId eq ?', "slack")
+                .and('channelId eq ?', 'skype')
                 .and('available eq ?', true);
 
             storageTableService.queryEntities('CallCenter', query, null, (error, args) => {
@@ -61,7 +61,7 @@ const wrapper = function () {
         self.connectToUser = (conversationId, callback) => {
             let query = new azure.TableQuery()
                 .where('PartitionKey eq ?', 'Staff')
-                .and('channelId eq ?', "slack")
+                .and('channelId eq ?', 'skype')
                 .and('conversationId eq ?', conversationId);
 
             storageTableService.queryEntities('CallCenter', query, null, (error, result, response) => {
@@ -76,7 +76,7 @@ const wrapper = function () {
         self.disconnectFromUser = (connectedUser, callback) => {
             let query = new azure.TableQuery()
                 .where('PartitionKey eq ?', 'Staff')
-                .and('channelId eq ?', 'slack')
+                .and('channelId eq ?', 'skype')
                 .and('conversationId eq ?', connectedUser.conversation.id)
                 .and('userId eq ?', connectedUser.user.id);
             storageTableService.queryEntities('CallCenter', query, null, (error, args) => {
@@ -113,6 +113,11 @@ const wrapper = function () {
         // TODO decide if saving text is enough
         // Could also store zipped conversation
         self.transcribeUser = (data, botText, userText, callback) => {
+            storageTableService.createTableIfNotExists('User', (error, result, response) => {
+                if (error) {
+                    console.log(error);
+                }
+            })
             let query = new azure.TableQuery()
                 .where('PartitionKey eq ?', 'User')
                 .and('conversationId eq ?', data.conversation.id)
