@@ -5,7 +5,7 @@
   "description": "Create example to escalate to a human",
   "main": "simpleHandOff.js",
   "scripts": {
-    "start": "node simpleHandOff.js",
+    "start": "node transcriptBot.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
