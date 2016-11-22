@@ -99,9 +99,9 @@ const wrapper = function () {
             });
             let userDetails = {
                 PartitionKey: entityGen.String('User'),
-                RowKey: entityGen.String(item.channelId + item.user.id),
-                userId: entityGen.String(item.user.id),
-                conversationId: entityGen.String(item.conversation.id),
+                RowKey: entityGen.String(item.channelId + item.address.user.id),
+                userId: entityGen.String(item.address.user.id),
+                conversationId: entityGen.String(item.address.conversation.id),
                 transcript: entityGen.String(item.text),
             };
             storageTableService.insertOrMergeEntity('User', userDetails, (error, result, response) => {
