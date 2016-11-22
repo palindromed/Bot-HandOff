@@ -91,6 +91,7 @@ const wrapper = function () {
             });
         },
         self.addUser = (item) => {
+            console.log(item);
             storageTableService.createTableIfNotExists('User', (error, result, response) => {
                 if (error) {
                     console.log(error);
