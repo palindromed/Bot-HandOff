@@ -22,21 +22,23 @@ server.post('/api/messages/', connector.listen());
 const bot = new builder.UniversalBot(connector);
 const intents = new builder.IntentDialog();
 
-// Middleware functionality. Listens for call center to disconnect from help dialog
+// Middleware functionality 
 bot.on('send', (message) => {
-    // watch for a unique string to be sent from the bot to the user
     if (message.text === 'Thank you for letting us help') {
-        // if the text does match, begin a dialog to move user out of help dialog and disconnect from the call center
         bot.beginDialog(message.address, '/userDisconnect')
-        // NOTE This is also how to start a proactive conversation with a user
     };
 });
+
+bot.on('receive', (message) => {
+    if (message.text === 'help') {
+        bot.beginDialog(message.address, '/userConversation')
+    }
+})
 
 
 // register intents 
 bot.dialog('/', intents);
 
-// This will execute whenever input does not match an intent
 intents.onDefault([
     (session, result, next) => {
         // Have a way to distinguish between the user and call center
@@ -52,7 +54,6 @@ intents.onDefault([
         // This is where a call center adds itself to the persistance level and is set to available
         if (!session.privateConversationData.isUser && !session.privateConversationData.contactInfo) {
             storage.addCallCenter(session.message.address);
-            // instructions for call center
             session.send('If you receive \'I would like some help\' type \'help\' to connect to a user ');
         }
     },
@@ -74,10 +75,8 @@ intents.matches(/^help/i, [
         }
         else {
             // When a user connects to a call center, here is where call center connects to the user
-
             storage.connectToUser(session.message.address.conversation.id, (connectedUser) => {
                 session.privateConversationData['contactInfo'] = connectedUser;
-                // This will be sent to user
                 session.send('Messages will be sent to user. Type \'break\' to disconnect');
                 session.message.text = 'Hi! How Can I Help You?';
                 session.replaceDialog('/callCenterConversation');
@@ -100,7 +99,6 @@ bot.dialog('/userConversation', [
 
 bot.dialog('/userDisconnect', (session, args) => {
     session.privateConversationData['contactInfo'] = '';
-    // delete session.privateConversationData.contactInfo;
     session.replaceDialog('/');
 });
 
@@ -112,9 +110,7 @@ bot.dialog('/callCenterConversation', [
             bot.send(new builder.Message()
                 .text('Thank you for letting us help')
                 .address(session.privateConversationData.contactInfo));
-            // Pass call center information remove contact information and reset to status to available
             storage.disconnectFromUser(session.message.address);
-            // remove contact information to go back into circulation ready for another user
             session.privateConversationData['contactInfo'] = '';
             session.send('Ending Dialog and Removing contact information for user. Ready to talk to another client');
             session.endDialog();
