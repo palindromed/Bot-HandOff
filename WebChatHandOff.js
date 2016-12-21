@@ -1,7 +1,5 @@
-var express = require('express')
-
-,   builder = require('botbuilder');
-//,   drbe = require('./packages/drbe/drbe.js');
+var express = require('express');
+var builder = require('botbuilder');
 var app = express();
 
 
