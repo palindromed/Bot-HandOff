@@ -5,12 +5,12 @@
   "description": "Create example to escalate to a human",
   "main": "simpleHandOff.js",
   "scripts": {
-    "start": "node transcriptBot.js",
+    "start": "node WebChatHandOff.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "azure-storage": "^1.3.1",
     "botbuilder": "^3.2.3",
-    "restify": "^4.1.1"
+    "express": "^4.14.0"
   }
 }
