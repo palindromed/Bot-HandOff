@@ -9,7 +9,7 @@ var app = express();
 
 // Setup Express Server
 
-app.listen(3978, function() {
+app.listen(3978, function () {
     console.log('server up');
 });
 // Create chat bot
@@ -32,12 +32,12 @@ var emergencies = ["Health", "Crime", "Catastrophe"];
 
 bot.dialog('/', [
     //welcome the user, ask the emergency
-    function(session) {
+    function (session) {
         session.send("Hello");
         builder.Prompts.choice(session, "What's the emergency?", emergencies);
     },
     //work with selected emergency
-    function(session, results) {
+    function (session, results) {
         session.userData.emergency = results.response.entity;
         switch (session.userData.emergency) {
             case emergencies[0]:
@@ -57,31 +57,38 @@ bot.dialog('/', [
 
 //health conversation
 bot.dialog('/Health', [
-    function(session) {
+    function (session) {
         builder.Prompts.text(session, "What type of pain are you experiencing");
     },
     //figure out the type of emergency. Later use LUIS to get the emergency
-    function(session, results) {
+    function (session, results) {
         if (results.response.includes("chest")) {
             session.userData.painType = "Chest Pain";
             builder.Prompts.choice(session, "How severe is the pain?", ["Mild", "Sharp", "Severe"]);
         } else {
             builder.Prompts.text(session, "I can only help diagnosing chestpain & headache");
+            session.endConversation();
         }
     },
-    function(session, results) {
+    function (session, results) {
         session.userData.painLevel = results.response.entity;
         switch (session.userData.painLevel) {
             case "Mild":
             case "Sharp":
                 session.send("Fetching your heartrate");
+                session.endConversation();
+
                 break;
             case "Severe":
-                builder.Prompts.text(session, "Connecting to a Professional");
+                session.send("Connecting to a Professional");
+                session.endConversation();
+
                 break;
             default:
-                //no default case required as the framework handles invalid inputs
-                //and prompts the user to enter a valid input
+                session.endConversation();
+
+            //no default case required as the framework handles invalid inputs
+            //and prompts the user to enter a valid input
         }
     }
 ]);
