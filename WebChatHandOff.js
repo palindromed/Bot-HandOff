@@ -9,7 +9,7 @@ var app = express();
 
 // Setup Express Server
 app.listen(process.env.port || process.env.PORT || 3978, '::', () => {
-    console.log('%s listening to %s', server.name, server.url);
+    console.log('Server Up');
 });
 // Create chat bot
 var connector = new builder.ChatConnector({
