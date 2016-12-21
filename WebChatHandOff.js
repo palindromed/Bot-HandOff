@@ -8,9 +8,8 @@ var app = express();
 //=========================================================
 
 // Setup Express Server
-
-app.listen(3978, function () {
-    console.log('server up');
+app.listen(process.env.port || process.env.PORT || 3978, '::', () => {
+    console.log('%s listening to %s', server.name, server.url);
 });
 // Create chat bot
 var connector = new builder.ChatConnector({
