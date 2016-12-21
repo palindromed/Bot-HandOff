@@ -9,7 +9,7 @@ For each of these scenarios there are two parties involved:
 2. Call Center - this would be a staff person supporting the bot and answering questions
 
 
-There are three scenarios included in this repository:
+There are two scenarios included in this repository:
 
 1. This is the Simple escalate example. The User interacts with the bot then explicitly asks for help.
    The request for help can come from a button or user input depending on how you prefer your bot to function.
@@ -20,10 +20,3 @@ There are three scenarios included in this repository:
    Two things make this different from the first, you will see all the places where 'transcribeUser' is called. That is updating the database with user/bot input.
    On the Call Center side, once they are in the conversation with the user, they can read the transcript built from the user's interaction with the bot.
    This is a simplistic example only saving the text of the conversation. In production, consider using the gzip option of the framework and parsing more details.
-
-3. I call this this Lurking bot. Whenever a user starts a conversation, their messages are sent to the Call Center and the Call Center then has the option to do nothing
-   or enter text that is then passed to the user. This integrates the customer service/help functionality with the rest of the bot.
-
-
-
-*PRO TIP* Use caution when identifying a bot with a conversationId. That can seem stable but it does change.
