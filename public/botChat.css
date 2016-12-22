@@ -87,7 +87,7 @@
     .wc-message-group {
         display: table;
         height: 100%;
-        width: 100%;
+        width: 50%;
     }
 
     .wc-message-group-content {
@@ -118,7 +118,7 @@
     }
 
     .wc-message {
-        max-width: 80%;
+        max-width: 50%;
         position: relative;
     }
 
@@ -147,11 +147,11 @@
 
     .wc-message-content img {
         max-height: 320px;
-        max-width: 100%;
+        max-width: 50%;
     }
 
     .wc-message-content audio, .wc-message-content video {
-        max-width: 100%;
+        max-width: 50%;
     }
 
     .wc-message-content audio+h1, .wc-message-content video+h1 {
@@ -178,7 +178,7 @@
         background-color: transparent;
         color: #3A96DD;
         min-height: 32px;
-        width: 100%;
+        width: 50%;
         padding: 0 16px;
     }
 
@@ -239,7 +239,7 @@
 
     .wc-card.receipt table {
         border-collapse: collapse;
-        width: 100%;
+        width: 50%;
     }
 
     .wc-card.receipt th, .wc-card.receipt td {
@@ -299,7 +299,7 @@
         float: right;
         margin-bottom: 10px;
         margin-left: 10px;
-        width: 100px;
+        width: 50px;
     }
 
     .wc-card.signin h1 {
@@ -538,4 +538,8 @@
 
     .wc-app ::-webkit-scrollbar-thumb {
         background-color: #DBDEE1;
+    }
+    .wc-app {
+        width: 69px;
+        
     }

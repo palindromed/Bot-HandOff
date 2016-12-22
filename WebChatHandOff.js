@@ -21,6 +21,14 @@ app.post('/api/messages', connector.listen());
 
 // Create endpoint for agent / call center
 app.use('/agent', express.static('public'));
+app.post('/agent', function(req, res, next) {
+    // connector.listen();
+    console.log('req' + req + 'res' +res);
+})
+app.get('/agent', function(req, res, next) {
+    // connector.listen();
+    console.log('req' + req + 'res' +res);
+})
 
 
 //=========================================================
@@ -32,7 +40,7 @@ var emergencies = ["Health", "Crime", "Catastrophe"];
 bot.dialog('/', [
     //welcome the user, ask the emergency
     function (session) {
-        session.send("Hello");
+        session.send(JSON.stringify(session));
         builder.Prompts.choice(session, "What's the emergency?", emergencies);
     },
     //work with selected emergency

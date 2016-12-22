@@ -1,23 +1,17 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8" />
-        <title>Bot Chat</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-        <style>
-            html, body {
-                height: 100%;
-                margin: 0;
-                padding: 0;
-                overflow: hidden;
-            }
-        </style>
-        <link href="botchat.css" rel="stylesheet" />
-    </head>
-    <body>
-        <div id="BotChatGoesHere"></div>
-        <script src="botchat.js"></script>
-        <script>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Bot Chat</title>
+
+<link href="botchat.css" rel="stylesheet" />
+</head>
+
+<body>    
+    <div id="BotChatGoesHere"></div>
+    <script src="botchat.js"></script>
+    <script>
             var params = {};
             location
                 .search
@@ -32,14 +26,14 @@
                 secret: params['s'],
                 token: params['t'],
                 domain: params['domain'],
-                webSocket: params['webSocket']
+                webSocket: true
             });
 
             var user = {
-                id: params['userid'] || 'userid',
-                name: params["username"] || 'username'
-                };
-            
+                id: params['userid'],
+                name: params['username']
+            };
+
             var bot = {
                 id: params['botid'] || 'botid',
                 name: params["botname"] || 'botname'
@@ -49,8 +43,11 @@
                 botConnection: botConnection,
                 user: user,
                 bot: bot,
-             allowMessagesFrom: ['http://localhost:8080']
+                //              allowMessagesFrom: ['http://localhost:8080']
             }, document.getElementById("BotChatGoesHere"));
         </script>
-    </body>
+
+    
+</body>
+
 </html>
