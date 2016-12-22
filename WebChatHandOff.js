@@ -40,7 +40,8 @@ var emergencies = ["Health", "Crime", "Catastrophe"];
 bot.dialog('/', [
     //welcome the user, ask the emergency
     function (session) {
-        session.send(JSON.stringify(session));
+        session.send('hello');
+        console.log(session);
         builder.Prompts.choice(session, "What's the emergency?", emergencies);
     },
     //work with selected emergency
