@@ -38,10 +38,12 @@ var emergencies = ["Health", "Crime", "Catastrophe"];
 bot.dialog('/', [
     //welcome the user, ask the emergency
     function (session) {
-        session.send(session.message.address.id);
-        session.send(session.message.address.user);
-        session.send(session.message.address.conversation);
-        session.send(session.message.address.bot);
+        console.log(session.message.address.id);
+        console.log(session.message.address.user);
+        console.log(session.message.address.user.address);
+        
+        console.log(session.message.address.conversation);
+        console.log(session.message.address.bot);
         console.log(session.message.address);
         builder.Prompts.choice(session, "What's the emergency?", emergencies);
     },
