@@ -17,16 +17,19 @@ var connector = new builder.ChatConnector({
     appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
 var bot = new builder.UniversalBot(connector);
-app.post('/api/messages', connector.listen());
+app.post('/api/messages', [ connector.listen(), function(req, res, next) {
+    console.log(req);
+    console.log(res);
+}] );
 
 // Create endpoint for agent / call center
 app.use('/agent', express.static('public'));
-app.post('/agent/:args', function(req, res, next) {
-    console.log('requests');
-    // connector.listen();
-    console.log(req);
-    console.log(res);
-});
+// app.post('/agent/:args', function(req, res, next) {
+//     console.log('requests');
+//     // connector.listen();
+//     console.log(req);
+//     console.log(res);
+// });
 
 
 //=========================================================
