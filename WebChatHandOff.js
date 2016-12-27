@@ -42,7 +42,42 @@ var connectorQueue = function (deets) {
     } else {
         return null;
     }
-};
+    if (deets.user.id !== 'hannah') {
+        return {
+            'id': 'ElDe6udZczB|000000000000000001',
+
+            'channelId': 'directline',
+
+            'user': { 'id': 'hannah', 'name': 'hannah' },
+
+            'conversation': { 'id': 'ElDe6udZczB' },
+
+            'bot': { 'id': 'handoffbotdev@Vyk0lb3f67A', 'name': 'HandOffBot' },
+
+            'serviceUrl': 'https://directline.botframework.com',
+
+            'useAuth': true
+        }
+
+    } else {
+        return {
+            'id': 'JAhN4ZEdMCv|000000000000000001',
+
+            'channelId': 'directline',
+
+            'user': { 'id': 'scott', 'name': 'scott' },
+
+            conversation: { id: 'JAhN4ZEdMCv' },
+
+            'bot': { 'id': 'handoffbotdev@Vyk0lb3f67A', 'name': 'HandOffBot' },
+
+            'serviceUrl': 'https://directline.botframework.com',
+
+            'useAuth': true
+        }
+
+    }
+}
 
 //=========================================================
 // Bots Dialogs
@@ -58,30 +93,32 @@ bot.dialog('/', [
             session.replaceDialog('/chats');
 
         }
-        builder.Prompts.choice(session, "What's the emergency?", emergencies);
-    },
-    //work with selected emergency
-    function (session, results) {
-        session.userData.emergency = results.response.entity;
-        switch (session.userData.emergency) {
-            case emergencies[0]:
-                session.send(emergencies[0]);
-                session.replaceDialog('/Health');
-                break;
-            case emergencies[1]:
-                session.send(emergencies[1]);
-                break;
-            case emergencies[2]:
-                session.send(emergencies[2]);
-                break;
-            default:
-        }
+        // builder.Prompts.choice(session, "What's the emergency?", emergencies);
     }
+    // //work with selected emergency
+    // function (session, results) {
+    //     session.userData.emergency = results.response.entity;
+    //     switch (session.userData.emergency) {
+    //         case emergencies[0]:
+    //             session.send(emergencies[0]);
+    //             session.replaceDialog('/Health');
+    //             break;
+    //         case emergencies[1]:
+    //             session.send(emergencies[1]);
+    //             break;
+    //         case emergencies[2]:
+    //             session.send(emergencies[2]);
+    //             break;
+    //         default:
+    //     }
+    // }
 ]);
 
 bot.dialog('/chats', [
     function (session, args, next) {
         if (session.message.text !== 'break') {
+
+
             bot.send(
                 new builder.Message()
                     .text(session.message.text)
