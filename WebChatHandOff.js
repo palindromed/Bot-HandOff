@@ -32,13 +32,7 @@ var connectorQueue = function (deets) {
 
     console.log(deets);
     checkIn[deets.user.id] = deets;
-    for (addy in Object.keys(checkIn)) {
-        if (addy !== deets.user.id) {
-            console.log(checkIn);
 
-            return checkIn[addy];
-        }
-    }
 
 
 }
@@ -52,9 +46,17 @@ var emergencies = ["Health", "Crime", "Catastrophe"];
 bot.dialog('/', [
     //welcome the user, ask the emergency
     function (session, args, next) {
-        var temp = connectorQueue(session.message.address);
-        session.privateConversationData.connect = temp;
-        next();
+        connectorQueue(session.message.address);
+        for (addy in Object.keys(checkIn)) {
+            if (addy !== deets.user.id) {
+                // console.log(checkIn);
+
+                session.privateConversationData.connect = checkIn[addy];
+                next();
+                // break;
+            }
+        } 
+        session.replaceDialog('/');
 
         // session.replaceDialog('/chats');
 
