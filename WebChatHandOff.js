@@ -25,27 +25,32 @@ app.post('/api/messages', connector.listen());
 app.use('/agent', express.static('public'));
 
 
-var connectorQueue = function (userAddress) {
+var connectorQueue = function (deets) {
 
-    checkIn[userAddress.user.id] = userAddress;
+    checkIn[deets.user.id] = deets;
 }
 
 //=========================================================
 // Bots Dialogs
 //=========================================================
 
+var emergencies = ["Health", "Crime", "Catastrophe"];
 
 bot.dialog('/', [
     //welcome the user, ask the emergency
     function (session, args, next) {
         connectorQueue(session.message.address);
-        for (var objKey in checkIn) {
-            if (objKey !== session.message.address.user.id) {
-
-                session.replaceDialog('/handOff', { results: checkIn[objKey] });
+        var haveContact = false;
+        for (var addy in checkIn) {
+            if (addy !== session.message.address.user.id) {
+                haveContact = true;
+                session.replaceDialog('/handOff', { results: checkIn[addy] });
             }
-        };
-        session.endDialog('No one to connect you to yet. Try again soon.')
+        }
+        if (!haveContact) {
+            session.endDialog('No one to connect you to yet. Try again soon.')
+
+        }
 
 
     }]);
@@ -62,5 +67,4 @@ bot.dialog('/handOff', [
         }
     }
 ]);
-
 
