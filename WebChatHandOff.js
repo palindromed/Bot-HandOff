@@ -1,6 +1,8 @@
 var express = require('express');
 var builder = require('botbuilder');
 var app = express();
+var checkIn = [];
+
 
 
 //=========================================================
@@ -33,7 +35,6 @@ app.use('/agent', express.static('public'));
 
 var connectorQueue = function (deets) {
     // if deets don't match mine, return them?? then send msgs that way??
-    var checkIn = [];
     console.log(deets);
     checkIn.push(deets);
     if (checkIn.length >= 2) {
@@ -53,7 +54,10 @@ bot.dialog('/', [
     //welcome the user, ask the emergency
     function (session) {
         session.privateConversationData.connect = connectorQueue(session.message.address);
-        session.replaceDialog('/chats');
+        if (session.privateConversationData.connect !== null) {
+            session.replaceDialog('/chats');
+
+        }
         // console.log(session.message.address.id);
         // console.log(session.message.address.user);
         // console.log(session.message.address.user.address);
