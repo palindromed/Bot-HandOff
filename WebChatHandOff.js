@@ -17,10 +17,10 @@ var connector = new builder.ChatConnector({
     appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
 var bot = new builder.UniversalBot(connector);
-app.post('/api/messages', [ connector.listen(), function(req, res, next) {
+app.post('/api/messages', [connector.listen(), function (req, res, next) {
     console.log(req);
     console.log(res);
-}] );
+}]);
 
 // Create endpoint for agent / call center
 app.use('/agent', express.static('public'));
@@ -31,9 +31,16 @@ app.use('/agent', express.static('public'));
 //     console.log(res);
 // });
 
-var connectorQueue = function(deets) {
+var connectorQueue = function (deets) {
     // if deets don't match mine, return them?? then send msgs that way??
+    var checkIn = [];
     console.log(deets);
+    checkIn.push(deets);
+    if (checkIn.length >= 2) {
+        return checkIn[0];
+    } else {
+        return null;
+    }
 };
 
 //=========================================================
@@ -45,11 +52,12 @@ var emergencies = ["Health", "Crime", "Catastrophe"];
 bot.dialog('/', [
     //welcome the user, ask the emergency
     function (session) {
-        connectorQueue(session.message.address);
+        session.privateConversationData.connect = connectorQueue(session.message.address);
+        session.replaceDialog('/chats');
         // console.log(session.message.address.id);
         // console.log(session.message.address.user);
         // console.log(session.message.address.user.address);
-        
+
         // console.log(session.message.address.conversation);
         // console.log(session.message.address.bot);
         // console.log(session.message.address);
@@ -73,6 +81,19 @@ bot.dialog('/', [
         }
     }
 ]);
+
+bot.dialog('/chats', [
+    function (session, args, next) {
+        if (session.message.text !== 'break') {
+            bot.send(
+                new builder.Message()
+                    .text(session.message.text)
+                    .address(session.privateConversationData.connect));
+        } else {
+            session.endConversation('bye');
+        }
+    }
+])
 
 //health conversation
 bot.dialog('/Health', [
