@@ -19,10 +19,7 @@ var connector = new builder.ChatConnector({
     appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
 var bot = new builder.UniversalBot(connector);
-app.post('/api/messages', [connector.listen(), function (req, res, next) {
-    console.log(req);
-    console.log(res);
-}]);
+app.post('/api/messages', connector.listen());
 
 // Create endpoint for agent / call center
 app.use('/agent', express.static('public'));
@@ -30,11 +27,8 @@ app.use('/agent', express.static('public'));
 
 var connectorQueue = function (deets) {
 
-    console.log(deets);
     checkIn[deets.user.id] = deets;
-
-
-
+    console.log(checkIn);
 }
 
 //=========================================================
@@ -48,8 +42,9 @@ bot.dialog('/', [
     function (session, args, next) {
         connectorQueue(session.message.address);
         for (addy in Object.keys(checkIn)) {
+            consoloe.log(addy);
             if (addy !== session.message.address.user.id) {
-                // console.log(checkIn);
+                console.log(checkIn[addy]);
 
                 session.privateConversationData.connect = checkIn[addy];
                 next();
