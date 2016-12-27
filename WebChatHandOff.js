@@ -31,6 +31,10 @@ app.use('/agent', express.static('public'));
 //     console.log(res);
 // });
 
+var connectorQueue = function(deets) {
+    // if deets don't match mine, return them?? then send msgs that way??
+    console.log(deets);
+};
 
 //=========================================================
 // Bots Dialogs
@@ -41,13 +45,14 @@ var emergencies = ["Health", "Crime", "Catastrophe"];
 bot.dialog('/', [
     //welcome the user, ask the emergency
     function (session) {
-        console.log(session.message.address.id);
-        console.log(session.message.address.user);
-        console.log(session.message.address.user.address);
+        connectorQueue(session.message.address);
+        // console.log(session.message.address.id);
+        // console.log(session.message.address.user);
+        // console.log(session.message.address.user.address);
         
-        console.log(session.message.address.conversation);
-        console.log(session.message.address.bot);
-        console.log(session.message.address);
+        // console.log(session.message.address.conversation);
+        // console.log(session.message.address.bot);
+        // console.log(session.message.address);
         builder.Prompts.choice(session, "What's the emergency?", emergencies);
     },
     //work with selected emergency
