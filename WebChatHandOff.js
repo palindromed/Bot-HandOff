@@ -34,11 +34,12 @@ var connectorQueue = function (deets) {
     checkIn[deets.user.id] = deets;
     for (addy in Object.keys(checkIn)) {
         if (addy !== deets.user.id) {
+            console.log(checkIn);
+
             return checkIn[addy];
         }
     }
 
-    console.log(checkIn);
 
 }
 
@@ -59,6 +60,7 @@ bot.dialog('/', [
 
         // builder.Prompts.choice(session, "What's the emergency?", emergencies);
     }, function (session, args, next) {
+        console.log(session.privateConversationData.connect);
         if (session.message.text !== 'break') {
             bot.send(
                 new builder.Message()
