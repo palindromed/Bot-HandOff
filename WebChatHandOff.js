@@ -42,11 +42,7 @@ bot.dialog('/', [
     function (session, args, next) {
         connectorQueue(session.message.address);
         for (var addy in checkIn) {
-            console.log('checkIn');
-            console.log(checkIn);
-            console.log(addy);
             if (addy !== session.message.address.user.id) {
-                console.log(checkIn[addy]);
 
                 // session.privateConversationData.connect = checkIn[addy];
                 next({ results: checkIn[addy] });
