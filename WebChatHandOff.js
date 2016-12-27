@@ -46,7 +46,7 @@ bot.dialog('/', [
                 session.replaceDialog('/handOff', { results: checkIn[addy] });
             }
         }
-        session.endDialog('No one to connect you to yet. Try again soon.')
+        session.replaceDialog('/' ,'No one to connect you to yet. Try again soon.')
 
 
     }]);
