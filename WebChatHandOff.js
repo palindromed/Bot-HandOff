@@ -33,6 +33,7 @@ var connectorQueue = function (deets) {
             return checkIn[addy];
         }
     }
+    return false;
 }
 
 //=========================================================
@@ -46,8 +47,11 @@ bot.dialog('/', [
     function (session, args, next) {
         session.privateConversationData.contactInfo = connectorQueue(session.message.address);
         if (session.privateConversationData.contactInfo) {
+            session.send('we have info');
             session.replaceDialog('/handOff');
         } else {
+            session.send('got nothing');
+
             next();
         }
 
