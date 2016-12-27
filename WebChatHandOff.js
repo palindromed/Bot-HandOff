@@ -38,7 +38,7 @@ var connectorQueue = function (deets) {
     console.log(deets);
     checkIn.push(deets);
     if (checkIn.length >= 2) {
-        return checkIn[0];
+        return checkIn[0] ? checkIn[0].user.id !== deets.user.id : checkIn[1];
     } else {
         return null;
     }
@@ -58,13 +58,6 @@ bot.dialog('/', [
             session.replaceDialog('/chats');
 
         }
-        // console.log(session.message.address.id);
-        // console.log(session.message.address.user);
-        // console.log(session.message.address.user.address);
-
-        // console.log(session.message.address.conversation);
-        // console.log(session.message.address.bot);
-        // console.log(session.message.address);
         builder.Prompts.choice(session, "What's the emergency?", emergencies);
     },
     //work with selected emergency
