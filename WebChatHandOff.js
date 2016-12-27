@@ -37,11 +37,12 @@ var connectorQueue = function (deets) {
     // if deets don't match mine, return them?? then send msgs that way??
     console.log(deets);
     checkIn.push(deets);
-    if (checkIn.length >= 2) {
-        return checkIn[0] ? checkIn[0].user.id !== deets.user.id : checkIn[1];
-    } else {
-        return null;
-    }
+    console.log(checkIn);
+    // if (checkIn.length >= 2) {
+    //     return checkIn[0] ? checkIn[0].user.id !== deets.user.id : checkIn[1];
+    // } else {
+    //     return null;
+    // }
     if (deets.user.id !== 'hannah') {
         return {
             'id': 'ElDe6udZczB|000000000000000001',
@@ -67,7 +68,7 @@ var connectorQueue = function (deets) {
 
             'user': { 'id': 'scott', 'name': 'scott' },
 
-            conversation: { id: 'JAhN4ZEdMCv' },
+            'conversation': { 'id': 'JAhN4ZEdMCv' },
 
             'bot': { 'id': 'handoffbotdev@Vyk0lb3f67A', 'name': 'HandOffBot' },
 
@@ -88,11 +89,11 @@ var emergencies = ["Health", "Crime", "Catastrophe"];
 bot.dialog('/', [
     //welcome the user, ask the emergency
     function (session) {
-        session.privateConversationData.connect = connectorQueue(session.message.address);
-        if (session.privateConversationData.connect !== null) {
-            session.replaceDialog('/chats');
+        var temp = connectorQueue(session.message.address);
+        session.privateConversationData.connect = temp;
 
-        }
+        session.replaceDialog('/chats');
+
         // builder.Prompts.choice(session, "What's the emergency?", emergencies);
     }
     // //work with selected emergency
