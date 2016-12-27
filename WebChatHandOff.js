@@ -43,13 +43,16 @@ bot.dialog('/', [
         for (var addy in checkIn) {
             if (addy !== session.message.address.user.id) {
 
-                next({ results: checkIn[addy] });
+                session.replaceDialog('/handOff', { results: checkIn[addy] });
             }
         }
         session.endDialog('No one to connect you to yet. Try again soon.')
 
 
-    }, function (session, response, next) {
+    }]);
+
+bot.dialog('/handOff', [
+    function (session, response, next) {
         if (session.message.text !== 'break') {
             bot.send(
                 new builder.Message()
@@ -58,7 +61,7 @@ bot.dialog('/', [
         } else {
             session.endConversation('bye');
         }
-
-    }]);
+    }
+]);
 
 
