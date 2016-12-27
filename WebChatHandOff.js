@@ -28,7 +28,6 @@ app.use('/agent', express.static('public'));
 var connectorQueue = function (deets) {
 
     checkIn[deets.user.id] = deets;
-    // console.log(checkIn);
 }
 
 //=========================================================
@@ -44,16 +43,11 @@ bot.dialog('/', [
         for (var addy in checkIn) {
             if (addy !== session.message.address.user.id) {
 
-                // session.privateConversationData.connect = checkIn[addy];
                 next({ results: checkIn[addy] });
-                // break;
             }
         }
-        // session.replaceDialog('/Health');
+        
 
-        // session.replaceDialog('/chats');
-
-        // builder.Prompts.choice(session, "What's the emergency?", emergencies);
     }, function (session, response, next) {
         console.log(response);
         if (session.message.text !== 'break') {
