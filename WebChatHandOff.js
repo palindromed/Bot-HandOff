@@ -46,23 +46,23 @@ bot.dialog('/', [
             if (addy !== session.message.address.user.id) {
                 console.log(checkIn[addy]);
 
-                session.privateConversationData.connect = checkIn[addy];
-                next();
+                // session.privateConversationData.connect = checkIn[addy];
+                next({ results: checkIn[addy]});
                 // break;
             }
         } 
-        session.replaceDialog('/Health');
+        // session.replaceDialog('/Health');
 
         // session.replaceDialog('/chats');
 
         // builder.Prompts.choice(session, "What's the emergency?", emergencies);
-    }, function (session, args, next) {
-        console.log(session.privateConversationData.connect);
+    }, function (session, response, next) {
+        console.log(response);
         if (session.message.text !== 'break') {
             bot.send(
                 new builder.Message()
                     .text(session.message.text)
-                    .address(session.privateConversationData.connect));
+                    .address(response.results));
         } else {
             session.endConversation('bye');
         }
