@@ -28,7 +28,7 @@ app.use('/agent', express.static('public'));
 var connectorQueue = function (deets) {
 
     checkIn[deets.user.id] = deets;
-    console.log(checkIn);
+    // console.log(checkIn);
 }
 
 //=========================================================
@@ -42,6 +42,8 @@ bot.dialog('/', [
     function (session, args, next) {
         connectorQueue(session.message.address);
         for (addy in Object.keys(checkIn)) {
+            console.log('checkIn');
+            console.log(checkIn);
             console.log(addy);
             if (addy !== session.message.address.user.id) {
                 console.log(checkIn[addy]);
