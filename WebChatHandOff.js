@@ -44,7 +44,8 @@ bot.dialog('/', [
         for (var addy in checkIn) {
             if (addy !== session.message.address.user.id) {
                 haveContact = true;
-                session.replaceDialog('/handOff', { results: checkIn[addy] });
+                session.conversationData.contacts = checkIn[addy];
+                session.replaceDialog('/handOff');
             }
         }
         if (!haveContact) {
@@ -61,7 +62,7 @@ bot.dialog('/handOff', [
             bot.send(
                 new builder.Message()
                     .text(session.message.text)
-                    .address(response.results));
+                    .address(session.conversationData.contacts));
         } else {
             session.endConversation('bye');
         }
