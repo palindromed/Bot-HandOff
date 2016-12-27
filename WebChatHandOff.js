@@ -25,28 +25,27 @@ app.post('/api/messages', connector.listen());
 app.use('/agent', express.static('public'));
 
 
-var connectorQueue = function (deets) {
+var connectorQueue = function (userAddress) {
 
-    checkIn[deets.user.id] = deets;
+    checkIn[userAddress.user.id] = userAddress;
 }
 
 //=========================================================
 // Bots Dialogs
 //=========================================================
 
-var emergencies = ["Health", "Crime", "Catastrophe"];
 
 bot.dialog('/', [
     //welcome the user, ask the emergency
     function (session, args, next) {
         connectorQueue(session.message.address);
-        for (var addy in checkIn) {
-            if (addy !== session.message.address.user.id) {
+        for (var objKey in checkIn) {
+            if (objKey !== session.message.address.user.id) {
 
-                session.replaceDialog('/handOff', { results: checkIn[addy] });
+                session.replaceDialog('/handOff', { results: checkIn[objKey] });
             }
-        }
-        session.replaceDialog('/' ,'No one to connect you to yet. Try again soon.')
+        };
+        session.endDialog('No one to connect you to yet. Try again soon.')
 
 
     }]);
