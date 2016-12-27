@@ -56,7 +56,7 @@ bot.dialog('/', [
                 // break;
             }
         } 
-        session.replaceDialog('/');
+        session.replaceDialog('/Health');
 
         // session.replaceDialog('/chats');
 
