@@ -46,10 +46,10 @@ bot.dialog('/', [
                 next({ results: checkIn[addy] });
             }
         }
-        
+        session.endDialog('No one to connect you to yet. Try again soon.')
+
 
     }, function (session, response, next) {
-        console.log(response);
         if (session.message.text !== 'break') {
             bot.send(
                 new builder.Message()
