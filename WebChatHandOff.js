@@ -29,7 +29,7 @@ var connectorQueue = function (deets) {
 
     checkIn[deets.user.id] = deets;
     for (var addy in checkIn) {
-        if (addy !== session.message.address.user.id) {
+        if (addy !== deets.user.id) {
             return checkIn[addy];
         }
     }
