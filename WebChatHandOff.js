@@ -42,7 +42,7 @@ bot.dialog('/', [
     function (session, args, next) {
         connectorQueue(session.message.address);
         for (addy in Object.keys(checkIn)) {
-            consoloe.log(addy);
+            console.log(addy);
             if (addy !== session.message.address.user.id) {
                 console.log(checkIn[addy]);
 
