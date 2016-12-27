@@ -41,7 +41,7 @@ bot.dialog('/', [
     //welcome the user, ask the emergency
     function (session, args, next) {
         connectorQueue(session.message.address);
-        for (var addy in Object.keys(checkIn)) {
+        for (var addy in checkIn) {
             console.log('checkIn');
             console.log(checkIn);
             console.log(addy);
