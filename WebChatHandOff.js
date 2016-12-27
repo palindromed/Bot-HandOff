@@ -25,57 +25,41 @@ app.post('/api/messages', connector.listen());
 app.use('/agent', express.static('public'));
 
 
-var connectorQueue = function (deets) {
+var connectorQueue = function (address) {
 
-    checkIn[deets.user.id] = deets;
-    for (var addy in checkIn) {
-        if (addy !== deets.user.id) {
-            return checkIn[addy];
-        }
-    }
-    return false;
-}
+    checkIn[address.user.id] = address;
+};
 
 //=========================================================
 // Bots Dialogs
 //=========================================================
 
-var emergencies = ["Health", "Crime", "Catastrophe"];
-
 bot.dialog('/', [
     //welcome the user, ask the emergency
     function (session, args, next) {
-        session.privateConversationData.contactInfo = connectorQueue(session.message.address);
-        if (session.privateConversationData.contactInfo) {
-            session.send('we have info');
-            session.replaceDialog('/handOff');
-        } else {
-            session.send('got nothing');
-
-            next();
+        connectorQueue(session.message.address);
+        for (var addy in checkIn) {
+            if (addy !== session.message.address.user.id) {
+                console.log(checkIn[addy]);
+                next({ results: checkIn[addy]});
+            }
         }
 
 
-    }, function (session, response, next) {
-        session.send('no addresses to hand off to yet. Trying again');
         session.replaceDialog('/');
-    }
 
-]);
-
-bot.dialog('/handOff', [
-    function (session, args, next) {
+    }, function (session, response, next) {
+        console.log(response);
         if (session.message.text !== 'break') {
             bot.send(
                 new builder.Message()
                     .text(session.message.text)
-                    .address(session.privateConversationData.contactInfo));
+                    .address(response.results));
         } else {
             session.endConversation('bye');
         }
 
     }
 
+]);
 
-
-])
