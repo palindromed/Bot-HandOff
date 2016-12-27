@@ -44,7 +44,7 @@ var emergencies = ["Health", "Crime", "Catastrophe"];
 bot.dialog('/', [
     //welcome the user, ask the emergency
     function (session, args, next) {
-        session.privateConversationData.contactInfo = conectorQueue(session.message.address);
+        session.privateConversationData.contactInfo = connectorQueue(session.message.address);
         if (session.privateConversationData.contactInfo) {
             session.replaceDialog('/handOff');
         } else {
