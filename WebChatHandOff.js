@@ -49,10 +49,10 @@ bot.dialog('/', [
                 console.log(checkIn[addy]);
 
                 // session.privateConversationData.connect = checkIn[addy];
-                next({ results: checkIn[addy]});
+                next({ results: checkIn[addy] });
                 // break;
             }
-        } 
+        }
         // session.replaceDialog('/Health');
 
         // session.replaceDialog('/chats');
@@ -69,37 +69,6 @@ bot.dialog('/', [
             session.endConversation('bye');
         }
 
-    }
-    // //work with selected emergency
-    // function (session, results) {
-    //     session.userData.emergency = results.response.entity;
-    //     switch (session.userData.emergency) {
-    //         case emergencies[0]:
-    //             session.send(emergencies[0]);
-    //             session.replaceDialog('/Health');
-    //             break;
-    //         case emergencies[1]:
-    //             session.send(emergencies[1]);
-    //             break;
-    //         case emergencies[2]:
-    //             session.send(emergencies[2]);
-    //             break;
-    //         default:
-    //     }
-    // }
-]);
-
-bot.dialog('/chats', [
-    function (session, args, next) {
-        if (session.message.text !== 'break') {
+    }]);
 
 
-            bot.send(
-                new builder.Message()
-                    .text(session.message.text)
-                    .address(session.privateConversationData.connect));
-        } else {
-            session.endConversation('bye');
-        }
-    }
-])
