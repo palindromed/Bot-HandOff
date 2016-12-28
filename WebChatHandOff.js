@@ -27,11 +27,11 @@ app.use('/agent', express.static('public'));
 //========================================================
 bot.use(
     {
-        botbuilder: function (session, next) {
-            middleware.incoming(session, 'botbuilder');
-            next();
+        // botbuilder: function (session, next) {
+        //     middleware.incoming(session, 'botbuilder');
+        //     next();
 
-        },
+        // },
         send: function (event, next) {
             middleware.incoming(event, 'send');
             next();
@@ -52,5 +52,5 @@ bot.use(
 
 bot.dialog('/', [
     function (session, args, next) {
-        session.send('Echo' + session.message.text);
+        session.send('Echo ' + session.message.text);
     }]);

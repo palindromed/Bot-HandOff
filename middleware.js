@@ -3,6 +3,4 @@ module.exports = {
         console.log(args);
         console.log(message);
     } 
-
-
 }
