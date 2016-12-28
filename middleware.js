@@ -1,8 +1,8 @@
 module.exports = {
-    state: {},
     
     incoming: function(message, args) {
         console.log(args);
+        console.log(global.addressBook);
         console.log('************');
         message.text = 'This is a test';
         return message;

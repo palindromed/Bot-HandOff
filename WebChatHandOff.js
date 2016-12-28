@@ -2,6 +2,7 @@ var express = require('express');
 var builder = require('botbuilder');
 var app = express();
 var middleware = require('./middleware.js');
+require('./globals.js')();
 
 //=========================================================
 // Bot Setup
