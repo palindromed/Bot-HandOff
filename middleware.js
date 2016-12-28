@@ -6,6 +6,7 @@ module.exports = function() {
 
         console.log(addressBook);
         console.log('************');
+        message.text = 'a test';
         return message;
     };
     var outgoing = function (message, args) {
