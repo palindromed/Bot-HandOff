@@ -26,11 +26,17 @@ var connectorQueue = function (deets) {
     checkIn[deets.user.id] = deets;
 };
 
+//========================================================
+// Bot Middleware
+//========================================================
+bot.on('send', (message) => {
+    if (message.text === 'bye') {
+        bot.beginDialog(message.address, '/greet')
+    };
+});
 //=========================================================
 // Bots Dialogs
 //=========================================================
-
-var emergencies = ["Health", "Crime", "Catastrophe"];
 
 bot.dialog('/', [
     function (session, args, next) {
@@ -59,3 +65,34 @@ bot.dialog('/handOff', [
     }
 ]);
 
+
+// A simple example from existing Microsoft Bot Framework Sample code
+bot.dialog('/greet', [
+    (session, args, next) => {
+        if (!session.userData.name) {
+            session.beginDialog('/profile');
+        }
+        else {
+            next();
+        }
+    },
+    (session, results, next) => {
+        session.send('Hello %s!', session.userData.name);
+        next();
+    },
+    (session, results, next) => {
+        session.endConversation();
+    }
+]);
+bot.dialog('/profile', [
+    (session) => {
+        builder.Prompts.text(session, 'Hi! What is your name?');
+    },
+    (session, results) => {
+        session.userData.name = results.response;
+        session.endDialog();
+    }
+]);
+// end simple example code
+
+// TODO make someone call center, pass user to/from bot
