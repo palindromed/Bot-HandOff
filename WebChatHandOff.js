@@ -33,7 +33,7 @@ bot.use(
             next();
         },
         receive: function (event, next) {
-            event = middleware.incoming(event, 'receive');
+            // event = middleware.incoming(event, 'receive');
             // console.log(event.text);
             next();
         }

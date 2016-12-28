@@ -2,7 +2,7 @@ module.exports = {
     addressBook: {},
 
     incoming: function (message, args) {
-        addressBook[message.address.user.id] = message.address
+        // addressBook[message.address.user.id] = message.address
 
         console.log(addressBook);
         console.log('************');
