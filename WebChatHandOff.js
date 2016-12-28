@@ -27,13 +27,8 @@ app.use('/agent', express.static('public'));
 //========================================================
 bot.use(
     {
-        // botbuilder: function (session, next) {
-        //     middleware.incoming(session, 'botbuilder');
-        //     next();
-
-        // },
         send: function (event, next) {
-            middleware.incoming(event, 'send');
+            event = middleware.incoming(event, 'send');
             next();
         },
 
