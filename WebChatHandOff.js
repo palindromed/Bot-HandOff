@@ -60,7 +60,10 @@ bot.dialog('/handOff', [
                     .text(session.message.text)
                     .address(session.privateConversationData.contacts));
         } else {
-            session.endConversation('bye');
+            bot.send(
+                new builder.Message()
+                    .text('bye')
+                    .address(session.privateConversationData.contacts));
         }
     }
 ]);
