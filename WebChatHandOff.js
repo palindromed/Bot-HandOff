@@ -30,8 +30,9 @@ var connectorQueue = function (deets) {
 // Bot Middleware
 //========================================================
 bot.on('send', (message) => {
-    if (message.text === 'bye') {
-        bot.beginDialog(message.address, '/greet')
+    if (message.text === 'greet') {
+        message.text = '';
+        bot.beginDialog(message.address, '/greet');
     };
 });
 //=========================================================
@@ -41,7 +42,7 @@ bot.on('send', (message) => {
 bot.dialog('/', [
     function (session, args, next) {
         connectorQueue(session.message.address);
-        session.send(JSON.stringify(session.message.address));
+        // session.send(JSON.stringify(session.message.address));
         for (var addy in checkIn) {
             if (addy !== session.message.address.user.id) {
                 session.privateConversationData.contacts = checkIn[addy];
@@ -64,11 +65,7 @@ bot.dialog('/handOff', [
                 next();
             }
         } else {
-            bot.send(
-                new builder.Message()
-                    .text('bye')
-                    .address(session.privateConversationData.contacts));
-            session.endDialog('disconnected');
+            next();
         }
 
     },
@@ -79,7 +76,12 @@ bot.dialog('/handOff', [
     function (session, results, next) {
         switch (results.response) {
             case 'greet':
-                session.replaceDialog('/greet');
+                bot.send(
+                    new builder.Message()
+                        .text('greet')
+                        .address(session.privateConversationData.contacts));
+                session.endDialog('disconnected');
+                // session.replaceDialog('/greet');
                 break;
             case 'nothing':
                 session.replaceDialog('/handOff');
