@@ -41,9 +41,7 @@ bot.on('send', (message) => {
 bot.dialog('/', [
     function (session, args, next) {
         connectorQueue(session.message.address);
-        if (session.message.adddress.user.isStaff) {
-            session.send('I am call center');
-        }
+        session.send(JSON.stringify(session.message.address));
         for (var addy in checkIn) {
             if (addy !== session.message.address.user.id) {
                 session.privateConversationData.contacts = checkIn[addy];
