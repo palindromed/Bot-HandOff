@@ -1,7 +1,7 @@
 var express = require('express');
 var builder = require('botbuilder');
 var app = express();
-var checkIn = {};
+var middleware = require('./middleware.js')
 
 //=========================================================
 // Bot Setup
@@ -22,104 +22,32 @@ app.post('/api/messages', connector.listen());
 // Create endpoint for agent / call center
 app.use('/agent', express.static('public'));
 
-var connectorQueue = function (deets) {
-    checkIn[deets.user.id] = deets;
-};
-
 //========================================================
 // Bot Middleware
 //========================================================
-bot.on('send', (message) => {
-    if (message.text === 'bye') {
-        bot.beginDialog(message.address, '/greet');
-    };
-});
+bot.use(
+    {
+        botbuilder: function (message, next) {
+            middleware.incoming(message, 'botbuilder');
+
+        },
+        send: function (message, next) {
+            middleware.incoming(message, 'send');
+        },
+
+        receive: function (messge, next) {
+            middleware.incoming(message, 'receive');
+
+        }
+
+    });
+
+
 //=========================================================
 // Bots Dialogs
 //=========================================================
 
 bot.dialog('/', [
     function (session, args, next) {
-        connectorQueue(session.message.address);
-        // session.send(JSON.stringify(session.message.address));
-        for (var addy in checkIn) {
-            if (addy !== session.message.address.user.id) {
-                session.privateConversationData.contacts = checkIn[addy];
-                session.replaceDialog('/handOff');
-            }
-        }
-        if (!session.privateConversationData.contacts) {
-            session.endDialog('No one to connect you to yet. Try again soon.')
-        };
+        session.send('Echo' + session.message.text);
     }]);
-
-bot.dialog('/handOff', [
-    function (session, results, next) {
-        if (session.message.text !== 'break') {
-            bot.send(
-                new builder.Message()
-                    .text(session.message.text)
-                    .address(session.privateConversationData.contacts));
-            if (session.message.address.user.isStaff) {
-                next();
-            }
-        } else {
-            next();
-        }
-
-    },
-    function (session, results, next) {
-        builder.Prompts.choice(session, 'what would you like to do', ['greet', 'nothing'])
-        // try prompting, just replaceDialog with current one on some case
-    },
-    function (session, results, next) {
-        switch (results.response) {
-            case 'greet':
-                session.send('now we greet');
-                bot.send(
-                    new builder.Message()
-                        .text('bye')
-                        .address(session.privateConversationData.contacts));
-                session.endDialog('disconnected');
-                // session.replaceDialog('/greet');
-                break;
-            case 'nothing':
-                session.replaceDialog('/handOff');
-                break;
-            default:
-                break;
-        }
-    }
-]);
-
-
-// A simple example from existing Microsoft Bot Framework Sample code
-bot.dialog('/greet', [
-    (session, args, next) => {
-        if (!session.userData.name) {
-            session.beginDialog('/profile');
-        }
-        else {
-            next();
-        }
-    },
-    (session, results, next) => {
-        session.send('Hello %s!', session.userData.name);
-        next();
-    },
-    (session, results, next) => {
-        session.endConversation();
-    }
-]);
-bot.dialog('/profile', [
-    (session) => {
-        builder.Prompts.text(session, 'Hi! What is your name?');
-    },
-    (session, results) => {
-        session.userData.name = results.response;
-        session.endDialog();
-    }
-]);
-// end simple example code
-
-// TODO make someone call center, pass user to/from bot
