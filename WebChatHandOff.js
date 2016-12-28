@@ -73,7 +73,7 @@ bot.dialog('/handOff', [
 
     },
     function (session, results, next) {
-        session.Prompts.choice(session, 'what would you like to do', ['greet', 'nothing'])
+        builder.Prompts.choice(session, 'what would you like to do', ['greet', 'nothing'])
         // try prompting, just replaceDialog with current one on some case
     },
     function (session, results, next) {
