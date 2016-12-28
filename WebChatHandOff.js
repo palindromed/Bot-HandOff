@@ -31,7 +31,7 @@ var connectorQueue = function (deets) {
 //========================================================
 bot.on('send', (message) => {
     if (message.text === 'bye') {
-        bot.beginDialog(message.address, '/greet')
+        bot.beginDialog(message.address, '/greet');
     };
 });
 //=========================================================
@@ -75,6 +75,7 @@ bot.dialog('/handOff', [
     function (session, results, next) {
         switch (results.response) {
             case 'greet':
+                session.send('now we greet');
                 bot.send(
                     new builder.Message()
                         .text('bye')
