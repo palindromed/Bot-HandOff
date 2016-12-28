@@ -1,16 +1,16 @@
-module.exports = function() {
-    var state = {};
+module.exports = {
+    state: {},
     
-    var incoming = function(message, args) {
+    incoming: function(message, args) {
         console.log(args);
         console.log('************');
         message.text = 'This is a test';
         return message;
-    };
-    var outgoing = function(message, args) {
+    },
+    outgoing: function(message, args) {
         console.log(args);
         console.log('===========');
-        // message.text = 'Outgoing test';
+        message.text = 'Outgoing test';
         return message 
 
     }
