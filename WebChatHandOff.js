@@ -60,6 +60,9 @@ bot.dialog('/handOff', [
                 new builder.Message()
                     .text(session.message.text)
                     .address(session.privateConversationData.contacts));
+            if (session.message.address.user.isStaff) {
+                next();
+            }
         } else {
             bot.send(
                 new builder.Message()
@@ -67,8 +70,23 @@ bot.dialog('/handOff', [
                     .address(session.privateConversationData.contacts));
             session.endDialog('disconnected');
         }
+
+    },
+    function (session, results, next) {
+        session.Prompts.choice('what would you like to do', ['greet', 'nothing'])
         // try prompting, just replaceDialog with current one on some case
-        
+    },
+    function (session, response, next) {
+        switch (response.results) {
+            case 'greet':
+                session.replaceDialog('/greet');
+                break;
+            case 'nothing':
+                session.replaceDialog('/handOff');
+                break;
+            default:
+                break;
+        }
     }
 ]);
 
