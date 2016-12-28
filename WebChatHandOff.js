@@ -41,6 +41,9 @@ bot.on('send', (message) => {
 bot.dialog('/', [
     function (session, args, next) {
         connectorQueue(session.message.address);
+        if (session.message.adddress.user.isStaff) {
+            session.send('I am call center');
+        }
         for (var addy in checkIn) {
             if (addy !== session.message.address.user.id) {
                 session.privateConversationData.contacts = checkIn[addy];
@@ -64,7 +67,10 @@ bot.dialog('/handOff', [
                 new builder.Message()
                     .text('bye')
                     .address(session.privateConversationData.contacts));
+            session.endDialog('disconnected');
         }
+        // try prompting, just replaceDialog with current one on some case
+        
     }
 ]);
 
