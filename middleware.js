@@ -1,19 +1,17 @@
-module.exports = function() {
-    var addressBook = {};
-
-    var incoming = function (message, args) {
-        // addressBook[message.address.user.id] = message.address
-
-        console.log(addressBook);
+module.exports = {
+    state: {},
+    
+    incoming: function(message, args) {
+        console.log(args);
         console.log('************');
-        message.text = 'a test';
+        message.text = 'This is a test';
         return message;
-    };
-    var outgoing = function (message, args) {
+    },
+    outgoing: function(message, args) {
         console.log(args);
         console.log('===========');
         // message.text = 'Outgoing test';
-        return message
+        return message 
 
     }
 }
