@@ -28,16 +28,13 @@ app.use('/agent', express.static('public'));
 bot.use(
     {
         send: function (event, next) {
-            event = middleware.incoming(event, 'send');
+            event = middleware.outgoing(event, 'send');
             next();
         },
-
         receive: function (event, next) {
-            middleware.incoming(event, 'receive');
+            event = middleware.incoming(event, 'receive');
             next();
-
         }
-
     });
 
 
