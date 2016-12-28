@@ -40,15 +40,15 @@ bot.dialog('/', [
     //welcome the user, ask the emergency
     function (session, args, next) {
         connectorQueue(session.message.address);
-        var haveContact = false;
+        // var haveContact = false;
         for (var addy in checkIn) {
             if (addy !== session.message.address.user.id) {
-                haveContact = true;
-                session.conversationData.contacts = checkIn[addy];
+                // haveContact = true;
+                session.privateConversationData.contacts = checkIn[addy];
                 session.replaceDialog('/handOff');
             }
         }
-        if (!haveContact) {
+        if (!session.privateConversationData.contacts) {
             session.endDialog('No one to connect you to yet. Try again soon.')
 
         }
@@ -62,7 +62,7 @@ bot.dialog('/handOff', [
             bot.send(
                 new builder.Message()
                     .text(session.message.text)
-                    .address(session.conversationData.contacts));
+                    .address(session.privateConversationData.contacts));
         } else {
             session.endConversation('bye');
         }
