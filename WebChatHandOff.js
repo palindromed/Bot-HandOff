@@ -27,16 +27,19 @@ app.use('/agent', express.static('public'));
 //========================================================
 bot.use(
     {
-        botbuilder: function (message, next) {
-            middleware.incoming(message, 'botbuilder');
+        botbuilder: function (session, next) {
+            middleware.incoming(session, 'botbuilder');
+            next();
 
         },
-        send: function (message, next) {
-            middleware.incoming(message, 'send');
+        send: function (event, next) {
+            middleware.incoming(event, 'send');
+            next();
         },
 
-        receive: function (messge, next) {
-            middleware.incoming(message, 'receive');
+        receive: function (event, next) {
+            middleware.incoming(event, 'receive');
+            next();
 
         }
 
