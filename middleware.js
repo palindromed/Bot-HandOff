@@ -1,14 +1,14 @@
-module.exports = {
-    addressBook: {},
+module.exports = function() {
+    var addressBook = {};
 
-    incoming: function (message, args) {
+    var incoming = function (message, args) {
         // addressBook[message.address.user.id] = message.address
 
-        console.log(addressBook);
+        // console.log(addressBook);
         console.log('************');
         return message;
-    },
-    outgoing: function (message, args) {
+    };
+    var outgoing = function (message, args) {
         // console.log(args);
         // console.log('===========');
         // message.text = 'Outgoing test';
