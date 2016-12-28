@@ -30,9 +30,8 @@ var connectorQueue = function (deets) {
 // Bot Middleware
 //========================================================
 bot.on('send', (message) => {
-    if (message.text === 'greet') {
-        // message.text = '';
-        bot.beginDialog(message.address, '/greet');
+    if (message.text === 'bye') {
+        bot.beginDialog(message.address, '/greet')
     };
 });
 //=========================================================
@@ -64,20 +63,24 @@ bot.dialog('/handOff', [
             if (session.message.address.user.isStaff) {
                 next();
             }
+        } else {
+            next();
         }
 
     },
     function (session, results, next) {
         builder.Prompts.choice(session, 'what would you like to do', ['greet', 'nothing'])
+        // try prompting, just replaceDialog with current one on some case
     },
     function (session, results, next) {
         switch (results.response) {
             case 'greet':
                 bot.send(
                     new builder.Message()
-                        .text('greet')
+                        .text('bye')
                         .address(session.privateConversationData.contacts));
-                session.endConversation('disconnected');
+                session.endDialog('disconnected');
+                // session.replaceDialog('/greet');
                 break;
             case 'nothing':
                 session.replaceDialog('/handOff');
