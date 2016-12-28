@@ -64,14 +64,11 @@ bot.dialog('/handOff', [
             if (session.message.address.user.isStaff) {
                 next();
             }
-        } else {
-            next();
         }
 
     },
     function (session, results, next) {
         builder.Prompts.choice(session, 'what would you like to do', ['greet', 'nothing'])
-        // try prompting, just replaceDialog with current one on some case
     },
     function (session, results, next) {
         switch (results.response) {
@@ -80,8 +77,7 @@ bot.dialog('/handOff', [
                     new builder.Message()
                         .text('greet')
                         .address(session.privateConversationData.contacts));
-                session.endDialog('disconnected');
-                // session.replaceDialog('/greet');
+                session.endConversation('disconnected');
                 break;
             case 'nothing':
                 session.replaceDialog('/handOff');
