@@ -31,7 +31,7 @@ var connectorQueue = function (deets) {
 //========================================================
 bot.on('send', (message) => {
     if (message.text === 'greet') {
-        message.text = '';
+        // message.text = '';
         bot.beginDialog(message.address, '/greet');
     };
 });
