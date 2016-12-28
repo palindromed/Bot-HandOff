@@ -54,7 +54,7 @@ bot.dialog('/', [
     }]);
 
 bot.dialog('/handOff', [
-    function (session, response, next) {
+    function (session, results, next) {
         if (session.message.text !== 'break') {
             bot.send(
                 new builder.Message()
@@ -73,11 +73,11 @@ bot.dialog('/handOff', [
 
     },
     function (session, results, next) {
-        session.Prompts.choice('what would you like to do', ['greet', 'nothing'])
+        session.Prompts.choice(session, 'what would you like to do', ['greet', 'nothing'])
         // try prompting, just replaceDialog with current one on some case
     },
-    function (session, response, next) {
-        switch (response.results) {
+    function (session, results, next) {
+        switch (results.response) {
             case 'greet':
                 session.replaceDialog('/greet');
                 break;
