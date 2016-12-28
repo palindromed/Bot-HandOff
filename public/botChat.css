@@ -75,11 +75,11 @@
 /* views */
 
     .wc-chatview-panel {
-        position: absolute;
-        right: 0;
-        left: 0;
-        top: 0;
-        bottom: 0;
+        height: 400px;
+        width: 550px;
+        position: relative;
+        margin: 5px;
+        
     }
 
 /* messages */

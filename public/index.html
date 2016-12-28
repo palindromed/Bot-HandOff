@@ -5,49 +5,75 @@
     <meta charset="UTF-8" />
     <title>Bot Chat</title>
 
-<link href="botchat.css" rel="stylesheet" />
+    <link href="botchat.css" rel="stylesheet" />
 </head>
 
-<body>    
-    <div id="BotChatGoesHere"></div>
+<body>
+    <table>
+        <tr>
+            <td><div id="BotChatGoesHere"></div></td>
+        </tr>
+        <tr>
+            <td>  <div id="BotChat2GoesHere"></div></td>
+        </tr>
+    </table>
+  
     <script src="botchat.js"></script>
     <script>
-            var params = {};
-            location
-                .search
-                .substring(1)
-                .split("&")
-                .forEach(function (pair) {
-                    var p = pair.split("=");
-                    params[p[0]] = decodeURIComponent(p[1]);
-                });
-
-            var botConnection = new BotChat.DirectLine({
-                secret: params['s'],
-                token: params['t'],
-                domain: params['domain'],
-                webSocket: true
+        var params = {};
+        location
+            .search
+            .substring(1)
+            .split("&")
+            .forEach(function (pair) {
+                var p = pair.split("=");
+                params[p[0]] = decodeURIComponent(p[1]);
             });
 
-            var user = {
-                id: params['userid'],
-                name: params['username']
-            };
+        var botConnection = new BotChat.DirectLine({
+            secret: 'Vyk0lb3f67A.cwA.spc.mj0eCcnFEk2fLi6AvWxWqelFTgp9JPi3A-EJJ-EdvqA',
+            token: params['t'],
+            domain: params['domain'],
+            webSocket: true
+        });
+        var botConnection2 = new BotChat.DirectLine({
+            secret: 'Vyk0lb3f67A.cwA.spc.mj0eCcnFEk2fLi6AvWxWqelFTgp9JPi3A-EJJ-EdvqA',
+            token: params['t'],
+            domain: params['domain'],
+            webSocket: true
+        });
 
-            var bot = {
-                id: params['botid'] || 'botid',
-                name: params["botname"] || 'botname'
-            };
+        var user = {
+            id: 'hannah',
+            name: 'hannah',
+            isStaff: true
+        };
 
-            BotChat.App({
-                botConnection: botConnection,
-                user: user,
-                bot: bot,
-                //              allowMessagesFrom: ['http://localhost:8080']
-            }, document.getElementById("BotChatGoesHere"));
-        </script>
+        var user2 = {
+            id: 'scott',
+            name: 'scott'
+        };
 
-    
+        var bot = {
+            id: params['botid'] || 'botid',
+            name: params["botname"] || 'botname'
+        };
+
+        BotChat.App({
+            botConnection: botConnection2,
+            user: user2,
+            bot: bot,
+        }, document.getElementById("BotChatGoesHere"));
+
+        BotChat.App({
+            botConnection: botConnection,
+            user: user,
+            bot: bot,
+        }, document.getElementById("BotChat2GoesHere"));
+    </script>
+
+
+
 </body>
 
 </html>
