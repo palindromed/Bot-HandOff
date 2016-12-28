@@ -29,12 +29,12 @@ bot.use(
     {
         send: function (event, next) {
             event = middleware.outgoing(event, 'send');
-            console.log(event.text);
+            // console.log(event.text);
             next();
         },
         receive: function (event, next) {
             event = middleware.incoming(event, 'receive');
-            console.log(event.text);
+            // console.log(event.text);
             next();
         }
     });
