@@ -3,8 +3,6 @@ var builder = require('botbuilder');
 var app = express();
 var checkIn = {};
 
-
-
 //=========================================================
 // Bot Setup
 //=========================================================
@@ -24,11 +22,9 @@ app.post('/api/messages', connector.listen());
 // Create endpoint for agent / call center
 app.use('/agent', express.static('public'));
 
-
 var connectorQueue = function (deets) {
-
     checkIn[deets.user.id] = deets;
-}
+};
 
 //=========================================================
 // Bots Dialogs
@@ -37,23 +33,17 @@ var connectorQueue = function (deets) {
 var emergencies = ["Health", "Crime", "Catastrophe"];
 
 bot.dialog('/', [
-    //welcome the user, ask the emergency
     function (session, args, next) {
         connectorQueue(session.message.address);
-        // var haveContact = false;
         for (var addy in checkIn) {
             if (addy !== session.message.address.user.id) {
-                // haveContact = true;
                 session.privateConversationData.contacts = checkIn[addy];
                 session.replaceDialog('/handOff');
             }
         }
         if (!session.privateConversationData.contacts) {
             session.endDialog('No one to connect you to yet. Try again soon.')
-
-        }
-
-
+        };
     }]);
 
 bot.dialog('/handOff', [
