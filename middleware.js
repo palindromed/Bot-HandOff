@@ -10,9 +10,9 @@ module.exports = {
         console.log(args);
         console.log(global.addressBook);
         console.log('************');
-        var newUser = new global.User(message);
-        global.userList.append(newUser)
-        console.log(newUser)
+        global.newUser = new global.User(message);
+        global.userList.append(global.newUser)
+        console.log(global.newUser)
         console.log(global.userList);
 
         // message.text = 'This is a test';
