@@ -10,5 +10,5 @@ module.exports = function () {
 
     global.users = {};
 
-    global.agents = {};
+    // global.agents = {};
 }
