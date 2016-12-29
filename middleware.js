@@ -28,7 +28,7 @@ module.exports = {
 
         if (message.address.user.id === 'hannah') {
             console.log('I am staff');
-            message.address = global.users['hannah'].addy;
+            message.address = "global.users['hannah'].addy";
         } else {
             message.address = global.agents['scott'].addy;
         }
