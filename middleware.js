@@ -7,12 +7,12 @@ module.exports = {
  
         console.log(args);
         if (message.user.isStaff) {
-            global.myOrchestrator.agents[message.user.id] = new global.User(message);
+            global.agents[message.user.id] = new global.User(message);
         } else {
-            global.myOrchestrator.users[message.user.id] = new global.User(message);
+            global.users[message.user.id] = new global.User(message);
         }
-        console.log(global.myOrchestrator.agents);
-        console.log(global.myOrchestrator.users);
+        console.log(global.agents);
+        console.log(global.users);
         
         console.log('************');
 
