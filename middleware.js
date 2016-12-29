@@ -20,23 +20,24 @@ module.exports = {
                 global.users[0] = new global.User(message);
             }
         }
-        console.log('agents');
-        console.log(global.agents);
-        console.log('users')
-        console.log(global.users);
+        // console.log('agents');
+        // console.log(global.agents);
+        // console.log('users')
+        // console.log(global.users);
         console.log('************');
+        console.log(thisUser);
+        
         return message;
     },
 
     outgoing: function (message, args) {
         console.log(args);
         console.log('===========');
-        if (global.users && global.agents) {
-            if (message.address.user.isStaff) {
-                message.address = global.users[0].addy;
-            } else {
-                message.address = global.agents[0].addy;
-            }
+        if (message.address.user.isStaff) {
+            console.log('I am staff');
+            message.address = global.users[0].addy;
+        } else {
+            message.address = global.agents[0].addy;
         }
 
         return message

@@ -30,8 +30,6 @@ bot.use(
     {
         send: function (event, next) {
             event = middleware.outgoing(event, 'send');
-            console.log(event.address);
-            console.log(event.text);
             next();
         },
         receive: function (event, next) {
