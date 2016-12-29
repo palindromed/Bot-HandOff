@@ -1,12 +1,10 @@
-require('./globals.js')();
-
 module.exports = {
     
     incoming: function(message, args) {
         // already exists
         // create new obj
         // is call center / agent
-
+        console.log(global.addressBook)
         console.log(args);
         console.log(global.addressBook);
         console.log('************');
