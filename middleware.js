@@ -40,8 +40,8 @@ module.exports = {
         } else {
             message.address = global.agents['scott'].addy;
         }
-        console.log(global.agents);
-        console.log(global.users);
+        console.log('address');
+        console.log(message.address);
 
         return message
     },
