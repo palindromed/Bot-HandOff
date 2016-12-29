@@ -1,3 +1,5 @@
+require('./globals.js')();
+
 module.exports = {
     
     incoming: function(message, args) {
