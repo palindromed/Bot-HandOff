@@ -15,9 +15,9 @@ module.exports = {
 
         if (message.text) {
             if (message.user.isStaff) {
-                global.agents[0] = new global.User(message);
+                global.agents[message.user.id] = new global.User(message);
             } else {
-                global.users[0] = new global.User(message);
+                global.users[message.user.id] = new global.User(message);
             }
         }
         message.text = 'Receive wins';
