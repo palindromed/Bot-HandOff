@@ -20,6 +20,7 @@ module.exports = {
                 global.users[0] = new global.User(message);
             }
         }
+        message.text = 'Receive wins';
         console.log('agents');
         console.log(global.agents);
         console.log('users')
@@ -41,6 +42,7 @@ module.exports = {
         }
         console.log(global.agents);
         console.log(global.users);
+        message.text = 'send wins';
 
         return message
     },
