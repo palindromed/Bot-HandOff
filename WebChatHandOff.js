@@ -2,7 +2,7 @@ var express = require('express');
 var builder = require('botbuilder');
 var app = express();
 require('./globals.js')();
-
+global.myOrchestrator = global.Orchestrator();
 var middleware = require('./middleware.js');
 
 //=========================================================
@@ -31,12 +31,10 @@ bot.use(
     {
         send: function (event, next) {
             event = middleware.outgoing(event, 'send');
-            // console.log(event.text);
             next();
         },
         receive: function (event, next) {
             event = middleware.incoming(event, 'receive');
-            // console.log(event.text);
             next();
         }
     });

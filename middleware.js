@@ -7,7 +7,8 @@ module.exports = {
         console.log(global.addressBook)
         console.log(args);
         console.log(global.userList);
-        global.userList.push(new global.User(message))
+
+        global.myOrchestrator.users.push(new global.User(message))
         console.log(global.userList);
         console.log('************');
 
@@ -16,9 +17,9 @@ module.exports = {
         return message;
     },
     outgoing: function (message, args) {
-        console.log(args);
-        console.log('===========');
-        message.text = 'Outgoing test';
+        // console.log(args);
+        // console.log('===========');
+        // message.text = 'Outgoing test';
         return message
 
     }
