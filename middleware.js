@@ -25,8 +25,6 @@ module.exports = {
                 global.users[message.user.id] = new global.User(message);
             }
         }
-
-
         // console.log(thisUser);
 
         return message;
@@ -34,15 +32,44 @@ module.exports = {
 
     outgoing: function (message, args) {
         console.log(message.address);
-        
         console.log(args);
 
         if (message.address.user.id === 'hannah') {
             console.log('I am staff');
-            message.address = global.users['hannah'].addy;
+            message.address = {
+                id: '8QU8d7tzUTb|000000000000000001',
+
+                channelId: 'directline',
+
+                user: { id: 'scott', name: 'scott' },
+
+                conversation: { id: '8QU8d7tzUTb' },
+
+                bot: { id: 'handoffbotdev@Vyk0lb3f67A', name: 'HandOffBot' },
+
+                serviceUrl: 'https://directline.botframework.com',
+
+                useAuth: true
+            }
+
         } else {
-            message.address = global.agents['scott'].addy;
+            message.address = {
+                id: '3aECIsrKtz2|000000000000000003',
+
+                channelId: 'directline',
+
+                user: { id: 'hannah', name: 'hannah', isStaff: true },
+
+                conversation: { id: '3aECIsrKtz2' },
+
+                bot: { id: 'handoffbotdev@Vyk0lb3f67A', name: 'HandOffBot' },
+
+                serviceUrl: 'https://directline.botframework.com',
+
+                useAuth: true
+            }
         }
+
 
         console.log('address');
         console.log(message.address);
