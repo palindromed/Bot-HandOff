@@ -33,7 +33,7 @@ module.exports = {
 
     outgoing: function (message, args) {
         console.log(args);
-        console.log('===========');
+
         if (message.address.user.id === 'hannah') {
             console.log('I am staff');
             message.address = global.users['hannah'].addy;
@@ -42,6 +42,7 @@ module.exports = {
         }
         console.log('address');
         console.log(message.address);
+        console.log('===========');
 
         return message
     },
