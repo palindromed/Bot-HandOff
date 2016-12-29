@@ -39,7 +39,7 @@ module.exports = {
 
                 user: { id: 'scott', name: 'scott' },
 
-                conversation: { id: 'L8YqoKYYo7x' },
+                conversation: { id: 'AUBYa4BHo8U'  },
 
                 bot: { id: 'handoffbotdev@Vyk0lb3f67A', name: 'HandOffBot' },
 
