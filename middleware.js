@@ -19,7 +19,9 @@ module.exports = {
                 global.users[message.user.id] = new global.User(message);
             }
         }
+        console.log('agents');
         console.log(global.agents);
+        console.log('users')
         console.log(global.users);
         console.log('************');
         return message;
