@@ -26,6 +26,13 @@ module.exports = {
             }
         }
 
+        if (message.address.user.id === 'hannah') {
+            console.log('I am staff');
+            message.address = global.users['hannah'].addy;
+        } else {
+            message.address = global.agents['scott'].addy;
+        }
+
         // console.log(thisUser);
 
         return message;
@@ -34,12 +41,7 @@ module.exports = {
     outgoing: function (message, args) {
         console.log(args);
 
-        if (message.address.user.id === 'hannah') {
-            console.log('I am staff');
-            message.address = global.users['hannah'].addy;
-        } else {
-            message.address = global.agents['scott'].addy;
-        }
+
         console.log('address');
         console.log(message.address);
         console.log('===========');
