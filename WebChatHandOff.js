@@ -46,4 +46,19 @@ bot.use(
 bot.dialog('/', [
     function (session, args, next) {
         session.send('Echo ' + session.message.text);
+        builder.Prompts.choice(session, 'What would you like to do?', ['handoff', 'nothing'])
+    },
+    function(session, results, next) {
+        switch (results.response) {
+            case 'handoff':
+                // call middleware to:
+                // 1. look up this user's object
+                // 2. get contact info
+                // 3. find way to say routing should go to agent
+                // 4. give agent a way to connect to this user
+                
+        }
+        session.send(results.response);
+        session.endDialog();
     }]);
+
