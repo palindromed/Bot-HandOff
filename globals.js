@@ -16,7 +16,7 @@ module.exports = function () {
 
     }
 
-    global.users = [];
+    global.users = {};
 
-    global.agents = [];
+    global.agents = {};
 }
