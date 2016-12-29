@@ -33,7 +33,7 @@ module.exports = {
     outgoing: function (message, args) {
         console.log(args);
         console.log('===========');
-        if (message.address.user.isStaff) {
+        if (message.address.user.id === 'hannah') {
             console.log('I am staff');
             message.address = global.users[0].addy;
         } else {
