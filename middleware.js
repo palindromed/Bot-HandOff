@@ -2,7 +2,12 @@ module.exports = {
 
     incoming: function (message, args) {
         console.log(args);
-        console.log(args.address.conversation);
+        console.log('agents');
+        console.log(global.agents);
+        console.log('users')
+        console.log(global.users);
+        console.log('************');
+        // console.log(args.address.conversation);
         // add info to objs
         // access data from existing options
 
@@ -20,14 +25,9 @@ module.exports = {
                 global.users[message.user.id] = new global.User(message);
             }
         }
-        message.text = 'Receive wins';
-        console.log('agents');
-        console.log(global.agents);
-        console.log('users')
-        console.log(global.users);
-        console.log('************');
-        console.log(thisUser);
-        
+
+        // console.log(thisUser);
+
         return message;
     },
 
@@ -42,7 +42,6 @@ module.exports = {
         // }
         console.log(global.agents);
         console.log(global.users);
-        message.text = 'send wins';
 
         return message
     },

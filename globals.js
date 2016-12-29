@@ -8,14 +8,6 @@ module.exports = function () {
         this.talkingToAgent = false 
     };
 
-    global.User.prototype.connectUserToAgent = function (moredata) {
-
-
-    };
-    global.User.prototype.getUser = function () {
-
-    }
-
     global.users = {};
 
     global.agents = {};
