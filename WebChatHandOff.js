@@ -2,7 +2,6 @@ var express = require('express');
 var builder = require('botbuilder');
 var app = express();
 require('./globals.js')();
-global.myOrchestrator = global.Orchestrator();
 var middleware = require('./middleware.js');
 
 //=========================================================
