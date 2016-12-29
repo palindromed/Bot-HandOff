@@ -4,11 +4,16 @@ module.exports = {
         // already exists
         // create new obj
         // is call center / agent
-        // console.log(global.addressBook)
+ 
         console.log(args);
-        console.log(global.userList);
-        global.userList.push(new global.User(message))
-        console.log(global.userList);
+        if (message.user.isStaff) {
+            global.myOrchestrator.agents[message.user.id] = new global.User(message);
+        } else {
+            global.myOrchestrator.users[message.user.id] = new global.User(message);
+        }
+        console.log(global.myOrchestrator.agents);
+        console.log(global.myOrchestrator.users);
+        
         console.log('************');
 
 
