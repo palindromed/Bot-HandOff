@@ -34,12 +34,12 @@ module.exports = {
     outgoing: function (message, args) {
         console.log(args);
         console.log('===========');
-        // if (message.address.user.id === 'hannah') {
-        //     console.log('I am staff');
-        //     message.address = global.users[0].addy;
-        // } else {
-        //     message.address = global.agents[0].addy;
-        // }
+        if (message.address.user.id === 'hannah') {
+            console.log('I am staff');
+            message.address = global.users['hannah'].addy;
+        } else {
+            message.address = global.agents['scott'].addy;
+        }
         console.log(global.agents);
         console.log(global.users);
 
