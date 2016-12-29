@@ -2,6 +2,7 @@ module.exports = {
 
     incoming: function (message, args) {
         console.log(args);
+        console.log(args.address.conversation);
         // add info to objs
         // access data from existing options
 
