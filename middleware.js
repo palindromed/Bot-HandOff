@@ -31,11 +31,14 @@ module.exports = {
     outgoing: function (message, args) {
         console.log(args);
         console.log('===========');
-        if (message.address.user.isStaff && global.users[0] !== 'undefined') {
-            message.address = global.users[0].addy;
-        } else if (!message.address.user.isStaff && global.agents[0] !== 'undefined') {
-            message.address = global.agents[0].addy;
+        if (global.users && global.agents) {
+            if (message.address.user.isStaff) {
+                message.address = global.users[0].addy;
+            } else {
+                message.address = global.agents[0].addy;
+            }
         }
+
         return message
     },
 
