@@ -13,10 +13,10 @@ module.exports = function () {
 
     };
     global.User.prototype.getUser = function () {
-        
+
     }
 
-    global.users = {};
+    global.users = [];
 
-    global.agents = {};
+    global.agents = [];
 }

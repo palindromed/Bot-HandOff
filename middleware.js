@@ -10,14 +10,14 @@ module.exports = {
         // 2 update info if found
         // make routing decision based on info -- this prob goes to sent
         // 3 if not found, create
-        var thisUser = global.agents[message.user.id] || global.users[message.user.id];
+        var thisUser = global.agents[0] || global.users[0];
 
 
         if (message.text && thisUser !== 'undefined') {
             if (message.user.isStaff) {
-                global.agents[message.user.id] = new global.User(message);
+                global.agents[0] = new global.User(message);
             } else {
-                global.users[message.user.id] = new global.User(message);
+                global.users[0] = new global.User(message);
             }
         }
         console.log('agents');
@@ -31,26 +31,13 @@ module.exports = {
     outgoing: function (message, args) {
         console.log(args);
         console.log('===========');
-        if (message.address.user.id === 'hannah') {
-            message.address = {
-                id: 'L8YqoKYYo7x|000000000000000001',
-
-                channelId: 'directline',
-
-                user: { id: 'scott', name: 'scott' },
-
-                conversation: { id: 'AUBYa4BHo8U'  },
-
-                bot: { id: 'handoffbotdev@Vyk0lb3f67A', name: 'HandOffBot' },
-
-                serviceUrl: 'https://directline.botframework.com',
-
-                useAuth: true
-            }
-
-    }
+        if (message.address.user.isStaff && global.users[0] !== 'undefined') {
+            message.address = global.users[0].addy;
+        } else if (!message.address.user.isStaff && global.agents[0] !== 'undefined') {
+            message.address = global.agents[0].addy;
+        }
         return message
-},
+    },
 
     connectToAgent: function (data) {
 
