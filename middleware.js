@@ -15,16 +15,18 @@ module.exports = {
         // add message to transcript
         // update last active to help keep track of 'current' convos
 
-        // TODO: this will BREAK with changing convoIds. fix it
         if (message.text) { // only execute on message event
             var userConvo = message.address.user.id;
+            console.log(userConvo)
             if (!message.address.user.isStaff && !global.users[userConvo]) {
                 console.log('I am adding a new user')
                 global.users[userConvo] = new global.User(message);
             } else if (!message.address.user.isStaff) {
+                console.log('transcript add');
                 global.users[userConvo].transcript += message.text;
             } else {
                 // TODO make real logic around agent
+                console.log('add agent')
                 global.agents[userConvo] = new global.User(message);
             }
         } 
