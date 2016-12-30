@@ -49,6 +49,7 @@ bot.dialog('/', [
         builder.Prompts.choice(session, 'What would you like to do?', ['handoff', 'nothing'])
 
     }, function (session, results, next) {
+        console.log(results.response);
         middleware.handoffToAgent(session.message.address.conversation.id);
         session.endDialog();
     }]);

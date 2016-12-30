@@ -50,17 +50,15 @@ module.exports = {
     },
 
     handoffToAgent: function (user) {
-        // var agent = Object.keys(global.agents);
+        var agent = Object.keys(global.agents);
         // TODO choose how to filter for an agent, or factor out to another method
 
         //  make agnostic enough that this can pass to agent from bot or another agent
         // keep in mind only letting 1 user talk to 1 agent. 1 agent can talk to many users
         console.log('handoff to agent');
-        console.log(user);
+        console.log(agent);
 
-        // global.users[user].routeMessagesTo = global.agents[agent[0]].address;
-        global.users[user].routeMessagesTo = 'global.agents[agent[0]].address';
-        
+        global.users[user].routeMessagesTo = global.agents[agent[0]].address;
 
 
     },
