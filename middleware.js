@@ -17,7 +17,6 @@ module.exports = {
 
         if (message.text) { // only execute on message event
             var userConvo = message.address.user.id;
-            console.log(userConvo)
             if (!message.address.user.isStaff && !global.users[userConvo]) {
                 console.log('I am adding a new user')
                 global.users[userConvo] = new global.User(message);
@@ -42,16 +41,14 @@ module.exports = {
         if (global.users[message.address.user.id].routeMessagesTo) { // route user messages to agent if appropriate. Otherwise send to the bot
             message.address =  global.users[message.address.user.id].routeMessagesTo;
         }
-        console.log('address');
-        console.log(message.address);
-        console.log('===========');
 
         return message
     },
 
-    handoffToAgent: function (user) {
+    handUserToAgent: function (user) {
         var agent = Object.keys(global.agents);
-        // TODO choose how to filter for an agent, or factor out to another method
+        // TODO choose whether to filter for an agent, or factor out to another method
+        // ALSO more complex logic (ie: logged in, less than n current conversations)
 
         //  make agnostic enough that this can pass to agent from bot or another agent
         // keep in mind only letting 1 user talk to 1 agent. 1 agent can talk to many users
@@ -63,13 +60,16 @@ module.exports = {
 
     },
     handoffToBot: function (user) {
+        console.log('Hand back to bot');
         // look up user
         global.users[user].routeMessagesTo = false;
 
     },
 
     getCurrentConversations: function () {
+        console.log('Get all current conversations now');
         // return all current conversations
+        // TODO what info to return in order to render to Agent UI
     },
     transcribeConversation: function () {
         // store all messages between user/bot user/agent
@@ -79,6 +79,7 @@ module.exports = {
 
     getTranscriptForAgent: function () {
         // end goal is to populate a webchat window so agent seamlessly joins existing conversation
+        // tied closely to transcribeConversation because of data & data shape needed to accomplish this
 
     },
 

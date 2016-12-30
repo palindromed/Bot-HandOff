@@ -33,9 +33,6 @@ bot.use(
             next();
         },
         receive: function (event, next) {
-            // if (message.text === 'bot') {
-            //     middleware.handoffToBot(message.user.id);
-            // }
             event = middleware.incoming(event, 'receive');
             next();
         }
@@ -46,6 +43,14 @@ bot.use(
 // Bots Dialogs
 //=========================================================
 
+// ***********************************************************
+// ONLY FOR TESTING -- REMOVE WHEN DONE
+bot.on('receive', (message) => {
+    if (message.text === 'bot') {
+        bot.beginDialog(message.address, '/handOffToBot')
+    }
+})
+// ************************************************************
 bot.dialog('/', [
     function (session, args, next) {
         session.send('Echo ' + session.message.text);
@@ -53,8 +58,15 @@ bot.dialog('/', [
 
     }, function (session, results, next) {
         if (results.response.entity === 'handoff') {
-            middleware.handoffToAgent(session.message.user.id);
+            middleware.handUserToAgent(session.message.user.id);
 
         }
         session.endDialog();
     }]);
+
+bot.dialog('/handOffToBot', [
+    function (session, args) {
+        middleware.handoffToBot(session.message.user.id);
+        session.endConversation();
+    }
+])
