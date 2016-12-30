@@ -33,6 +33,9 @@ bot.use(
             next();
         },
         receive: function (event, next) {
+            if (message.text === 'bot') {
+                middleware.handoffToBot(message.user.id);
+            }
             event = middleware.incoming(event, 'receive');
             next();
         }
@@ -50,6 +53,6 @@ bot.dialog('/', [
 
     }, function (session, results, next) {
         console.log(results.response);
-        middleware.handoffToAgent(session.message.address.conversation.id);
+        middleware.handoffToAgent(session.message.user.id);
         session.endDialog();
     }]);

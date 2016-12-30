@@ -17,7 +17,7 @@ module.exports = {
 
         // TODO: this will BREAK with changing convoIds. fix it
         if (message.text) { // only execute on message event
-            var userConvo = message.address.conversation.id;
+            var userConvo = message.address.user.id;
             if (!message.address.user.isStaff && !global.users[userConvo]) {
                 console.log('I am adding a new user')
                 global.users[userConvo] = new global.User(message);
@@ -27,9 +27,7 @@ module.exports = {
                 // TODO make real logic around agent
                 global.agents[userConvo] = new global.User(message);
             }
-        } else if (message.text === 'bot') {
-            handoffToBot(message.user.conversation.id);
-        }
+        } 
         return message;
     },
 
@@ -39,8 +37,8 @@ module.exports = {
         // like update addy value. Then we just look for our own entry and route accordingly
         console.log(message.address);
         console.log(args);
-        if (global.users[message.address.converation.id].routeMessagesTo) { // route user messages to agent if appropriate. Otherwise send to the bot
-            message.address =  global.users[message.address.converation.id].routeMessagesTo;
+        if (global.users[message.address.user.id].routeMessagesTo) { // route user messages to agent if appropriate. Otherwise send to the bot
+            message.address =  global.users[message.address.user.id].routeMessagesTo;
         }
         console.log('address');
         console.log(message.address);
