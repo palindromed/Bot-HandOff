@@ -52,4 +52,5 @@ bot.dialog('/', [
         if (results.response === 'handoff') {
             middleware.handoffToAgent(session.message.address.conversation.id);
         }
+        session.endDialog();
     }]);
