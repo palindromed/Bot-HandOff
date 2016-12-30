@@ -2,7 +2,10 @@ module.exports = {
 
     incoming: function (message, args) {
         console.log(args);
-        console.log('users')
+        console.log('agents')
+        console.log(global.agents);
+        console.log('users');
+
         console.log(global.users);
         console.log('************');
 
@@ -52,8 +55,10 @@ module.exports = {
 
         //  make agnostic enough that this can pass to agent from bot or another agent
         // keep in mind only letting 1 user talk to 1 agent. 1 agent can talk to many users
+        console.log('handoff to agent');
+        console.log(agent);
 
-        global.users[user].routeMessagesTo = agent[0].address;
+        global.users[user].routeMessagesTo = global.agents[agent[0]].address;
 
 
     },
