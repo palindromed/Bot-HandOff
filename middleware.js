@@ -5,15 +5,12 @@ module.exports = {
         console.log('agents')
         console.log(global.agents);
         console.log('users');
-
         console.log(global.users);
         console.log('************');
 
         // WHERE do we create a user? on first run?
-        // WHEN do we update the user's address? Conv id will change.
-        // Store by convo id?
-        // add message to transcript
-        // update last active to help keep track of 'current' convos
+        // WHEN do we update the user's address? 
+        // add message to transcript && update last active to help keep track of 'current' convos
 
         if (message.text) { // only execute on message event
             var userConvo = message.address.user.id;
@@ -28,42 +25,38 @@ module.exports = {
                 console.log('add agent')
                 global.agents[userConvo] = new global.User(message);
             }
-        } 
+        }
         return message;
     },
 
     outgoing: function (message, args) {
-        // routing info goes here. 
-        // or default to user address, just change if they want to talk to a user?
-        // like update addy value. Then we just look for our own entry and route accordingly
-        console.log(message.address);
         console.log(args);
+        console.log(message.address);
+
         if (global.users[message.address.user.id].routeMessagesTo) { // route user messages to agent if appropriate. Otherwise send to the bot
-            message.address =  global.users[message.address.user.id].routeMessagesTo;
+            message.address = global.users[message.address.user.id].routeMessagesTo;
         }
 
         return message
     },
 
     handUserToAgent: function (user) {
-        var agent = Object.keys(global.agents);
+        console.log('hand off to agent');
+
         // TODO choose whether to filter for an agent, or factor out to another method
-        // ALSO more complex logic (ie: logged in, less than n current conversations)
+        // ALSO more complex logic (ie: logged in, less than n current conversations, what to do if no one available)
+        var agent = Object.keys(global.agents);
+
 
         //  make agnostic enough that this can pass to agent from bot or another agent
         // keep in mind only letting 1 user talk to 1 agent. 1 agent can talk to many users
-        console.log('handoff to agent');
-        console.log(agent);
-
         global.users[user].routeMessagesTo = global.agents[agent[0]].address;
 
 
     },
     handoffToBot: function (user) {
         console.log('Hand back to bot');
-        // look up user
         global.users[user].routeMessagesTo = false;
-
     },
 
     getCurrentConversations: function () {
@@ -82,8 +75,4 @@ module.exports = {
         // tied closely to transcribeConversation because of data & data shape needed to accomplish this
 
     },
-
-
-
-
 }

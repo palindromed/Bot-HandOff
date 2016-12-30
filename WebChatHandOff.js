@@ -46,7 +46,7 @@ bot.use(
 // ***********************************************************
 // ONLY FOR TESTING -- REMOVE WHEN DONE
 bot.on('receive', (message) => {
-    if (message.text === 'bot') {
+    if (message.text === 'to bot') {
         bot.beginDialog(message.address, '/handOffToBot')
     }
 })
