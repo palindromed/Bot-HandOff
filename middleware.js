@@ -39,8 +39,8 @@ module.exports = {
         // like update addy value. Then we just look for our own entry and route accordingly
         console.log(message.address);
         console.log(args);
-        if (!message.address.user.isStaff) { // route user messages to agent if appropriate. Otherwise send to the bot
-            message.address = global.users[message.address.converation.id].routeMessagesTo ? global.users[message.address.converation.id].routeMessagesTo : message.address;
+        if (global.users[message.address.converation.id].routeMessagesTo) { // route user messages to agent if appropriate. Otherwise send to the bot
+            message.address =  global.users[message.address.converation.id].routeMessagesTo;
         }
         console.log('address');
         console.log(message.address);
