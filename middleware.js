@@ -2,42 +2,43 @@ module.exports = {
 
     incoming: function (message, args) {
         console.log(args);
-        console.log('agents');
-        console.log(global.agents);
         console.log('users')
         console.log(global.users);
         console.log('************');
-        // console.log(args.address.conversation);
-        // add info to objs
-        // access data from existing options
 
-        // 1 try looking up an existing objs
-        // 2 update info if found
-        // make routing decision based on info -- this prob goes to sent
-        // 3 if not found, create
-        // var thisUser = global.agents[0] || global.users[0];
+        // WHERE do we create a user? on first run?
+        // WHEN do we update the user's address? Conv id will change.
+        // Store by convo id?
+        // add message to transcript
+        // update last active to help keep track of 'current' convos
 
-
-        if (message.text) {
-            global.users[message.user.id] = new global.User(message);
+        // TODO: this will BREAK with changing convoIds. fix it
+        if (message.text) { // only execute on message event
+            var userConvo = message.address.conversation.id;
+            if (!message.address.user.isStaff && !global.users[userConvo]) {
+                console.log('I am adding a new user')
+                global.users[userConvo] = new global.User(message);
+            } else if (!message.address.user.isStaff) {
+                global.users[userConvo].transcript += message.text;
+            } else {
+                // TODO make real logic around agent
+                global.agents[userConvo] = new global.User(message);
+            }
+        } else if (message.text === 'bot') {
+            handoffToBot(message.user.conversation.id);
         }
-
-        // console.log(thisUser);
-
         return message;
     },
 
     outgoing: function (message, args) {
+        // routing info goes here. 
+        // or default to user address, just change if they want to talk to a user?
+        // like update addy value. Then we just look for our own entry and route accordingly
         console.log(message.address);
         console.log(args);
-
-        if (message.address.user.id === 'hannah') {
-            message.address = global.users['scott'].addy;
-        } else {
-            message.address = global.users['hannah'].addy;
+        if (!message.address.user.isStaff) { // route user messages to agent if appropriate. Otherwise send to the bot
+            message.address = global.users[message.address.converation.id].routeMessagesTo ? global.users[message.address.converation.id].routeMessagesTo : message.address;
         }
-
-
         console.log('address');
         console.log(message.address);
         console.log('===========');
@@ -45,8 +46,38 @@ module.exports = {
         return message
     },
 
-    connectToAgent: function (data) {
+    handoffToAgent: function (user) {
+        var agent = Object.keys(global.agents);
+        // TODO choose how to filter for an agent, or factor out to another method
+
+        //  make agnostic enough that this can pass to agent from bot or another agent
+        // keep in mind only letting 1 user talk to 1 agent. 1 agent can talk to many users
+
+        global.users[user].routeMessagesTo = agent[0].address;
 
 
-    }
+    },
+    handoffToBot: function (user) {
+        // look up user
+        global.users[user].routeMessagesTo = false;
+
+    },
+
+    getCurrentConversations: function () {
+        // return all current conversations
+    },
+    transcribeConversation: function () {
+        // store all messages between user/bot user/agent
+        // do this in a way that speaker is obvious
+
+    },
+
+    getTranscriptForAgent: function () {
+        // end goal is to populate a webchat window so agent seamlessly joins existing conversation
+
+    },
+
+
+
+
 }

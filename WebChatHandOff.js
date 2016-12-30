@@ -46,7 +46,10 @@ bot.use(
 bot.dialog('/', [
     function (session, args, next) {
         session.send('Echo ' + session.message.text);
-        // builder.Prompts.choice(session, 'What would you like to do?', ['handoff', 'nothing'])
-   
-    }]);
+        builder.Prompts.choice(session, 'What would you like to do?', ['handoff', 'nothing'])
 
+    }, function (session, results, next) {
+        if (results.response === 'handoff') {
+            middleware.handoffToAgent(session.message.address.conversation.id);
+        }
+    }]);
