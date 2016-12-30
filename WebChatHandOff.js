@@ -33,9 +33,9 @@ bot.use(
             next();
         },
         receive: function (event, next) {
-            if (message.text === 'bot') {
-                middleware.handoffToBot(message.user.id);
-            }
+            // if (message.text === 'bot') {
+            //     middleware.handoffToBot(message.user.id);
+            // }
             event = middleware.incoming(event, 'receive');
             next();
         }
@@ -52,7 +52,9 @@ bot.dialog('/', [
         builder.Prompts.choice(session, 'What would you like to do?', ['handoff', 'nothing'])
 
     }, function (session, results, next) {
-        console.log(results.response);
-        middleware.handoffToAgent(session.message.user.id);
+        if (results.response.entity === 'handoff') {
+            middleware.handoffToAgent(session.message.user.id);
+
+        }
         session.endDialog();
     }]);
