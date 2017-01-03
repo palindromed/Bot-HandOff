@@ -54,7 +54,8 @@ bot.dialog('/', [
         builder.Prompts.choice(session, 'What would you like to do?', ['handoff', 'nothing'])
 
     }, function (session, results, next) {
-        if (results.response === 'handoff') {
+        if (results.response.entity === 'handoff') {
+
             middleware.handUserToAgent(session.message.address.user.id);
         }
     }]);
