@@ -28,10 +28,7 @@ app.use('/agent', express.static('public'));
 //========================================================
 bot.use(
     {
-        send: function (event, next) {
-            event = middleware.outgoing(event, 'send');
-            next();
-        },
+        
         receive: function (event, next) {
             event = middleware.incoming(event, 'receive');
             next();
@@ -49,19 +46,13 @@ bot.on('receive', (message) => {
     if (message.text === 'to bot') {
         bot.beginDialog(message.address, '/handOffToBot')
     }
-})
+});
 // ************************************************************
 bot.dialog('/', [
     function (session, args, next) {
         session.send('Echo ' + session.message.text);
-        builder.Prompts.choice(session, 'What would you like to do?', ['handoff', 'nothing'])
+        // builder.Prompts.choice(session, 'What would you like to do?', ['handoff', 'nothing'])
 
-    }, function (session, results, next) {
-        if (results.response.entity === 'handoff') {
-            middleware.handUserToAgent(session.message.user.id);
-
-        }
-        session.endDialog();
     }]);
 
 bot.dialog('/handOffToBot', [
@@ -69,4 +60,4 @@ bot.dialog('/handOffToBot', [
         middleware.handoffToBot(session.message.user.id);
         session.endConversation();
     }
-])
+]);

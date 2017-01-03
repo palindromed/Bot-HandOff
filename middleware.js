@@ -1,4 +1,15 @@
 module.exports = {
+    /* send: function (event, next) {
+            // intercept bot messages
+            // need agent - suppress msgs
+            // keep transcribing
+            // then agent takes it and starts routing btwn
+            
+            event = middleware.outgoing(event, 'send');
+            next();
+                        // create new proactive message
+
+        },*/
 
     incoming: function (message, args) {
         console.log(args);
@@ -19,25 +30,19 @@ module.exports = {
                 global.users[userConvo] = new global.User(message);
             } else if (!message.address.user.isStaff) {
                 console.log('transcript add');
+                // TODO decide what data to store for transcript and if it should be seperate from user
                 global.users[userConvo].transcript += message.text;
             } else {
                 // TODO make real logic around agent
                 console.log('add agent')
                 global.agents[userConvo] = new global.User(message);
             }
+            if (global.users[message.address.user.id].routeMessagesTo) { // route user messages to agent if appropriate. Otherwise send to the bot
+                message.address = global.users[message.address.user.id].routeMessagesTo;
+            }
+
         }
         return message;
-    },
-
-    outgoing: function (message, args) {
-        console.log(args);
-        console.log(message.address);
-
-        if (global.users[message.address.user.id].routeMessagesTo) { // route user messages to agent if appropriate. Otherwise send to the bot
-            message.address = global.users[message.address.user.id].routeMessagesTo;
-        }
-
-        return message
     },
 
     handUserToAgent: function (user) {
