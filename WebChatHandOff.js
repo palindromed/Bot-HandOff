@@ -30,7 +30,7 @@ bot.use(
     {
         
         receive: function (event, next) {
-            event = middleware.incoming(event, 'receive');
+            event = middleware.incoming(event, bot, builder);
             next();
         }
     });
@@ -40,29 +40,8 @@ bot.use(
 // Bots Dialogs
 //=========================================================
 
-// ***********************************************************
-// ONLY FOR TESTING -- REMOVE WHEN DONE
-bot.on('receive', (message) => {
-    if (message.text === 'to bot') {
-        bot.beginDialog(message.address, '/handOffToBot')
-    }
-});
-// ************************************************************
+
 bot.dialog('/', [
     function (session, args, next) {
         session.send('Echo ' + session.message.text);
-        builder.Prompts.choice(session, 'What would you like to do?', ['handoff', 'nothing'])
-
-    }, function (session, results, next) {
-        if (results.response.entity === 'handoff') {
-
-            middleware.handUserToAgent(session.message.address.user.id);
-        }
     }]);
-
-bot.dialog('/handOffToBot', [
-    function (session, args) {
-        middleware.handoffToBot(session.message.user.id);
-        session.endConversation();
-    }
-]);

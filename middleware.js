@@ -1,83 +1,30 @@
 module.exports = {
-    /* send: function (event, next) {
-            // intercept bot messages
-            // need agent - suppress msgs
-            // keep transcribing
-            // then agent takes it and starts routing btwn
-            
-            event = middleware.outgoing(event, 'send');
-            next();
-                        // create new proactive message
 
-        },*/
-
-    incoming: function (message, args) {
-        console.log(args);
-        console.log('agents')
-        console.log(global.agents);
-        console.log('users');
-        console.log(global.users);
+    incoming: function (message, bot, builder) {
+        console.log('conversations/state')
+        console.log(global.conversations);
         console.log('************');
 
-        // WHERE do we create a user? on first run?
-        // WHEN do we update the user's address? 
-        // add message to transcript && update last active to help keep track of 'current' convos
+        // find out who is talking / add new convo if not found
+        if (message.user.id === 'scott') {
+            var convo = Object.keys(global.agent)
+            convo  = global.agent[convo[0]];
+            var msg = new builder.Message()
+                .address(convo.address)
+                .text(message.text);
+            bot.send(msg, function (args) {
+                console.log(args);
 
-        if (message.text) { // only execute on message event
-            var userConvo = message.address.user.id;
-            if (!message.address.user.isStaff && !global.users[userConvo]) {
-                console.log('I am adding a new user')
-                global.users[userConvo] = new global.User(message);
-            } else if (!message.address.user.isStaff) {
-                console.log('transcript add');
-                // TODO decide what data to store for transcript and if it should be seperate from user
-                global.users[userConvo].transcript += message.text;
-            } else {
-                // TODO make real logic around agent
-                console.log('add agent')
-                global.agents[userConvo] = new global.User(message);
-            }
-            if (global.users[message.address.user.id].routeMessagesTo) { // route user messages to agent if appropriate. Otherwise send to the bot
-                message.address = global.users[message.address.user.id].routeMessagesTo;
-            }
-
+            });
         }
-        return message;
-    },
 
-    handUserToAgent: function (user) {
-        console.log('hand off to agent');
+        // who should they be talking to
 
-        // TODO choose whether to filter for an agent, or factor out to another method
-        // ALSO more complex logic (ie: logged in, less than n current conversations, what to do if no one available)
-        var agent = Object.keys(global.agents);
+        // make it so
 
 
-        //  make agnostic enough that this can pass to agent from bot or another agent
-        // keep in mind only letting 1 user talk to 1 agent. 1 agent can talk to many users
-        global.users[user].routeMessagesTo = global.agents[agent[0]].address;
-
-
-    },
-    handoffToBot: function (user) {
-        console.log('Hand back to bot');
-        global.users[user].routeMessagesTo = false;
-    },
-
-    getCurrentConversations: function () {
-        console.log('Get all current conversations now');
-        // return all current conversations
-        // TODO what info to return in order to render to Agent UI
-    },
-    transcribeConversation: function () {
-        // store all messages between user/bot user/agent
-        // do this in a way that speaker is obvious
+        // if talking to Agent/waiting for agent, suppress default bot functionality (how if on a prompt and it's looking for a certain response? override somehow)
 
     },
 
-    getTranscriptForAgent: function () {
-        // end goal is to populate a webchat window so agent seamlessly joins existing conversation
-        // tied closely to transcribeConversation because of data & data shape needed to accomplish this
-
-    },
 }
