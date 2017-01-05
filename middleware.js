@@ -8,6 +8,8 @@ module.exports = {
         console.log(global.users);
         console.log('agents');
         console.log(global.agent);
+        console.log('msg');
+        console.log(message)
 
         if (message.text === 'help') {
             // user initiated connect to agent
@@ -21,7 +23,7 @@ module.exports = {
             // if (!global.agent.includes(message.conversation.id)) {
             console.log('staff === true')
 
-            global.agent[0] = (message.conversation.id);
+            global.agent[0] = message.conversation.id;
             global.conversations[message.conversation.id].address = message.address;
 
         } else {
