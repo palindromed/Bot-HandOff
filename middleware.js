@@ -20,9 +20,15 @@ module.exports = {
         // find out who is talking / add new convo if not found
         if (message.user.isStaff) {
             console.log('is staff');
+            var thisAgent = global.agent.filter(function (value) {
+                return value === message.address.conversation.id;
+            })
             // if (!global.agent.includes(message.address.conversation.id)) {
+            if (!thisAgent) {
+                global.agent.push(message.address.conversation.id);
 
-            global.agent.push(message.address.conversation.id);
+            };
+
             // };
             global.conversations[message.address.conversation.id] = Object.assign({}, global.conversations[message.address.conversation.id], { address: message.address })
 
@@ -32,10 +38,16 @@ module.exports = {
         };
         if (!message.user.isStaff) {
             console.log('not staff');
-            global.users.push(message.address.conversation.id);
+            var thisUser = global.users.filter(function (value) {
+                return value === message.address.conversation.id;
+            });
+            if (!thisUser) {
+                global.users.push(message.address.conversation.id);
+
+            }
 
             global.conversations[message.address.conversation.id] = Object.assign({}, global.conversations[message.address.conversation.id], {
-                transcript: [message],
+                transcript: [global.conversations[message.address.conversation.id].transcript + message],
                 address: message.address
             })
 
