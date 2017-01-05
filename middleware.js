@@ -13,7 +13,7 @@ module.exports = {
             // user initiated connect to agent
             // send something like 'hold on while I connect you'
             global.conversations[message.address.conversation.id] = Object.assign({}, global.conversations[message.address.conversation.id], { findingAgent: true });
-            message.text = '';
+            message.text = 'hold on while I connect you';
             return message
         };
 
@@ -23,17 +23,12 @@ module.exports = {
             var thisAgent = global.agent.filter(function (value) {
                 return value === message.address.conversation.id;
             })
-            // if (!global.agent.includes(message.address.conversation.id)) {
             if (thisAgent[0] !== message.address.conversation.id) {
                 global.agent.push(message.address.conversation.id);
 
             };
 
-            // };
             global.conversations[message.address.conversation.id] = Object.assign({}, global.conversations[message.address.conversation.id], { address: message.address })
-
-            // } else if (!global.users.includes(message.address.conversation.id)) {
-
 
         };
         if (!message.user.isStaff) {
