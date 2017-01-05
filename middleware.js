@@ -24,7 +24,7 @@ module.exports = {
                 return value === message.address.conversation.id;
             })
             // if (!global.agent.includes(message.address.conversation.id)) {
-            if (!thisAgent) {
+            if (thisAgent !== message.address.conversation.id) {
                 global.agent.push(message.address.conversation.id);
 
             };
