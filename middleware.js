@@ -8,36 +8,34 @@ module.exports = {
         console.log(global.users);
         console.log('agents');
         console.log(global.agent);
-        console.log('msg');
-        console.log(message)
 
         if (message.text === 'help') {
             // user initiated connect to agent
             // send something like 'hold on while I connect you'
-            console.log('user typed help');
-            global.conversations[message.conversation.id].findingAgent = true;
+            global.conversations[message.address.conversation.id] =  Object.assign({}, global.conversations[message.address.conversation.id],  { findingAgent: true } );
         };
 
         // find out who is talking / add new convo if not found
         if (message.user.isStaff) {
-            // if (!global.agent.includes(message.conversation.id)) {
-            console.log('staff === true')
+            if (!global.agent.includes(message.address.conversation.id)) {
 
-            global.agent[0] = message.conversation.id;
-            global.conversations[message.conversation.id].address = message.address;
+                global.agent.push(message.address.conversation.id);
+            };
+        global.conversations[message.address.conversation.id] = Object.assign({},global.conversations[message.address.conversation.id], { address: message.address} )
+            
+        } else if (!global.users.includes(message.address.conversation.id)) {
 
-        } else {
-            console.log('not staff');
-
-            global.users.push(message.conversation.id);
-            global.conversations[message.conversation.id].address = message.address;
-            global.conversations[message.conversation.id].transcript.push(message);
-
+            global.users.push(message.address.conversation.id);
 
         };
-        if (global.conversation[message.conversation.id].findingAgent) {
-            global.conversations[message.conversation.id].agentAddress = global.conversations[global.agent[0]].address;
-            global.conversations[message.conversation.id].findingAgent = false;
+        if (!message.user.isStaff) {
+            global.conversations[message.address.conversation.id] = Object.assign({}, global.conversations[message.address.conversation.id], {  transcript: [message],
+                address: message.address} )
+            
+    // this needs to be an array of message objects and an indication of where messages should be routed
+        }
+        if (global.conversation[message.address.conversation.id].findingAgent) {
+            global.conversations[message.address.conversation.id] = Object.assign({}, global.conversations[message.address.conversation.id], {agentAddress: global.conversations[global.agent[0]].address, findingAgent: false})
 
         }
 
