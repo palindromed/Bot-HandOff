@@ -19,23 +19,20 @@ module.exports = {
         // find out who is talking / add new convo if not found
         if (message.user.isStaff) {
             // if (!global.agent.includes(message.conversation.id)) {
+                console.log('staff === true')
 
             global.agent.push(message.conversation.id);
             global.conversations[message.conversation.id] = Object.assign({}, global.conversations[message.conversation.id], { address: message.address })
 
         } else {
+            console.log('not staff');
 
             global.users.push(message.conversation.id);
+             global.conversations[message.conversation.id].address = message.address;
+             global.conversations[message.conversation.id].transcript.push(message);
+             
 
         };
-        if (!message.user.isStaff) {
-            global.conversations[message.conversation.id] = Object.assign({}, global.conversations[message.conversation.id], {
-                transcript: [message],
-                address: message.address
-            })
-
-            // this needs to be an array of message objects and an indication of where messages should be routed
-        }
         if (global.conversation[message.conversation.id].findingAgent) {
             global.conversations[message.conversation.id] = Object.assign({}, global.conversations[message.conversation.id], { agentAddress: global.conversations[global.agent[0]].address, findingAgent: false });
         }
