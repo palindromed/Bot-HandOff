@@ -24,7 +24,7 @@ module.exports = {
                 return value === message.address.conversation.id;
             })
             // if (!global.agent.includes(message.address.conversation.id)) {
-            if (thisAgent !== message.address.conversation.id) {
+            if (thisAgent[0] !== message.address.conversation.id) {
                 global.agent.push(message.address.conversation.id);
 
             };
@@ -41,7 +41,7 @@ module.exports = {
             var thisUser = global.users.filter(function (value) {
                 return value === message.address.conversation.id;
             });
-            if (!thisUser) {
+            if (thisUser[0] !== message.address.conversation.id) {
                 global.users.push(message.address.conversation.id);
 
             }
