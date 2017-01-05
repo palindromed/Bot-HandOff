@@ -47,14 +47,16 @@ module.exports = {
             }
 
             global.conversations[message.address.conversation.id] = Object.assign({}, global.conversations[message.address.conversation.id], {
-                transcript: [global.conversations[message.address.conversation.id].transcript + message],
+                transcript: global.conversations[message.address.conversation.id].transcript.push(message),
                 address: message.address
             })
 
             // this needs to be an array of message objects and an indication of where messages should be routed
         }
         if (global.conversation[message.address.conversation.id].findingAgent) {
-            global.conversations[message.address.conversation.id] = Object.assign({}, global.conversations[message.address.conversation.id], { agentAddress: global.conversations[global.agent[0]].address, findingAgent: false })
+            console.log('getting agent');
+            var myAgent = global.conversations[global.agent[0]].address;
+            global.conversations[message.address.conversation.id] = Object.assign({}, global.conversations[message.address.conversation.id], { agentAddress: myAgent, findingAgent: false })
 
         }
 
