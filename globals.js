@@ -1,6 +1,6 @@
 module.exports = function () {
 
     global.conversations = {};
-    global.agent = {};
-
+    global.agent = [];
+    global.users = [];
 }
