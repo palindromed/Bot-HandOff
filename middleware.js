@@ -56,10 +56,14 @@ module.exports = {
                 console.log(thisUser.status);
                 switch (thisUser.status) {
                     case 'Finding_Agent':
-                        message.text = 'Please hold while I find an agent';
+                        var msg = new builder.Message()
+                            .address(message.address)
+                            .text('Please hold while I find an agent');
+                        bot.send(msg);
                         var myAgent = global.conversations[global.agent[0]];
                         thisUser = Object.assign({}, thisUser, { agentAddress: myAgent.address, 'status': 'Talking_To_Agent' });
                         global.conversations[userId] = thisUser;
+                        message.type = 'invisible';
                         return message;
                         break;
                     case 'Talking_To_Agent':
@@ -68,7 +72,6 @@ module.exports = {
                             .address(global.conversations[userId].agentAddress)
                             .text(message.text);
                         bot.send(msg);
-                        // global.conversations[userId] = thisUser;
                         message.type = 'invisible';
                         return message;
                         break;
@@ -80,6 +83,7 @@ module.exports = {
                     case 'Disconnect_From_Agent':
                         message.text = 'done talking to agent';
                         delete global.conversations[userId].agentAddress;
+                        bot.beginDialog('/');
                         break;
                     default:
                         message.text = 'defaulting';
