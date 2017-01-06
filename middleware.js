@@ -16,7 +16,9 @@ module.exports = {
                 global.conversations[message.address.conversation.id] = Object.assign({}, global.conversations[message.address.conversation.id], { 'status': 'Finding_Agent' });
                 message.text = 'hold on while I connect you';
                 // return message
-            };
+            } else if (message.text === 'done') {
+                global.conversations[message.address.conversation.id].status = 'Disconnect_From_Agent';
+            }
 
             // find out who is talking / add new convo if not found
             if (message.user.isStaff) { // move logic to an API for agents
@@ -71,6 +73,10 @@ module.exports = {
                         message.text = 'talk to bot';
                         return message;
                         break;
+                    case 'Disconnect_From_Agent':
+                        message.text = 'done talking to you';
+                        delete global.conversations[userId].agentAddress;
+
                     default:
                         message.text = 'defaulting';
                         return message;
