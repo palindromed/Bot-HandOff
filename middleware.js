@@ -35,7 +35,7 @@ module.exports = {
             // Setting User state logic
             else {
                 console.log('not staff');
-                console.log(message);
+                console.log(bot);
                 var userId = message.address.conversation.id;
                 var thisUser = global.conversations[userId];
                 // Add a user not yet in state
@@ -60,8 +60,6 @@ module.exports = {
                         message.text = 'getting agent';
                         var myAgent = global.conversations[global.agent[0]];
                         thisUser = Object.assign({}, thisUser, { agentAddress: myAgent.address, 'status': 'Talking_To_Agent' });
-                        // global.conversations[userId].status = 'Talking_To_Agent';
-                        // global.conversations[userId].agentAddress = myAgent.address;
                         global.conversations[userId] = thisUser;
                         return message;
                         break;
