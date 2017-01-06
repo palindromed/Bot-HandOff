@@ -25,7 +25,7 @@ module.exports = {
                 var thisAgent = global.conversations[agentId];
                 if (typeof thisAgent === 'undefined') { // agent not in state yet, add them ****This will happen for each conversation, not agent.
                     global.agent.push(agentId);
-                    global.conversations[agentId].address = message.address;
+                    global.conversations[agentId] = { address: message.address };
                 }
             }
             // End Agent
@@ -56,6 +56,7 @@ module.exports = {
                         var myAgent = global.conversations[global.agent[0]];
                         // global.conversations[userId] = Object.assign({}, global.conversations[userId], { agentAddress: myAgent.address, 'status': 'Talking_To_Agent' });
                         global.conversations[userId].status = 'Talking_To_Agent';
+                        global.conversations[userId].agentAddress = myAgent.address;
                         
                         return message;
                         break;
