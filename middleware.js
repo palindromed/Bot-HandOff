@@ -11,13 +11,27 @@ module.exports = {
 
         if (message.text) { // saves a ping from adding a user/agent
 
-            if (message.text === 'help') {
+            if (message.text === 'help' && global.conversations[message.address.conversation.id].status !== 'Finding_Agent') {
                 // user initiated connect to agent
+                var thisUser = global.conversations[message.address.conversation.id];
                 global.conversations[message.address.conversation.id] = Object.assign({}, global.conversations[message.address.conversation.id], { 'status': 'Finding_Agent' });
+                global.users.push(message.address.conversation.id);
+
                 message.text = 'hold on while I connect you';
+
+                if (global.agent.length >= 1) {
+                    var myAgent = global.conversations[global.agent[0]];
+                    global.conversations[userId] = Object.assign({}, thisUser, { agentAddress: myAgent.address, 'status': 'Talking_To_Agent' });
+                    global.conversations[myAgent.address.conversation.id] = Object.assign({}, myAgent, { userAddress: thisUser.address });
+
+
+
+
+                }
+
                 // return message
             } else if (message.text === 'done') {
-                global.conversations[message.address.conversation.id] = Object.assign({}, global.conversations[message.address.conversation.id], { 'status': 'Disconnect_From_Agent' });
+                global.conversations[message.address.conversation.id] = Object.assign({}, global.conversations[message.address.conversation.id], { 'status': 'User_Disconnect_From_Agent' });
             }
 
             // find out who is talking / add new convo if not found
@@ -28,6 +42,14 @@ module.exports = {
                 if (typeof thisAgent === 'undefined') { // agent not in state yet, add them ****This will happen for each conversation, not agent.
                     global.agent.push(agentId);
                     global.conversations[agentId] = { address: message.address };
+                } else if (thisAgent.userAddress) {
+                    var msg = new builder.Message()
+                        .address(thisAgent.userAddress)
+                        .text(message.text);
+                    bot.send(msg);
+                    message.type = 'invisible';
+                    return message;
+
                 }
             }
             // End Agent
@@ -41,7 +63,6 @@ module.exports = {
 
                 if (typeof thisUser === 'undefined') {
                     console.log('got undefined');
-                    global.users.push(userId);
                     global.conversations[userId] = { transcript: [message], address: message.address, status: 'Talking_To_Bot' };
                     return
                 } else {
@@ -60,9 +81,6 @@ module.exports = {
                             .address(message.address)
                             .text('Please hold while I find an agent');
                         bot.send(msg);
-                        var myAgent = global.conversations[global.agent[0]];
-                        thisUser = Object.assign({}, thisUser, { agentAddress: myAgent.address, 'status': 'Talking_To_Agent' });
-                        global.conversations[userId] = thisUser;
                         message.type = 'invisible';
                         return message;
                         break;
@@ -77,13 +95,13 @@ module.exports = {
                         break;
                     case 'Talking_To_Bot':
                         message.text = 'talk to bot';
-                        global.conversations[userId] = thisUser;
+                        // global.conversations[userId] = thisUser;
                         return message;
                         break;
-                    case 'Disconnect_From_Agent':
+                    case 'User_Disconnect_From_Agent':
                         message.text = 'done talking to agent';
                         delete global.conversations[userId].agentAddress;
-                        bot.beginDialog('/');
+                        bot.beginDialog(message.address, '/');
                         break;
                     default:
                         message.text = 'defaulting';
@@ -94,6 +112,5 @@ module.exports = {
 
             }
         }
-        // if talking to Agent/waiting for agent, suppress default bot functionality (how if on a prompt and it's looking for a certain response? override somehow)
     }
 }
