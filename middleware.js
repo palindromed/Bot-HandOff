@@ -13,12 +13,12 @@ module.exports = {
 
             // find out who is talking / add new convo if not found
             if (message.user.isStaff) { // move logic to an API for agents
-                console.log('is staff');
                 var agentConversationId = message.address.conversation.id;
                 var agentAddress = global.conversations[agentConversationId];
                 if (typeof agentAddress === 'undefined') { // agent not in state yet, add them ****This will happen for each conversation, not agent.
                     global.agent.push(agentConversationId);
                     global.conversations[agentConversationId] = { address: message.address };
+                    message.text = 'test';
                 } else if (agentAddress.userAddress) {
                     var msg = new builder.Message()
                         .address(agentAddress.userAddress)
@@ -34,7 +34,6 @@ module.exports = {
                 var thisUser = global.conversations[userId];
                 // Add a user not yet in state
                 if (typeof thisUser === 'undefined') {
-                    console.log('got undefined');
                     global.conversations[userId] = { transcript: [message], address: message.address, status: 'Talking_To_Bot' };
                 } else {
                     // get spread operator? 
@@ -49,7 +48,7 @@ module.exports = {
                         // deal with disconnecting agent as well
                         delete thisUser.agentAddress;
                         global.conversations[userId] = Object.assign({}, thisUser, { 'status': 'Talking_To_Bot' });
-                        bot.beginDialog(message.address, '/');
+                        // bot.beginDialog(message.address, '/');
 
                     }
                 }
