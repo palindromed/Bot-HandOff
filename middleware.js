@@ -57,11 +57,15 @@ module.exports = {
                         // global.conversations[userId] = Object.assign({}, global.conversations[userId], { agentAddress: myAgent.address, 'status': 'Talking_To_Agent' });
                         global.conversations[userId].status = 'Talking_To_Agent';
                         global.conversations[userId].agentAddress = myAgent.address;
-                        
+
                         return message;
                         break;
                     case 'Talking_To_Agent':
                         message.text = 'talking to agent';
+                        var msg = new builder.Message()
+                            .address(global.conversations[userId].agentAddress)
+                            .text(message.text);
+                        bot.send(msg);
                         break;
                     case 'Talking_To_Bot':
                         message.text = 'talk to bot';
