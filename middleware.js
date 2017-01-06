@@ -35,6 +35,7 @@ module.exports = {
             // Setting User state logic
             else {
                 console.log('not staff');
+                console.log(message);
                 var userId = message.address.conversation.id;
                 var thisUser = global.conversations[userId];
                 // Add a user not yet in state
