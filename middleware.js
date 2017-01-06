@@ -17,7 +17,7 @@ module.exports = {
                 message.text = 'hold on while I connect you';
                 // return message
             } else if (message.text === 'done') {
-                global.conversations[message.address.conversation.id] = Object.assign({}, global.conversations[message.address.conversation.id], { 'status': 'Disconnect_From_Agent'});
+                global.conversations[message.address.conversation.id] = Object.assign({}, global.conversations[message.address.conversation.id], { 'status': 'Disconnect_From_Agent' });
             }
 
             // find out who is talking / add new convo if not found
@@ -35,7 +35,6 @@ module.exports = {
             // Setting User state logic
             else {
                 console.log('not staff');
-                console.log(bot);
                 var userId = message.address.conversation.id;
                 var thisUser = global.conversations[userId];
                 // Add a user not yet in state
@@ -57,7 +56,7 @@ module.exports = {
                 console.log(thisUser.status);
                 switch (thisUser.status) {
                     case 'Finding_Agent':
-                        message.text = 'getting agent';
+                        message.text = 'Please hold while I find an agent';
                         var myAgent = global.conversations[global.agent[0]];
                         thisUser = Object.assign({}, thisUser, { agentAddress: myAgent.address, 'status': 'Talking_To_Agent' });
                         global.conversations[userId] = thisUser;
@@ -69,7 +68,7 @@ module.exports = {
                             .address(global.conversations[userId].agentAddress)
                             .text(message.text);
                         bot.send(msg);
-                        global.conversations[userId] = thisUser;
+                        // global.conversations[userId] = thisUser;
                         message.type = 'invisible';
                         return message;
                         break;
@@ -79,7 +78,7 @@ module.exports = {
                         return message;
                         break;
                     case 'Disconnect_From_Agent':
-                        message.text = 'done talking to you';
+                        message.text = 'done talking to agent';
                         delete global.conversations[userId].agentAddress;
                         break;
                     default:
