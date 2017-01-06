@@ -99,7 +99,8 @@ module.exports = {
                         break;
                     case 'User_Disconnect_From_Agent':
                         message.text = 'done talking to agent';
-                        delete global.conversations[userId].agentAddress;
+                        delete thisUser.agentAddress;
+                        global.conversations[userId] = Object.assign({}, thisUser, { 'status': 'Talking_To_Bot' });
                         bot.beginDialog(message.address, '/');
                         break;
                     default:
