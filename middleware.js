@@ -13,11 +13,13 @@ module.exports = {
 
             if (message.text === 'help') {
                 // user initiated connect to agent
-                global.conversations[message.address.conversation.id] = Object.assign({}, global.conversations[message.address.conversation.id], { 'status': 'Finding_Agent' });
+                var thisUser = global.conversations[message.address.conversation.id];
+                thisUser = Object.assign({}, thisUser, { 'status': 'Finding_Agent' });
                 message.text = 'hold on while I connect you';
                 // return message
             } else if (message.text === 'done') {
-                global.conversations[message.address.conversation.id].status = 'Disconnect_From_Agent';
+                var thisUser = global.conversations[message.address.conversation.id];
+                thisUser = Object.assign({}, thisUser, { 'status': 'Disconnect_From_Agent'});
             }
 
             // find out who is talking / add new convo if not found
@@ -45,21 +47,23 @@ module.exports = {
                     global.conversations[userId] = { transcript: [message], address: message.address, status: 'Talking_To_Bot' };
                     return
                 } else {
+                    // thisUser = Object.assign({}, thisUser, { 'transcript': })
+                    // get spread operator? 
                     global.conversations[userId].transcript.push(message);
                 }
                 // if in state, update transcript for the user
 
                 // Check for choices to be made
                 console.log('about to make the switch')
-                console.log(global.conversations[userId].status);
-                switch (global.conversations[userId].status) {
+                console.log(thisUser.status);
+                switch (thisUser.status) {
                     case 'Finding_Agent':
                         message.text = 'getting agent';
                         var myAgent = global.conversations[global.agent[0]];
-                        // global.conversations[userId] = Object.assign({}, global.conversations[userId], { agentAddress: myAgent.address, 'status': 'Talking_To_Agent' });
-                        global.conversations[userId].status = 'Talking_To_Agent';
-                        global.conversations[userId].agentAddress = myAgent.address;
-
+                        thisUser = Object.assign({}, thisUser, { agentAddress: myAgent.address, 'status': 'Talking_To_Agent' });
+                        // global.conversations[userId].status = 'Talking_To_Agent';
+                        // global.conversations[userId].agentAddress = myAgent.address;
+                        global.conversations[userId] = thisUser;
                         return message;
                         break;
                     case 'Talking_To_Agent':
@@ -68,15 +72,17 @@ module.exports = {
                             .address(global.conversations[userId].agentAddress)
                             .text(message.text);
                         bot.send(msg);
+                        global.conversations[userId] = thisUser;
                         break;
                     case 'Talking_To_Bot':
                         message.text = 'talk to bot';
+                        global.conversations[userId] = thisUser;
                         return message;
                         break;
                     case 'Disconnect_From_Agent':
                         message.text = 'done talking to you';
                         delete global.conversations[userId].agentAddress;
-
+                        break;
                     default:
                         message.text = 'defaulting';
                         return message;
