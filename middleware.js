@@ -54,7 +54,7 @@ module.exports = {
                     case 'Finding_Agent':
                         message.text = 'getting agent';
                         var myAgent = global.conversations[global.agent[0]];
-                        global.conversations[userId] = Object.assign({}, global.conversations[message.address.conversation.id], { agentAddress: myAgent.address, 'status': 'Talking_To_Agent' });
+                        global.conversations[userId] = Object.assign({}, global.conversations[userId], { agentAddress: myAgent.address, 'status': 'Talking_To_Agent' });
                         return message;
                         break;
                     case 'Talking_To_Agent':
