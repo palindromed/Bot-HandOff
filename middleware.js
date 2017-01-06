@@ -72,7 +72,7 @@ module.exports = {
                             .text(message.text);
                         bot.send(msg);
                         global.conversations[userId] = thisUser;
-                        message = '';
+                        message.type = 'invisible';
                         return message;
                         break;
                     case 'Talking_To_Bot':
