@@ -42,9 +42,10 @@ module.exports = {
                     global.users.push(userId);
                     global.conversations[userId] = { transcript: [message], address: message.address, status: 'Talking_To_Bot' };
                     return
+                } else {
+                    global.conversations[userId].transcript.push(message);
                 }
                 // if in state, update transcript for the user
-                // global.conversations[userId] = Object.assign({}, global.conversations[userId], { transcript: global.conversations[userId].transcript.push(message) });
 
                 // Check for choices to be made
                 console.log('about to make the switch')
@@ -72,11 +73,6 @@ module.exports = {
 
             }
         }
-
-
-        // who should they be talking to
-        // make it so
         // if talking to Agent/waiting for agent, suppress default bot functionality (how if on a prompt and it's looking for a certain response? override somehow)
-
     }
 }
