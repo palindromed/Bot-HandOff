@@ -61,6 +61,8 @@ module.exports = {
                         console.log('talk to bot');
                         break;
                     default:
+                        message.text = 'defaulting';
+                        return message
                         break;
 
                 }
