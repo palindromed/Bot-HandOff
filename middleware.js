@@ -43,7 +43,7 @@ module.exports = {
                     return
                 }
                 // if in state, update transcript for the user
-                global.conversations[userId] = Object.assign({}, global.conversations[userId], { transcript: [...global.conversations[userId].transcript, message] });
+                global.conversations[userId] = Object.assign({}, global.conversations[userId], { transcript: global.conversations[userId].transcript.push(message) });
 
                 // Check for choices to be made
                 switch (global.conversations[userId].status) {
