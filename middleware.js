@@ -44,9 +44,10 @@ module.exports = {
                     return
                 }
                 // if in state, update transcript for the user
-                global.conversations[userId] = Object.assign({}, global.conversations[userId], { transcript: global.conversations[userId].transcript.push(message) });
+                // global.conversations[userId] = Object.assign({}, global.conversations[userId], { transcript: global.conversations[userId].transcript.push(message) });
 
                 // Check for choices to be made
+                console.log('about to make the switch')
                 console.log(global.conversations[userId].status);
                 switch (global.conversations[userId].status) {
                     case 'Finding_Agent':
