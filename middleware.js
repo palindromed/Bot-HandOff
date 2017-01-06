@@ -9,7 +9,7 @@ module.exports = {
         console.log('agents');
         console.log(global.agent);
 
-        if (message.type !== 'message') { // saves a ping from adding a user/agent
+        if (message.type === 'message') { // saves a ping from adding a user/agent
 
             // find out who is talking / add new convo if not found
             if (message.user.isStaff) { // move logic to an API for agents
