@@ -38,6 +38,7 @@ module.exports = {
                 // Add a user not yet in state
 
                 if (typeof thisUser === 'undefined') {
+                    console.log('got undefined');
                     global.users.push(userId);
                     global.conversations[userId] = { transcript: [message], address: message.address, status: 'Talking_To_Bot' };
                     return
