@@ -19,15 +19,7 @@ module.exports = {
 
                 message.text = 'hold on while I connect you';
 
-                if (global.agent.length >= 1) {
-                    var myAgent = global.conversations[global.agent[0]];
-                    global.conversations[thisUser] = Object.assign({}, thisUser, { agentAddress: myAgent.address, 'status': 'Talking_To_Agent' });
-                    global.conversations[myAgent.address.conversation.id] = Object.assign({}, myAgent, { userAddress: thisUser.address });
 
-
-
-
-                }
 
                 // return message
             } else if (message.text === 'done') {
@@ -82,6 +74,13 @@ module.exports = {
                             .text('Please hold while I find an agent');
                         bot.send(msg);
                         message.type = 'invisible';
+                        if (global.agent.length >= 1) {
+                            var myAgent = global.conversations[global.agent[0]];
+                            global.conversations[thisUser] = Object.assign({}, thisUser, { agentAddress: myAgent.address, 'status': 'Talking_To_Agent' });
+                            global.conversations[myAgent.address.conversation.id] = Object.assign({}, myAgent, { userAddress: thisUser.address });
+
+
+                        }
                         return message;
                         break;
                     case 'Talking_To_Agent':
