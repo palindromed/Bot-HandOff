@@ -73,6 +73,7 @@ module.exports = {
                         bot.send(msg);
                         global.conversations[userId] = thisUser;
                         message = '';
+                        return message;
                         break;
                     case 'Talking_To_Bot':
                         message.text = 'talk to bot';
