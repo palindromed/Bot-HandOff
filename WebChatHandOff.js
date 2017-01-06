@@ -30,7 +30,7 @@ bot.use(
     {
         
         receive: function (event, next) {
-            event = middleware.incoming(event, bot, builder, next);
+            middleware.incoming(event, bot, builder, next);
         }
     });
 
