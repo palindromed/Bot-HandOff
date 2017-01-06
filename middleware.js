@@ -23,7 +23,7 @@ module.exports = {
                 console.log('is staff');
                 var agentId = message.address.conversation.id;
                 var thisAgent = global.conversations[agentId];
-                if (thisAgent === 'undefined') { // agent not in state yet, add them ****This will happen for each conversation, not agent.
+                if (typeof thisAgent === 'undefined') { // agent not in state yet, add them ****This will happen for each conversation, not agent.
                     global.agent.push(agentId);
                     global.conversations[agentId].address = message.address;
                 }
@@ -37,7 +37,7 @@ module.exports = {
                 var thisUser = global.conversations[userId];
                 // Add a user not yet in state
 
-                if (thisUser === 'undefined') {
+                if (typeof thisUser === 'undefined') {
                     global.users.push(userId);
                     global.conversations[userId] = { transcript: [message], address: message.address, status: 'Talking_To_Bot' };
                     return
