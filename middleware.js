@@ -41,13 +41,15 @@ module.exports = {
 
                     if (message.text === 'help' && thisUser.status === 'Talking_To_Bot') {
                         // user initiated connect to agent
-                        global.conversations[message.address.conversation.id] = Object.assign({}, global.conversations[message.address.conversation.id], { 'status': 'Finding_Agent' });
+                        thisUser = Object.assign({}, global.conversations[message.address.conversation.id], { 'status': 'Finding_Agent' });
+                        global.conversations[userId] =  thisUser;
                         global.users.push(message.address.conversation.id);
 
                     } else if (message.text === 'done' && thisUser.status === 'Talking_To_Agent') {
                         // deal with disconnecting agent as well
                         delete thisUser.agentAddress;
-                        global.conversations[userId] = Object.assign({}, thisUser, { 'status': 'Talking_To_Bot' });
+                        thisUser = Object.assign({}, thisUser, { 'status': 'Talking_To_Bot' });
+                        global.conversations[userId] = thisUser;
                         // bot.beginDialog(message.address, '/');
 
                     }
