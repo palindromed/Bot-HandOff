@@ -13,13 +13,11 @@ module.exports = {
 
             if (message.text === 'help') {
                 // user initiated connect to agent
-                var thisUser = global.conversations[message.address.conversation.id];
-                thisUser = Object.assign({}, thisUser, { 'status': 'Finding_Agent' });
+                global.conversations[message.address.conversation.id] = Object.assign({}, global.conversations[message.address.conversation.id], { 'status': 'Finding_Agent' });
                 message.text = 'hold on while I connect you';
                 // return message
             } else if (message.text === 'done') {
-                var thisUser = global.conversations[message.address.conversation.id];
-                thisUser = Object.assign({}, thisUser, { 'status': 'Disconnect_From_Agent'});
+                global.conversations[message.address.conversation.id] = Object.assign({}, global.conversations[message.address.conversation.id], { 'status': 'Disconnect_From_Agent'});
             }
 
             // find out who is talking / add new convo if not found
