@@ -76,7 +76,7 @@ module.exports = {
                         message.type = 'invisible';
                         if (global.agent.length >= 1) {
                             var myAgent = global.conversations[global.agent[0]];
-                            global.conversations[thisUser] = Object.assign({}, thisUser, { agentAddress: myAgent.address, 'status': 'Talking_To_Agent' });
+                            global.conversations[userId] =  Object.assign({}, thisUser, { agentAddress: myAgent.address, 'status': 'Talking_To_Agent' });
                             global.conversations[myAgent.address.conversation.id] = Object.assign({}, myAgent, { userAddress: thisUser.address });
 
 
