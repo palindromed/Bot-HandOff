@@ -50,19 +50,21 @@ module.exports = {
                 console.log(global.conversations[userId].status);
                 switch (global.conversations[userId].status) {
                     case 'Finding_Agent':
-                        console.log('getting agent');
+                        message.text = 'getting agent';
                         var myAgent = global.conversations[global.agent[0]];
                         global.conversations[userId] = Object.assign({}, global.conversations[message.address.conversation.id], { agentAddress: myAgent.address, 'status': 'Talking_To_Agent' });
+                        return message;
                         break;
                     case 'Talking_To_Agent':
-                        console.log('talking to agent');
+                        message.text = 'talking to agent';
                         break;
                     case 'Talking_To_Bot':
-                        console.log('talk to bot');
+                        message.text = 'talk to bot';
+                        return message;
                         break;
                     default:
                         message.text = 'defaulting';
-                        return message
+                        return message;
                         break;
 
                 }
