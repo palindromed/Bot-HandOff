@@ -5,12 +5,19 @@
   "description": "Create example to escalate to a human",
   "main": "WebChatHandOff.js",
   "scripts": {
-    "start": "node WebChatHandOff.js",
+    "build": "tsc",
+    "watch": "tsc -w",
+    "nodewatch": "nodemon dist/WebChatHandOff.js",
+    "start": "node dist/WebChatHandOff.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "azure-storage": "^1.3.1",
-    "botbuilder": "^3.2.3",
+    "botbuilder": "^3.5.1",
     "express": "^4.14.0"
+  },
+  "devDependencies": {
+    "@types/node": "^6.0.59",
+    "nodemon": "^1.11.0",
+    "typescript": "^2.1.4"
   }
 }

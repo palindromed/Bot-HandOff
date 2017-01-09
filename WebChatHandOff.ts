@@ -1,12 +1,12 @@
-var express = require('express');
-var builder = require('botbuilder');
-var app = express();
-require('./globals.js')();
-var middleware = require('./middleware.js');
+import express = require('express');
+import * as builder from 'botbuilder';
+import { route  } from './middleware';
 
 //=========================================================
 // Bot Setup
 //=========================================================
+
+var app = express();
 
 // Setup Express Server
 app.listen(process.env.port || process.env.PORT || 3978, '::', () => {
@@ -30,7 +30,7 @@ bot.use(
     {
         
         receive: function (event, next) {
-            middleware.incoming(event, bot, builder, next);
+            route(event, bot, next);
         }
     });
 
