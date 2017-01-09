@@ -1,24 +1,21 @@
 module.exports = {
 
     incoming: function (message, bot, builder, next) {
+        console.log(message);
         console.log('conversations/state')
         console.log(global.conversations);
-        console.log('************');
         console.log('users');
         console.log(global.users);
         console.log('agents');
         console.log(global.agent);
 
-        if (message.type === 'message') { // saves a ping from adding a user/agent
-
-            // find out who is talking / add new convo if not found
-            if (message.user.isStaff) { // move logic to an API for agents
+        if (message.type === 'message') { 
+            if (message.user.isStaff) {
                 var agentConversationId = message.address.conversation.id;
                 var agentAddress = global.conversations[agentConversationId];
                 if (typeof agentAddress === 'undefined') { // agent not in state yet, add them ****This will happen for each conversation, not agent.
                     global.agent.push(agentConversationId);
                     global.conversations[agentConversationId] = { address: message.address };
-                    message.text = 'test';
                 } else if (agentAddress.userAddress) {
                     var msg = new builder.Message()
                         .address(agentAddress.userAddress)
@@ -76,7 +73,6 @@ module.exports = {
                         bot.send(msg);
                         break;
                     case 'Talking_To_Bot':
-                        message.text = 'talk to bot';
                         next();
                         break;
                     default:
