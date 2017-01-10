@@ -20,7 +20,15 @@ exports.route = (event, bot, next) => {
                 // If we're hearing from an agent they are already part of a conversation
                 const conversation = globals_1.conversations.find(conversation => conversation.agent.conversation.id === message.address.conversation.id);
                 if (!conversation) {
-                    bot.send(new builder.Message().address(message.address).text("You are no longer in conversation with the user"));
+                    // find which users have status of waiting
+                    // find which user has been waiting longest
+                    let waitingUsers = globals_1.conversations.filter((x) => x.state === globals_1.ConversationState.Waiting);
+                    if (waitingUsers.length === 0) {
+                        bot.send(new builder.Message().address(message.address).text("You are no longer in conversation with the user. No users waiting"));
+                        // connect this agent to that user
+                        return;
+                    }
+                    waitingUsers[0].agent = message.address;
                     return;
                 }
                 if (conversation.state !== globals_1.ConversationState.Agent) {

@@ -30,7 +30,17 @@ export const route = (
                 );
 
                 if (!conversation) {
-                    bot.send(new builder.Message().address(message.address).text("You are no longer in conversation with the user"));
+                    // find which users have status of waiting
+                    // find which user has been waiting longest
+                    let waitingUsers = conversations.filter((x) => x.state === ConversationState.Waiting)
+                    if (waitingUsers.length === 0) {
+                        bot.send(new builder.Message().address(message.address).text("You are no longer in conversation with the user. No users waiting"));
+                        // connect this agent to that user
+                        return;
+                    }
+
+                    waitingUsers[0].agent = message.address;
+
                     return;
                 }
 
@@ -85,7 +95,7 @@ export const route = (
                 }
 
             }
-            case 'conversationUpdate':
-                console.log('user: ' + event.user);
+        case 'conversationUpdate':
+            console.log('user: ' + event.user);
     }
 }
