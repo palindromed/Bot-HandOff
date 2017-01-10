@@ -28,6 +28,9 @@ exports.route = (event, bot, next) => {
                         // connect this agent to that user
                         return;
                     }
+                    console.log(waitingUsers);
+                    console.log(waitingUsers[0]);
+                    waitingUsers[0].state = globals_1.ConversationState.Agent;
                     waitingUsers[0].agent = message.address;
                     return;
                 }
