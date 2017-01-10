@@ -70,6 +70,6 @@ exports.route = (event, bot, next) => {
                 }
             }
         case 'conversationUpdate':
-            console.log(event.user);
+            console.log('user: ' + event.user);
     }
 };

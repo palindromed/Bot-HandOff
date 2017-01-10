@@ -86,6 +86,6 @@ export const route = (
 
             }
             case 'conversationUpdate':
-                console.log(event.user);
+                console.log('user: ' + event.user);
     }
 }
