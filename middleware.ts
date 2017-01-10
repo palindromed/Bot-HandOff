@@ -30,6 +30,7 @@ export const route = (
                 );
 
                 if (!conversation) {
+                    console.log('not in conversation yet')
                     // find which users have status of waiting
                     // find which user has been waiting longest
                     let waitingUsers = conversations.filter((x) => x.state === ConversationState.Waiting)
@@ -38,7 +39,10 @@ export const route = (
                         // connect this agent to that user
                         return;
                     }
-
+                    console.log('*****************************');
+                    console.log(waitingUsers);
+                    console.log(waitingUsers[0]);
+                    waitingUsers[0].state = ConversationState.Agent;
                     waitingUsers[0].agent = message.address;
 
                     return;
