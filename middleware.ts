@@ -29,7 +29,7 @@ export const route = (
                     conversation.agent.conversation.id === message.address.conversation.id
                 );
 
-                if (!conversation) {
+                if (typeof conversation === 'undefined') {
                     console.log('not in conversation yet')
                     // find which users have status of waiting
                     // find which user has been waiting longest
