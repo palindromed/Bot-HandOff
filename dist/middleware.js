@@ -19,6 +19,9 @@ exports.route = (event, bot, next) => {
                 console.log("message from agent");
                 // If we're hearing from an agent they are already part of a conversation
                 const conversation = globals_1.conversations.find(conversation => conversation.agent.conversation.id === message.address.conversation.id);
+                console.log('================');
+                console.log(conversation);
+                console.log('================');
                 if (typeof conversation === 'undefined') {
                     console.log('not in conversation yet');
                     // find which users have status of waiting
