@@ -1,98 +1,89 @@
 import * as builder from 'botbuilder';
-import { conversations, users, agent } from './globals';
+import { conversations, ConversationState, TranscriptLine } from './globals';
+
+
+const addToTranscript = (transcript: TranscriptLine[], message: builder.IMessage) => {
+    console.log("transcribing message", message);
+    transcript.push({
+        timestamp: message.timestamp,
+        from: message.address,
+        text: message.text
+    });
+}
 
 export const route = (
-    message: builder.IEvent,
+    event: builder.IEvent,
     bot: builder.UniversalBot,
     next: Function
 ) => {
-        console.log(message);
-        console.log('conversations/state')
-        console.log(conversations);
-        console.log('users');
-        console.log(users);
-        console.log('agents');
-        console.log(agent);
+    console.log("middleware event", event);
+    console.log("conversations", conversations);
 
-        switch (message.type) {
-            case 'message':
-                var msg = new builder.Message()
-                            .address(message.address)
-                            .text("I saw what you did.");
-                bot.send(msg);
-/*
-                if (message.user.isStaff) {
-                    var agentConversationId = message.address.conversation.id;
-                    var agentAddress = global.conversations[agentConversationId];
-                    if (typeof agentAddress === 'undefined') { // agent not in state yet, add them ****This will happen for each conversation, not agent.
-                        global.agent.push(agentConversationId);
-                        global.conversations[agentConversationId] = { address: message.address };
-                    } else if (agentAddress.userAddress) {
-                        var msg = new builder.Message()
-                            .address(agentAddress.userAddress)
-                            .text(message.text);
-                        bot.send(msg);
-                    }
+    switch (event.type) {
+        case 'message':
+            const message = event as builder.IMessage;
+            if (message.user.name.startsWith("Agent")) {
+                console.log("message from agent");
+                // If we're hearing from an agent they are already part of a conversation
+                const conversation = conversations.find(conversation =>
+                    conversation.agent.conversation.id === message.address.conversation.id
+                );
+
+                if (!conversation) {
+                    bot.send(new builder.Message().address(message.address).text("You are no longer in conversation with the user"));
+                    return;
                 }
-                // End Agent
 
-                // Setting User state logic
-                else {
-                    var userId = message.address.conversation.id;
-                    var thisUser = global.conversations[userId];
-                    // Add a user not yet in state
-                    if (typeof thisUser === 'undefined') {
-                        global.conversations[userId] = { transcript: [message], address: message.address, status: 'Talking_To_Bot' };
-                    } else {
-                        // get spread operator? 
-                        global.conversations[userId].transcript.push(message);
+                if (conversation.state !== ConversationState.Agent) {
+                    bot.send(new builder.Message().address(message.address).text("Shouldn't be in this state - agent should have been cleared out."));
+                    console.log("Shouldn't be in this state - agent should have been cleared out");
+                    return;
+                }
 
-                        if (message.text === 'help' && thisUser.status === 'Talking_To_Bot') {
-                            // user initiated connect to agent
-                            thisUser = Object.assign({}, global.conversations[message.address.conversation.id], { 'status': 'Finding_Agent' });
-                            global.conversations[userId] =  thisUser;
-                            global.users.push(message.address.conversation.id);
+                console.log("passing agent message to user");
+                addToTranscript(conversation.transcript, message);
+                bot.send(new builder.Message().address(conversation.customer).text(message.text));
+            } else {
+                console.log("message from customer");
+                let conversation = conversations.find(conversation =>
+                    conversation.customer.conversation.id === message.address.conversation.id
+                );
 
-                        } else if (message.text === 'done' && thisUser.status === 'Talking_To_Agent') {
-                            // deal with disconnecting agent as well
-                            delete thisUser.agentAddress;
-                            thisUser = Object.assign({}, thisUser, { 'status': 'Talking_To_Bot' });
-                            global.conversations[userId] = thisUser;
-                            // bot.beginDialog(message.address, '/');
+                if (!conversation) {
+                    // first time caller, long time listener
+                    conversation = {
+                        customer: message.address,
+                        state: ConversationState.Bot,
+                        transcript: []
+                    };
+                    conversations.push(conversation);
+                }
+                addToTranscript(conversation.transcript, message);
 
+                switch (conversation.state) {
+                    case ConversationState.Bot:
+                        if (message.text === 'help') {
+                            console.log("switching to Waiting");
+                            conversation.state = ConversationState.Waiting;
+                            return;
                         }
-                    }
-
-
-                    switch (thisUser.status) {
-                        case 'Finding_Agent':
-                            var msg = new builder.Message()
-                                .address(message.address)
-                                .text('Please hold while I find an agent');
-                            bot.send(msg);
-                            // finding agent and connecting the 2 
-                            if (global.agent.length >= 1) {
-                                var myAgent = global.conversations[global.agent[0]];
-                                global.conversations[userId] = Object.assign({}, thisUser, { agentAddress: myAgent.address, 'status': 'Talking_To_Agent' });
-                                global.conversations[myAgent.address.conversation.id] = Object.assign({}, myAgent, { userAddress: thisUser.address });
-                            }
-                            break;
-                        case 'Talking_To_Agent':
-                            var msg = new builder.Message()
-                                .address(global.conversations[userId].agentAddress)
-                                .text(message.text);
-                            bot.send(msg);
-                            break;
-                        case 'Talking_To_Bot':
-                            next();
-                            break;
-                        default:
-                            break;
-
-                    }
-
+                        console.log("pasing message to bot");
+                        return next();
+                    case ConversationState.Waiting:
+                        console.log("ignore message while waiting");
+                        bot.send(new builder.Message().address(message.address).text("Connecting you to the next available agent."));
+                        return;
+                    case ConversationState.Agent:
+                        if (!conversation.agent) {
+                            bot.send(new builder.Message().address(message.address).text("No agent address present while customer in state Agent"));
+                            console.log("No agent address present while customer in state Agent");
+                            return;
+                        }
+                        console.log("passing message to agent");
+                        bot.send(new builder.Message().address(conversation.agent).text(message.text));
+                        return;
                 }
-*/
-            }
-}
 
+            }
+    }
+}

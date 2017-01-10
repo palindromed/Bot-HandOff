@@ -1,10 +1,22 @@
+import * as builder from 'botbuilder';
+
+export enum ConversationState {
+    Bot,
+    Waiting,
+    Agent
+}
+
+export interface TranscriptLine {
+    timestamp: string,
+    from: any,
+    text: string
+}
+
 export interface Conversation {
-    conversationId: string,
-    address: any,
-    targetAddress: any
-    transcript: any[]
+    customer: builder.IAddress,
+    agent?: builder.IAddress,
+    state: ConversationState,
+    transcript: TranscriptLine[]
 };
 
 export const conversations: Conversation[] = [];
-export const agent: any[] = [];
-export const users: any[] = [];
