@@ -11,7 +11,7 @@ export interface TranscriptLine {
     from: any,
     text: string
 }
-
+ 
 export interface Conversation {
     customer: builder.IAddress,
     agent?: builder.IAddress,
