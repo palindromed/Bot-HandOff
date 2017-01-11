@@ -15,7 +15,7 @@ exports.route = (event, bot, next) => {
     switch (event.type) {
         case 'message':
             const message = event;
-            if (!message.user.name.startsWith("Agent")) {
+            if (message.user.name.startsWith("Agent")) {
                 console.log("message from agent");
                 // If we're hearing from an agent they are already part of a conversation
                 const conversation = globals_1.conversations.find(conversation => conversation.agent.conversation.id === message.address.conversation.id);
@@ -41,6 +41,7 @@ exports.route = (event, bot, next) => {
                 console.log("passing agent message to user");
                 addToTranscript(conversation.transcript, message);
                 bot.send(new builder.Message().address(conversation.customer).text(message.text));
+                return;
             }
             else {
                 console.log("message from customer");
@@ -60,6 +61,7 @@ exports.route = (event, bot, next) => {
                         if (message.text === 'help') {
                             console.log("switching to Waiting");
                             conversation.state = globals_1.ConversationState.Waiting;
+                            bot.send(new builder.Message().address(message.address).text("Connecting you to the next available agent."));
                             return;
                         }
                         console.log("pasing message to bot");

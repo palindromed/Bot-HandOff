@@ -1,5 +1,5 @@
 import * as builder from 'botbuilder';
-import { conversations, ConversationState, TranscriptLine } from './globals';
+import { Conversation, conversations, ConversationState, TranscriptLine } from './globals';
 
 
 const addToTranscript = (transcript: TranscriptLine[], message: builder.IMessage) => {
@@ -22,7 +22,7 @@ export const route = (
     switch (event.type) {
         case 'message':
             const message = event as builder.IMessage;
-            if (!message.user.name.startsWith("Agent")) {
+            if (message.user.name.startsWith("Agent")) {
                 console.log("message from agent");
                 // If we're hearing from an agent they are already part of a conversation
                 const conversation = conversations.find(conversation =>
@@ -37,7 +37,7 @@ export const route = (
                         // connect this agent to that user
                         return;
                     } else {
-                        waitingUsers.sort((x: any, y: any) => x.transcript[x.transcript.length - 1].timestamp - y.transcript[y.transcript.length - 1].timestamp)
+                        waitingUsers.sort((x: any, y: any) => x.transcript[x.transcript.length - 1].timestamp - y.transcript[y.transcript.length - 1].timestamp);
 
                         waitingUsers[0].agent = message.address;
                         waitingUsers[0].state = ConversationState.Agent;
@@ -54,6 +54,7 @@ export const route = (
                 console.log("passing agent message to user");
                 addToTranscript(conversation.transcript, message);
                 bot.send(new builder.Message().address(conversation.customer).text(message.text));
+                return;
             } else {
                 console.log("message from customer");
                 let conversation = conversations.find(conversation =>
@@ -76,6 +77,8 @@ export const route = (
                         if (message.text === 'help') {
                             console.log("switching to Waiting");
                             conversation.state = ConversationState.Waiting;
+                            bot.send(new builder.Message().address(message.address).text("Connecting you to the next available agent."));
+
                             return;
                         }
                         console.log("pasing message to bot");
