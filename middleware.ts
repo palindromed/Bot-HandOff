@@ -39,7 +39,7 @@ export const route = (
                     // if (waitingUsers.length === 0) {
                         bot.send(new builder.Message().address(message.address).text("You are no longer in conversation with the user. No users waiting"));
                         // connect this agent to that user
-                        return;
+                        break;
                     // }
                     // console.log('*****************************');
                     // console.log(waitingUsers);

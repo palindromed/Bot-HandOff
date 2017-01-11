@@ -29,7 +29,7 @@ exports.route = (event, bot, next) => {
                     // if (waitingUsers.length === 0) {
                     bot.send(new builder.Message().address(message.address).text("You are no longer in conversation with the user. No users waiting"));
                     // connect this agent to that user
-                    return;
+                    break;
                 }
                 if (conversation.state !== globals_1.ConversationState.Agent) {
                     bot.send(new builder.Message().address(message.address).text("Shouldn't be in this state - agent should have been cleared out."));
