@@ -33,6 +33,7 @@ export const route = (
                 if (!conversation) {
                     if (message.text === 'connect') {
                         // agent api for dealing with queue of users who initiated talk to agent state
+                        // replace with button that handles functionality
                         let waitingCustomers = conversations.filter((x) => x.state === ConversationState.Waiting);
                         console.log('customers in Waiting state: ', waitingCustomers);
 
@@ -40,7 +41,7 @@ export const route = (
                             bot.send(new builder.Message().address(message.address).text("You are no longer in conversation with the user. No users waiting"));
                             return;
                         } else {
-                            waitingCustomers.sort((x: any, y: any) => x.transcript[x.transcript.length - 1].timestamp - y.transcript[y.transcript.length - 1].timestamp)
+                            waitingCustomers.sort((x: any, y: any) =>  y.transcript[y.transcript.length - 1].timestamp - x.transcript[x.transcript.length - 1].timestamp)
                             // connect this agent to the customer that has been waiting the longest                        
                             waitingCustomers[0].agent = message.address;
                             waitingCustomers[0].state = ConversationState.Agent;
@@ -56,6 +57,14 @@ export const route = (
                     bot.send(new builder.Message().address(message.address).text("Shouldn't be in this state - agent should have been cleared out."));
                     console.log("Shouldn't be in this state - agent should have been cleared out");
                     return;
+                } else if (conversation.state === ConversationState.Agent && message.text === 'disconnect') {
+                    console.log('disconnecting from user');
+                    conversation.state = ConversationState.Bot;
+                    delete conversation.agent;
+                    bot.send(new builder.Message().address(message.address).text("Disconnected from user. This conversation id should go away now"));
+                    return;
+                    
+
                 }
 
                 console.log("passing agent message to user");
