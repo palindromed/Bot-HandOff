@@ -24,27 +24,26 @@ export const route = (
             const message = event as builder.IMessage;
             if (message.user.name.startsWith("Agent")) {
                 console.log("message from agent");
-                // If we're hearing from an agent they are already part of a conversation
+
                 let conversation = conversations.find(conversation =>
-                    conversation.agent.conversation.id === message.address.conversation.id
+                    conversation.agent && conversation.agent.conversation.id === message.address.conversation.id
                 );
                 console.log('conversation for agent: ', conversation);
 
                 if (!conversation) {
 
-                    let waitingUsers = conversations.filter((x) => x.state === ConversationState.Waiting);
-                    console.log('===*****===');
+                    let waitingCustomers = conversations.filter((x) => x.state === ConversationState.Waiting);
+                    console.log('filtered list: ', waitingCustomers);
 
-                    console.log('filtered list: ', waitingUsers);
-                    if (waitingUsers.length === 0) {
+                    if (waitingCustomers.length === 0) {
                         bot.send(new builder.Message().address(message.address).text("You are no longer in conversation with the user. No users waiting"));
-                        // connect this agent to that user
                         return;
                     } else {
-                        // waitingUsers.sort((x: any, y: any) => x.transcript[x.transcript.length - 1].timestamp - y.transcript[y.transcript.length - 1].timestamp)
+                        // waitingCustomers.sort((x: any, y: any) => x.transcript[x.transcript.length - 1].timestamp - y.transcript[y.transcript.length - 1].timestamp)
                         console.log('=========================');
-                        waitingUsers[0].agent = message.address;
-                        waitingUsers[0].state = ConversationState.Agent;
+                        // connect this agent to the customer that has been waiting the longest                        
+                        waitingCustomers[0].agent = message.address;
+                        waitingCustomers[0].state = ConversationState.Agent;
                         return;
                     }
                 }
@@ -53,7 +52,7 @@ export const route = (
                     bot.send(new builder.Message().address(message.address).text("Shouldn't be in this state - agent should have been cleared out."));
                     console.log("Shouldn't be in this state - agent should have been cleared out");
                     return;
-                }
+                } 
 
                 console.log("passing agent message to user");
                 addToTranscript(conversation.transcript, message);
