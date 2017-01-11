@@ -21,6 +21,7 @@ exports.route = (event, bot, next) => {
                 const conversation = globals_1.conversations.find(conversation => conversation.agent.conversation.id === message.address.conversation.id);
                 if (!conversation) {
                     let waitingUsers = globals_1.conversations.filter((x) => x.state === globals_1.ConversationState.Waiting);
+                    console.log(waitingUsers);
                     if (waitingUsers.length === 0) {
                         bot.send(new builder.Message().address(message.address).text("You are no longer in conversation with the user. No users waiting"));
                         // connect this agent to that user
