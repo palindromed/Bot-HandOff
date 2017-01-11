@@ -22,32 +22,27 @@ export const route = (
     switch (event.type) {
         case 'message':
             const message = event as builder.IMessage;
-            if (message.user.name.startsWith("Agent")) {
+            if (!message.user.name.startsWith("Agent")) {
                 console.log("message from agent");
                 // If we're hearing from an agent they are already part of a conversation
                 const conversation = conversations.find(conversation =>
                     conversation.agent.conversation.id === message.address.conversation.id
                 );
-                console.log('=========================');
-                console.log(conversation);
 
                 if (!conversation) {
-                    console.log('not in conversation yet')
-                    // find which users have status of waiting
-                    // find which user has been waiting longest
-                    // let waitingUsers = conversations.filter((x) => x.state === ConversationState.Waiting);
-                    // if (waitingUsers.length === 0) {
+
+                    let waitingUsers = conversations.filter((x) => x.state === ConversationState.Waiting);
+                    if (waitingUsers.length === 0) {
                         bot.send(new builder.Message().address(message.address).text("You are no longer in conversation with the user. No users waiting"));
                         // connect this agent to that user
-                        break;
-                    // }
-                    // console.log('*****************************');
-                    // console.log(waitingUsers);
-                    // console.log(waitingUsers[0]);
-                    // waitingUsers[0].state = ConversationState.Agent;
-                    // waitingUsers[0].agent = message.address;
+                        return;
+                    } else {
+                        waitingUsers.sort((x: any, y: any) => x.transcript[x.transcript.length - 1].timestamp - y.transcript[y.transcript.length - 1].timestamp)
 
-                    // return;
+                        waitingUsers[0].agent = message.address;
+                        waitingUsers[0].state = ConversationState.Agent;
+                        return;
+                    }
                 }
 
                 if (conversation.state !== ConversationState.Agent) {
@@ -101,7 +96,5 @@ export const route = (
                 }
 
             }
-        case 'conversationUpdate':
-            console.log('user: ' + event.user);
     }
 }
