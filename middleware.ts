@@ -31,20 +31,21 @@ export const route = (
                 console.log('conversation for agent: ', conversation);
 
                 if (!conversation) {
+                    if (message.text === 'connect') {
+                        // agent api for dealing with queue of users who initiated talk to agent state
+                        let waitingCustomers = conversations.filter((x) => x.state === ConversationState.Waiting);
+                        console.log('customers in Waiting state: ', waitingCustomers);
 
-                    let waitingCustomers = conversations.filter((x) => x.state === ConversationState.Waiting);
-                    console.log('filtered list: ', waitingCustomers);
-
-                    if (waitingCustomers.length === 0) {
-                        bot.send(new builder.Message().address(message.address).text("You are no longer in conversation with the user. No users waiting"));
-                        return;
-                    } else {
-                        // waitingCustomers.sort((x: any, y: any) => x.transcript[x.transcript.length - 1].timestamp - y.transcript[y.transcript.length - 1].timestamp)
-                        console.log('=========================');
-                        // connect this agent to the customer that has been waiting the longest                        
-                        waitingCustomers[0].agent = message.address;
-                        waitingCustomers[0].state = ConversationState.Agent;
-                        return;
+                        if (waitingCustomers.length === 0) {
+                            bot.send(new builder.Message().address(message.address).text("You are no longer in conversation with the user. No users waiting"));
+                            return;
+                        } else {
+                            waitingCustomers.sort((x: any, y: any) =>  x.transcript[x.transcript.length - 1].timestamp - y.transcript[y.transcript.length - 1].timestamp)
+                            // connect this agent to the customer that has been waiting the longest                        
+                            waitingCustomers[0].agent = message.address;
+                            waitingCustomers[0].state = ConversationState.Agent;
+                            return;
+                        }
                     }
                 }
 
@@ -52,7 +53,7 @@ export const route = (
                     bot.send(new builder.Message().address(message.address).text("Shouldn't be in this state - agent should have been cleared out."));
                     console.log("Shouldn't be in this state - agent should have been cleared out");
                     return;
-                } 
+                }
 
                 console.log("passing agent message to user");
                 addToTranscript(conversation.transcript, message);
