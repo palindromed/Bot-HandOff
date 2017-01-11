@@ -19,11 +19,12 @@ var bot = new builder.UniversalBot(connector);
 app.post('/api/messages', connector.listen());
 // Create endpoint for agent / call center
 app.use('/agent', express.static('public'));
+middleware_1.addHandoffHooks(app);
 //========================================================
 // Bot Middleware
 //========================================================
 bot.use({
-    receive: function (event, next) {
+    receive: (event, next) => {
         middleware_1.route(event, bot, next);
     }
 });

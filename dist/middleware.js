@@ -20,19 +20,21 @@ exports.route = (event, bot, next) => {
                 let conversation = globals_1.conversations.find(conversation => conversation.agent && conversation.agent.conversation.id === message.address.conversation.id);
                 console.log('conversation for agent: ', conversation);
                 if (!conversation) {
-                    let waitingCustomers = globals_1.conversations.filter((x) => x.state === globals_1.ConversationState.Waiting);
-                    console.log('filtered list: ', waitingCustomers);
-                    if (waitingCustomers.length === 0) {
-                        bot.send(new builder.Message().address(message.address).text("You are no longer in conversation with the user. No users waiting"));
-                        return;
-                    }
-                    else {
-                        // waitingCustomers.sort((x: any, y: any) => x.transcript[x.transcript.length - 1].timestamp - y.transcript[y.transcript.length - 1].timestamp)
-                        console.log('=========================');
-                        // connect this agent to the customer that has been waiting the longest                        
-                        waitingCustomers[0].agent = message.address;
-                        waitingCustomers[0].state = globals_1.ConversationState.Agent;
-                        return;
+                    if (message.text === 'connect') {
+                        // agent api for dealing with queue of users who initiated talk to agent state
+                        let waitingCustomers = globals_1.conversations.filter((x) => x.state === globals_1.ConversationState.Waiting);
+                        console.log('customers in Waiting state: ', waitingCustomers);
+                        if (waitingCustomers.length === 0) {
+                            bot.send(new builder.Message().address(message.address).text("You are no longer in conversation with the user. No users waiting"));
+                            return;
+                        }
+                        else {
+                            waitingCustomers.sort((x, y) => x.transcript[x.transcript.length - 1].timestamp - y.transcript[y.transcript.length - 1].timestamp);
+                            // connect this agent to the customer that has been waiting the longest                        
+                            waitingCustomers[0].agent = message.address;
+                            waitingCustomers[0].state = globals_1.ConversationState.Agent;
+                            return;
+                        }
                     }
                 }
                 if (conversation.state !== globals_1.ConversationState.Agent) {
@@ -84,4 +86,9 @@ exports.route = (event, bot, next) => {
                 }
             }
     }
+};
+exports.addHandoffHooks = (app) => {
+    app.get('/handoff/conversations', (req, res) => {
+        res.send(JSON.stringify(globals_1.conversations));
+    });
 };
