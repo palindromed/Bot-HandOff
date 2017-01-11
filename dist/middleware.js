@@ -22,7 +22,7 @@ exports.route = (event, bot, next) => {
                 if (!conversation) {
                     if (message.text === 'connect') {
                         // agent api for dealing with queue of users who initiated talk to agent state
-                        // replace with button that handles functionality
+                        // replace with button in agent ui
                         let waitingCustomers = globals_1.conversations.filter((x) => x.state === globals_1.ConversationState.Waiting);
                         console.log('customers in Waiting state: ', waitingCustomers);
                         if (waitingCustomers.length === 0) {
@@ -34,6 +34,7 @@ exports.route = (event, bot, next) => {
                             // connect this agent to the customer that has been waiting the longest                        
                             waitingCustomers[0].agent = message.address;
                             waitingCustomers[0].state = globals_1.ConversationState.Agent;
+                            bot.send(new builder.Message().address(message.address).text("You are now talking to " + waitingCustomers[0].customer.user.name));
                             return;
                         }
                     }
@@ -47,11 +48,15 @@ exports.route = (event, bot, next) => {
                     console.log("Shouldn't be in this state - agent should have been cleared out");
                     return;
                 }
-                else if (conversation.state === globals_1.ConversationState.Agent && message.text === 'disconnect') {
+                if (message.text === 'disconnect') {
+                    // change this to a button when agent ui exists
                     console.log('disconnecting from user');
                     conversation.state = globals_1.ConversationState.Bot;
                     delete conversation.agent;
-                    bot.send(new builder.Message().address(message.address).text("Disconnected from user. This conversation id should go away now"));
+                    // message to customer to make it clear they are now talking to bot
+                    bot.send(new builder.Message().address(conversation.customer).text("You are now talking to the bot."));
+                    // let agent know they are disconnected from customer
+                    bot.send(new builder.Message().address(message.address).text("Disconnected from user."));
                     return;
                 }
                 console.log("passing agent message to user");
@@ -80,7 +85,7 @@ exports.route = (event, bot, next) => {
                             bot.send(new builder.Message().address(message.address).text("Connecting you to the next available agent."));
                             return;
                         }
-                        console.log("pasing message to bot");
+                        console.log("passing message to bot");
                         return next();
                     case globals_1.ConversationState.Waiting:
                         console.log("ignore message while waiting");
@@ -99,8 +104,20 @@ exports.route = (event, bot, next) => {
             }
     }
 };
+exports.captureMessagesFromBot = (event, next) => {
+    // add bot msg to transcript
+    let conversation = globals_1.conversations.find(conversation => conversation.customer.conversation.id === event.address.conversation.id);
+    if (conversation && conversation.state !== globals_1.ConversationState.Agent) {
+        addToTranscript(conversation.transcript, event);
+    }
+    next();
+};
 exports.addHandoffHooks = (app) => {
     app.get('/handoff/conversations', (req, res) => {
         res.send(JSON.stringify(globals_1.conversations));
+    });
+    app.get('/handoff/conversation/:conversationId', (req, res) => {
+        let conversation = globals_1.conversations.find(conversation => conversation.customer.conversation.id && conversation.customer.conversation.id === req.params.conversationId);
+        res.send(JSON.stringify(conversation.transcript));
     });
 };

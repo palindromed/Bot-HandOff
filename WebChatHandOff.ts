@@ -1,6 +1,6 @@
 import * as express from 'express';
 import * as builder from 'botbuilder';
-import { route, addHandoffHooks  } from './middleware';
+import { route, addHandoffHooks, captureMessagesFromBot  } from './middleware';
 
 //=========================================================
 // Bot Setup
@@ -31,6 +31,9 @@ addHandoffHooks(app);
 bot.use({
     receive: (event, next) => {
         route(event, bot, next);
+    },
+    send: (event, next) => {
+        captureMessagesFromBot(event, next);
     }
 });
 

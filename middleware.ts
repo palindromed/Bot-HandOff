@@ -33,7 +33,7 @@ export const route = (
                 if (!conversation) {
                     if (message.text === 'connect') {
                         // agent api for dealing with queue of users who initiated talk to agent state
-                        // replace with button that handles functionality
+                        // replace with button in agent ui
                         let waitingCustomers = conversations.filter((x) => x.state === ConversationState.Waiting);
                         console.log('customers in Waiting state: ', waitingCustomers);
 
@@ -41,10 +41,11 @@ export const route = (
                             bot.send(new builder.Message().address(message.address).text("You are no longer in conversation with the user. No users waiting"));
                             return;
                         } else {
-                            waitingCustomers.sort((x: any, y: any) =>  y.transcript[y.transcript.length - 1].timestamp - x.transcript[x.transcript.length - 1].timestamp)
+                            waitingCustomers.sort((x: any, y: any) => y.transcript[y.transcript.length - 1].timestamp - x.transcript[x.transcript.length - 1].timestamp)
                             // connect this agent to the customer that has been waiting the longest                        
                             waitingCustomers[0].agent = message.address;
                             waitingCustomers[0].state = ConversationState.Agent;
+                            bot.send(new builder.Message().address(message.address).text("You are now talking to " + waitingCustomers[0].customer.user.name));
                             return;
                         }
                     } else {
@@ -57,14 +58,17 @@ export const route = (
                     bot.send(new builder.Message().address(message.address).text("Shouldn't be in this state - agent should have been cleared out."));
                     console.log("Shouldn't be in this state - agent should have been cleared out");
                     return;
-                } else if (conversation.state === ConversationState.Agent && message.text === 'disconnect') {
+                }
+                if (message.text === 'disconnect') {
+                    // change this to a button when agent ui exists
                     console.log('disconnecting from user');
                     conversation.state = ConversationState.Bot;
                     delete conversation.agent;
-                    bot.send(new builder.Message().address(message.address).text("Disconnected from user. This conversation id should go away now"));
+                    // message to customer to make it clear they are now talking to bot
+                    bot.send(new builder.Message().address(conversation.customer).text("You are now talking to the bot."));
+                    // let agent know they are disconnected from customer
+                    bot.send(new builder.Message().address(message.address).text("Disconnected from user."));
                     return;
-                    
-
                 }
 
                 console.log("passing agent message to user");
@@ -94,10 +98,9 @@ export const route = (
                             console.log("switching to Waiting");
                             conversation.state = ConversationState.Waiting;
                             bot.send(new builder.Message().address(message.address).text("Connecting you to the next available agent."));
-
                             return;
                         }
-                        console.log("pasing message to bot");
+                        console.log("passing message to bot");
                         return next();
                     case ConversationState.Waiting:
                         console.log("ignore message while waiting");
@@ -118,8 +121,26 @@ export const route = (
     }
 }
 
+export const captureMessagesFromBot = (event, next) => {
+    // add bot msg to transcript
+    let conversation = conversations.find(conversation =>
+        conversation.customer.conversation.id === event.address.conversation.id
+    );
+    if (conversation && conversation.state !== ConversationState.Agent) {
+        addToTranscript(conversation.transcript, event);
+
+    }
+    next();
+}
+
 export const addHandoffHooks = (app: Express) => {
     app.get('/handoff/conversations', (req, res) => {
         res.send(JSON.stringify(conversations));
+    });
+
+    app.get('/handoff/conversation/:conversationId', (req, res) => {
+        let conversation = conversations.find(conversation =>
+            conversation.customer.conversation.id && conversation.customer.conversation.id === req.params.conversationId);
+        res.send(JSON.stringify(conversation.transcript));
     });
 }

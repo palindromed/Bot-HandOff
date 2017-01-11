@@ -26,6 +26,9 @@ middleware_1.addHandoffHooks(app);
 bot.use({
     receive: (event, next) => {
         middleware_1.route(event, bot, next);
+    },
+    send: (event, next) => {
+        middleware_1.captureMessagesFromBot(event, next);
     }
 });
 //=========================================================
