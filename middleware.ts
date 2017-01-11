@@ -37,8 +37,8 @@ export const route = (
                         // connect this agent to that user
                         return;
                     } else {
-                        waitingUsers.sort((x: any, y: any) => x.transcript[x.transcript.length - 1].timestamp - y.transcript[y.transcript.length - 1].timestamp);
-
+                        // waitingUsers.sort((x: any, y: any) => x.transcript[x.transcript.length - 1].timestamp - y.transcript[y.transcript.length - 1].timestamp)
+                        console.log('=========================');
                         waitingUsers[0].agent = message.address;
                         waitingUsers[0].state = ConversationState.Agent;
                         return;
