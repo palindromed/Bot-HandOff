@@ -1,5 +1,5 @@
 import * as builder from 'botbuilder';
-import { conversations, ConversationState, TranscriptLine } from './globals';
+import { Conversation, conversations, ConversationState, TranscriptLine } from './globals';
 import { Express } from 'express';
 
 const addToTranscript = (transcript: TranscriptLine[], message: builder.IMessage) => {
@@ -31,6 +31,7 @@ export const route = (
                 console.log('conversation for agent: ', conversation);
 
                 if (!conversation) {
+                    const inputWords = message.text.split(' ');
                     if (message.text === 'connect') {
                         // agent api for dealing with queue of users who initiated talk to agent state
                         // replace with button in agent ui
@@ -48,6 +49,14 @@ export const route = (
                             bot.send(new builder.Message().address(message.address).text("You are now talking to " + waitingCustomers[0].customer.user.name));
                             return;
                         }
+                    } else if (inputWords[0] === 'grab') {
+                        let conversation = conversations.find(conversation =>
+                            conversation.customer.conversation.id === inputWords[inputWords.length - 1]
+                        );
+                        conversation.state = ConversationState.Agent;
+                        conversation.agent = message.address;
+                        bot.send(new builder.Message().address(message.address).text("You are now talking to " + conversation.customer.user.name));
+                        bot.send(new builder.Message().address(conversation.customer).text("You are now talking to an Agent"));                  
                     } else {
                         bot.send(new builder.Message().address(message.address).text("You are no longer in conversation and did not try connecting to a customer"));
                         return;
