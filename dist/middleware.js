@@ -15,21 +15,23 @@ exports.route = (event, bot, next) => {
     switch (event.type) {
         case 'message':
             const message = event;
-            if (message.user.name.startsWith("Agent")) {
+            if (!message.user.name.startsWith("Agent")) {
                 console.log("message from agent");
                 // If we're hearing from an agent they are already part of a conversation
                 const conversation = globals_1.conversations.find(conversation => conversation.agent.conversation.id === message.address.conversation.id);
-                console.log('=========================');
-                console.log(conversation);
                 if (!conversation) {
-                    console.log('not in conversation yet');
-                    // find which users have status of waiting
-                    // find which user has been waiting longest
-                    // let waitingUsers = conversations.filter((x) => x.state === ConversationState.Waiting);
-                    // if (waitingUsers.length === 0) {
-                    bot.send(new builder.Message().address(message.address).text("You are no longer in conversation with the user. No users waiting"));
-                    // connect this agent to that user
-                    break;
+                    let waitingUsers = globals_1.conversations.filter((x) => x.state === globals_1.ConversationState.Waiting);
+                    if (waitingUsers.length === 0) {
+                        bot.send(new builder.Message().address(message.address).text("You are no longer in conversation with the user. No users waiting"));
+                        // connect this agent to that user
+                        return;
+                    }
+                    else {
+                        waitingUsers.sort((x, y) => x.transcript[x.transcript.length - 1].timestamp - y.transcript[y.transcript.length - 1].timestamp);
+                        waitingUsers[0].agent = message.address;
+                        waitingUsers[0].state = globals_1.ConversationState.Agent;
+                        return;
+                    }
                 }
                 if (conversation.state !== globals_1.ConversationState.Agent) {
                     bot.send(new builder.Message().address(message.address).text("Shouldn't be in this state - agent should have been cleared out."));
@@ -77,7 +79,5 @@ exports.route = (event, bot, next) => {
                         return;
                 }
             }
-        case 'conversationUpdate':
-            console.log('user: ' + event.user);
     }
 };
