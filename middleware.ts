@@ -28,24 +28,26 @@ export const route = (
                 const conversation = conversations.find(conversation =>
                     conversation.agent.conversation.id === message.address.conversation.id
                 );
+                console.log('=========================');
+                console.log(conversation);
 
-                if (typeof conversation === 'undefined') {
+                if (!conversation) {
                     console.log('not in conversation yet')
                     // find which users have status of waiting
                     // find which user has been waiting longest
-                    let waitingUsers = conversations.filter((x) => x.state === ConversationState.Waiting)
-                    if (waitingUsers.length === 0) {
+                    // let waitingUsers = conversations.filter((x) => x.state === ConversationState.Waiting);
+                    // if (waitingUsers.length === 0) {
                         bot.send(new builder.Message().address(message.address).text("You are no longer in conversation with the user. No users waiting"));
                         // connect this agent to that user
                         return;
-                    }
-                    console.log('*****************************');
-                    console.log(waitingUsers);
-                    console.log(waitingUsers[0]);
-                    waitingUsers[0].state = ConversationState.Agent;
-                    waitingUsers[0].agent = message.address;
+                    // }
+                    // console.log('*****************************');
+                    // console.log(waitingUsers);
+                    // console.log(waitingUsers[0]);
+                    // waitingUsers[0].state = ConversationState.Agent;
+                    // waitingUsers[0].agent = message.address;
 
-                    return;
+                    // return;
                 }
 
                 if (conversation.state !== ConversationState.Agent) {

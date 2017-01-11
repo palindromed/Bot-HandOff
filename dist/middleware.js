@@ -25,17 +25,10 @@ exports.route = (event, bot, next) => {
                     console.log('not in conversation yet');
                     // find which users have status of waiting
                     // find which user has been waiting longest
-                    let waitingUsers = globals_1.conversations.filter((x) => x.state === globals_1.ConversationState.Waiting);
-                    if (waitingUsers.length === 0) {
-                        bot.send(new builder.Message().address(message.address).text("You are no longer in conversation with the user. No users waiting"));
-                        // connect this agent to that user
-                        return;
-                    }
-                    console.log('*****************************');
-                    console.log(waitingUsers);
-                    console.log(waitingUsers[0]);
-                    waitingUsers[0].state = globals_1.ConversationState.Agent;
-                    waitingUsers[0].agent = message.address;
+                    // let waitingUsers = conversations.filter((x) => x.state === ConversationState.Waiting);
+                    // if (waitingUsers.length === 0) {
+                    bot.send(new builder.Message().address(message.address).text("You are no longer in conversation with the user. No users waiting"));
+                    // connect this agent to that user
                     return;
                 }
                 if (conversation.state !== globals_1.ConversationState.Agent) {
