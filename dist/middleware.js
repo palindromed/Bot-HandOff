@@ -18,7 +18,8 @@ exports.route = (event, bot, next) => {
             if (message.user.name.startsWith("Agent")) {
                 console.log("message from agent");
                 // If we're hearing from an agent they are already part of a conversation
-                const conversation = globals_1.conversations.find(conversation => conversation.agent.conversation.id === message.address.conversation.id);
+                let conversation = globals_1.conversations.find(conversation => conversation.agent.conversation.id === message.address.conversation.id);
+                console.log('conversation for agent: ', conversation);
                 if (!conversation) {
                     let waitingUsers = globals_1.conversations.filter((x) => x.state === globals_1.ConversationState.Waiting);
                     console.log('===*****===');

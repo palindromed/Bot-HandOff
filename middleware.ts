@@ -25,9 +25,10 @@ export const route = (
             if (message.user.name.startsWith("Agent")) {
                 console.log("message from agent");
                 // If we're hearing from an agent they are already part of a conversation
-                const conversation = conversations.find(conversation =>
+                let conversation = conversations.find(conversation =>
                     conversation.agent.conversation.id === message.address.conversation.id
                 );
+                console.log('conversation for agent: ', conversation);
 
                 if (!conversation) {
 
