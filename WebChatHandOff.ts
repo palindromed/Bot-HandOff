@@ -1,6 +1,6 @@
-import express = require('express');
+import * as express from 'express';
 import * as builder from 'botbuilder';
-import { route  } from './middleware';
+import { route, addHandoffHooks  } from './middleware';
 
 //=========================================================
 // Bot Setup
@@ -23,16 +23,16 @@ app.post('/api/messages', connector.listen());
 // Create endpoint for agent / call center
 app.use('/agent', express.static('public'));
 
+addHandoffHooks(app);
+
 //========================================================
 // Bot Middleware
 //========================================================
-bot.use(
-    {
-        
-        receive: function (event, next) {
-            route(event, bot, next);
-        }
-    });
+bot.use({
+    receive: (event, next) => {
+        route(event, bot, next);
+    }
+});
 
 //=========================================================
 // Bots Dialogs

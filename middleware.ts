@@ -1,6 +1,6 @@
 import * as builder from 'botbuilder';
-import { Conversation, conversations, ConversationState, TranscriptLine } from './globals';
-
+import { conversations, ConversationState, TranscriptLine } from './globals';
+import { Express } from 'express';
 
 const addToTranscript = (transcript: TranscriptLine[], message: builder.IMessage) => {
     console.log("transcribing message", message);
@@ -104,4 +104,10 @@ export const route = (
 
             }
     }
+}
+
+export const addHandoffHooks = (app: Express) => {
+    app.get('/handoff/conversations', (req, res) => {
+        res.send(JSON.stringify(conversations));
+    });
 }
