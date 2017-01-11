@@ -40,12 +40,15 @@ export const route = (
                             bot.send(new builder.Message().address(message.address).text("You are no longer in conversation with the user. No users waiting"));
                             return;
                         } else {
-                            waitingCustomers.sort((x: any, y: any) =>  x.transcript[x.transcript.length - 1].timestamp - y.transcript[y.transcript.length - 1].timestamp)
+                            waitingCustomers.sort((x: any, y: any) => x.transcript[x.transcript.length - 1].timestamp - y.transcript[y.transcript.length - 1].timestamp)
                             // connect this agent to the customer that has been waiting the longest                        
                             waitingCustomers[0].agent = message.address;
                             waitingCustomers[0].state = ConversationState.Agent;
                             return;
                         }
+                    } else {
+                        bot.send(new builder.Message().address(message.address).text("You are no longer in conversation and did not try connecting to a customer"));
+                        return;
                     }
                 }
 

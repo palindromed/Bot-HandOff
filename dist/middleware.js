@@ -36,6 +36,10 @@ exports.route = (event, bot, next) => {
                             return;
                         }
                     }
+                    else {
+                        bot.send(new builder.Message().address(message.address).text("You are no longer in conversation and did not try connecting to a customer"));
+                        return;
+                    }
                 }
                 if (conversation.state !== globals_1.ConversationState.Agent) {
                     bot.send(new builder.Message().address(message.address).text("Shouldn't be in this state - agent should have been cleared out."));
