@@ -4,76 +4,22 @@
 <head>
     <meta charset="UTF-8" />
     <title>Bot Chat</title>
+    <script src="http://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+        crossorigin="anonymous"></script>
 
     <link href="botchat.css" rel="stylesheet" />
 </head>
 
 <body>
-    <table>
-        <tr>
-            <td><div id="BotChatGoesHere"></div></td>
-        </tr>
-        <tr>
-            <td>  <div id="BotChat2GoesHere"></div></td>
-        </tr>
-    </table>
-  
+    <div id="BotChatGoesHere"></div>
+    <form id="logon-form">
+        <label for="user-id">Enter login ID here</label>
+        <input id="user-id" type="text">
+        <button id="submit-btn" type="submit">Log In</button>
+    </form>
+
+    <script src="connectToBot.js"></script>
     <script src="botchat.js"></script>
-    <script>
-        var params = {};
-        location
-            .search
-            .substring(1)
-            .split("&")
-            .forEach(function (pair) {
-                var p = pair.split("=");
-                params[p[0]] = decodeURIComponent(p[1]);
-            });
-
-        var botConnection = new BotChat.DirectLine({
-            secret: 'Vyk0lb3f67A.cwA.spc.mj0eCcnFEk2fLi6AvWxWqelFTgp9JPi3A-EJJ-EdvqA',
-            token: params['t'],
-            domain: params['domain'],
-            webSocket: true
-        });
-        var botConnection2 = new BotChat.DirectLine({
-            secret: 'Vyk0lb3f67A.cwA.kLY.VMZeCvvj0LIIOphoGy7Rkcut59c-fmCYTVEVnoWN30c',
-            token: params['t'],
-            domain: params['domain'],
-            webSocket: true
-        });
-
-        var user = {
-            id: 'hannah',
-            name: 'hannah',
-            isStaff: true
-        };
-
-        var user2 = {
-            id: 'scott',
-            name: 'scott'
-        };
-
-        var bot = {
-            id: params['botid'] || 'botid',
-            name: params["botname"] || 'botname'
-        };
-
-        BotChat.App({
-            botConnection: botConnection2,
-            user: user2,
-            bot: bot,
-        }, document.getElementById("BotChatGoesHere"));
-
-        BotChat.App({
-            botConnection: botConnection,
-            user: user,
-            bot: bot,
-        }, document.getElementById("BotChat2GoesHere"));
-    </script>
-
-
-
 </body>
 
 </html>

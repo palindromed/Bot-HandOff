@@ -1,6 +1,7 @@
+import { Console } from 'NodeJS';
 import * as express from 'express';
 import * as builder from 'botbuilder';
-import { route, addHandoffHooks, captureMessagesFromBot  } from './middleware';
+import { route, addHandoffHooks, captureMessagesFromBot } from './middleware';
 
 //=========================================================
 // Bot Setup
