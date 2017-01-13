@@ -1,7 +1,6 @@
-import { Console } from 'NodeJS';
 import * as express from 'express';
 import * as builder from 'botbuilder';
-import { route, addHandoffHooks, captureMessagesFromBot } from './middleware';
+import { handoffMiddleware, addHandoffHooks } from './handoff';
 
 //=========================================================
 // Bot Setup
@@ -29,14 +28,7 @@ addHandoffHooks(app);
 //========================================================
 // Bot Middleware
 //========================================================
-bot.use({
-    receive: (event, next) => {
-        route(event, bot, next);
-    },
-    send: (event, next) => {
-        captureMessagesFromBot(event, next);
-    }
-});
+bot.use(handoffMiddleware(bot));
 
 //=========================================================
 // Bots Dialogs

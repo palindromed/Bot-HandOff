@@ -14,7 +14,7 @@ $(function () {
             });
 
         var botConnection = new BotChat.DirectLine({
-            secret: process.env.SECRET,
+            secret: params['s'],
             token: params['t'],
             domain: params['domain'],
             webSocket: true

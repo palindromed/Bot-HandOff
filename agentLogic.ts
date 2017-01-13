@@ -1,4 +1,3 @@
-import { BotConnectorBot } from 'botbuilder/lib';
 import * as builder from 'botbuilder';
 import { Conversation, conversations, ConversationState, TranscriptLine } from './globals';
 import { addToTranscript } from './middleware';
@@ -66,12 +65,14 @@ const getCustomerByName = (message: builder.IMessage, bot: builder.UniversalBot,
     let grabbedUser = conversations.find(conversation =>
         conversation.customer.user.name === customerName
     );
-    connectToCustomer(bot, grabbedUser, message.address);
-    return;
+    if (!grabbedUser)
+        bot.send(new builder.Message().address(message.address).text('There is no active customer named *' + customerName + '*.'));
+    else
+        connectToCustomer(bot, grabbedUser, message.address);
 }
 
 const sendAgentCommandOptions = (message: builder.IMessage, bot: builder.UniversalBot) => {
-    const commands = ' ### Agent Options\n - Type *connect* to connect to customer who has been waiting longest.\n - Type *list* to see a list of all current conversations.\n - Type *grab { user name }* to connect to a specific conversation\n - Type *disconnect* while talking to a user to end a conversation.\n - Type *options* at any time to see these options again.';
+    const commands = ' ### Agent Options\n - Type *connect* to connect to customer who has been waiting longest.\n - Type *connect { user name }* to connect to a specific conversation\n - Type *list* to see a list of all current conversations.\n - Type *disconnect* while talking to a user to end a conversation.\n - Type *options* at any time to see these options again.';
     bot.send(new builder.Message().address(message.address).text(commands).textFormat('markdown'));
     return;
 };
@@ -116,10 +117,10 @@ export const handleAgentMessage = (
 
 const notInConversation = (message: builder.IMessage, bot: builder.UniversalBot, inputWords: string[]) => {
     if (inputWords[0] === 'connect') {
-        getCustomerFromWaiting(message, bot);
-        return;
-    } else if (inputWords[0] === 'grab') {
-        getCustomerByName(message, bot, inputWords);
+        if (inputWords.length > 1)
+            getCustomerByName(message, bot, inputWords);
+        else
+            getCustomerFromWaiting(message, bot);
         return;
     } else if (inputWords[0] === 'list') {
         let conversationList = '### Current Conversations \n';
