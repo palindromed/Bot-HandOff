@@ -87,7 +87,7 @@
     .wc-message-group {
         display: table;
         height: 100%;
-        width: 50%;
+        width: 100%;
     }
 
     .wc-message-group-content {
@@ -118,7 +118,7 @@
     }
 
     .wc-message {
-        max-width: 50%;
+        max-width: 100%;
         position: relative;
     }
 
@@ -147,11 +147,11 @@
 
     .wc-message-content img {
         max-height: 320px;
-        max-width: 50%;
+        max-width: 100%;
     }
 
     .wc-message-content audio, .wc-message-content video {
-        max-width: 50%;
+        max-width: 100%;
     }
 
     .wc-message-content audio+h1, .wc-message-content video+h1 {
@@ -178,7 +178,7 @@
         background-color: transparent;
         color: #3A96DD;
         min-height: 32px;
-        width: 50%;
+        width: 100%;
         padding: 0 16px;
     }
 
