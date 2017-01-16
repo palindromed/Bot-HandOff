@@ -1,10 +1,19 @@
 import { setTimeout } from 'timers';
-import { IUniversalBotSettings } from 'botbuilder/lib';
+import { IUniversalBotSettings } from 'botbuilder';
 import { handleCustomerMessage } from './userMessage';
 import * as builder from 'botbuilder';
 import { Conversation, conversations, ConversationState, TranscriptLine } from './globals';
 import { handleAgentMessage } from './agentLogic';
 import { Express } from 'express';
+
+export const handoffMiddleware = (bot: builder.UniversalBot) => ({
+    botbuilder: (session: builder.Session, next: Function) => {
+        route(session, bot, next);
+    },
+    send: (event: builder.IEvent, next: Function) => {
+        captureMessagesFromBot(event, next);
+    }
+});
 
 export const addToTranscript = (transcript: TranscriptLine[], message: builder.IMessage) => {
     console.log("transcribing message", message);
@@ -15,25 +24,20 @@ export const addToTranscript = (transcript: TranscriptLine[], message: builder.I
     });
 };
 
-
 export const route = (
-    event: builder.IEvent,
+    session: builder.Session,
     bot: builder.UniversalBot,
     next: Function
 ) => {
-    console.log("middleware event", event);
     console.log("conversations", conversations);
 
-    switch (event.type) {
-        case 'message':
-            const message = event as builder.IMessage;
-            if (message.user.name.startsWith("Agent")) {
-                handleAgentMessage(message, bot)
-            } else {
-                handleCustomerMessage(message, bot, next);
-            }
+    const message = session.message;
+        if (message.user.name.startsWith("Agent")) {
+            handleAgentMessage(message, bot)
+        } else {
+            handleCustomerMessage(message, bot, next);
+        }
     }
-}
 
 export const captureMessagesFromBot = (event, next) => {
     // add bot msg to transcript
