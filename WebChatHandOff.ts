@@ -1,6 +1,6 @@
 import * as express from 'express';
 import * as builder from 'botbuilder';
-import { handoffMiddleware, addHandoffHooks } from './handoff';
+import { routingMiddleware, commandsMiddleware, addHandoffHooks } from './handoff';
 
 //=========================================================
 // Bot Setup
@@ -28,7 +28,7 @@ addHandoffHooks(app);
 //========================================================
 // Bot Middleware
 //========================================================
-bot.use(handoffMiddleware(bot));
+bot.use(commandsMiddleware(bot), routingMiddleware(bot));
 
 //=========================================================
 // Bots Dialogs

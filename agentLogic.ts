@@ -69,21 +69,26 @@ export const sendAgentCommandOptions = (session: builder.Session) => {
 };
 
 export const listCurrentConversations = (session: builder.Session) => {
-     let conversationList = '### Current Conversations \n';
+    if (conversations.length === 0) {
+        session.send("No customers are in conversation.");
+        return;
+    }
 
-        conversations.forEach(conversation => {
-            let starterText = ' - *' + conversation.customer.user.name + '*';
-            switch (ConversationState[conversation.state]) {
-                case 'Bot':
-                    conversationList += starterText + ' is talking to the bot\n';
-                    break;
-                case 'Agent':
-                    conversationList += starterText + ' is talking to an agent\n';
-                    break;
-                case 'Waiting':
-                    conversationList += starterText + ' is waiting to talk to an agent\n';
-                    break;
-            }
-        });
-        session.send(conversationList);
+    let text = '### Current Conversations \n';
+    conversations.forEach(conversation => {
+        const starterText = ' - *' + conversation.customer.user.name + '*';
+        switch (ConversationState[conversation.state]) {
+            case 'Bot':
+                text += starterText + ' is talking to the bot\n';
+                break;
+            case 'Agent':
+                text += starterText + ' is talking to an agent\n';
+                break;
+            case 'Waiting':
+                text += starterText + ' is waiting to talk to an agent\n';
+                break;
+        }
+    });
+
+    session.send(text);
 }
