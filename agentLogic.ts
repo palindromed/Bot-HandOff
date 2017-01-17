@@ -1,10 +1,9 @@
 import * as builder from 'botbuilder';
 import { Conversation, conversations, ConversationState, TranscriptLine } from './globals';
-import { addToTranscript } from './handoff';
 
 export const passMessageToCustomer = (message: builder.IMessage, bot: builder.UniversalBot, conversation: Conversation) => {
     console.log("passing agent message to user");
-    addToTranscript(conversation.transcript, message);
+    addToTranscript(conversation.customer.conversation.id, message);
     bot.send(new builder.Message().address(conversation.customer).text(message.text));
     return;
 };

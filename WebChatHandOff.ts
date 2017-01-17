@@ -1,12 +1,12 @@
 import * as express from 'express';
 import * as builder from 'botbuilder';
-import { routingMiddleware, commandsMiddleware, addHandoffHooks } from './handoff';
+import { Handoff } from './handoff';
 
 //=========================================================
 // Bot Setup
 //=========================================================
 
-var app = express();
+const app = express();
 
 // Setup Express Server
 app.listen(process.env.port || process.env.PORT || 3978, '::', () => {
@@ -23,12 +23,18 @@ app.post('/api/messages', connector.listen());
 // Create endpoint for agent / call center
 app.use('/agent', express.static('public'));
 
-addHandoffHooks(app);
+const handoff = new Handoff(bot /*, yourProviderHere */);
+
+handoff.addHandoffHooks(app);
 
 //========================================================
 // Bot Middleware
 //========================================================
-bot.use(commandsMiddleware(bot), routingMiddleware(bot));
+bot.use(
+    handoff.commandsMiddleware(),
+    handoff.routingMiddleware(),
+    /* other bot middlware should probably go here */
+);
 
 //=========================================================
 // Bots Dialogs

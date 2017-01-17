@@ -20,3 +20,10 @@ export interface Conversation {
 };
 
 export const conversations: Conversation[] = [];
+
+export interface Provider {
+    addToTranscript: (conversationId: string, message: builder.IMessage) => void;
+    connectCustomerToAgent: (conversationId: string, address: builder.IAddress) => void;
+    connectToWaitingCustomer: (session: builder.Session) ;
+
+}
