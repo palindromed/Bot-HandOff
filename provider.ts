@@ -1,18 +1,23 @@
 import * as builder from 'botbuilder';
-import { Provider, TranscriptLine, conversations, ConversationState, Conversation } from './globals';
+import { Provider, conversations, ConversationState } from './globals';
 
-export const getCustomerById = (conversationId: string) => {
-    const conversation = conversations.find(conversation =>
-        conversation.customer.conversation.id === conversationId
-    );
-    return conversation
+
+// Create
+const createNewCustomerConversation = (customerAddress: builder.IAddress) => {
+    const conversation = {
+        customer: customerAddress,
+        state: ConversationState.Bot,
+        transcript: []
+    };
+    conversations.push(conversation);
+    return conversation;
 }
 
+// Update
 const addToTranscript = (conversationId: string, message: builder.IMessage) => {
-    const conversation = getCustomerById(conversationId);
+    const conversation = getCustomerConversationById(conversationId);
 
     if (conversation) {
-        console.log("transcribing message", message);
         conversation.transcript.push({
             timestamp: message.timestamp,
             from: message.address,
@@ -21,8 +26,8 @@ const addToTranscript = (conversationId: string, message: builder.IMessage) => {
     }
 }
 
-const connectCustomerToAgent = (conversationId: string, address: builder.IAddress) => {
-    const conversation = getCustomerById(conversationId);
+const connectCustomerConversationToAgent = (conversationId: string, address: builder.IAddress) => {
+    const conversation = getCustomerConversationById(conversationId);
 
     if (conversation) {
         conversation.state = ConversationState.Agent;
@@ -30,49 +35,93 @@ const connectCustomerToAgent = (conversationId: string, address: builder.IAddres
     }
 }
 
-const connectToWaitingCustomer = (session: builder.Session) => {
+const updateCustomerConversationState = (conversationId: string, newState: ConversationState) => {
+    const conversation = getCustomerConversationById(conversationId);
+     conversation.state = newState;
+
+}
+
+const disconnectAgentFromCustomerConversation = (customerId: string) => {
+    const conversation = getCustomerConversationById(customerId);
+    conversation.state = ConversationState.Bot;
+    delete conversation.agent;
+}
+
+// Get
+const findCurrentAgentConversation = (agentConversationId: string) => {
+    const conversation = conversations.find(conversation =>
+        conversation.agent && conversation.agent.conversation.id === agentConversationId
+    );
+    return conversation;
+}
+
+const getCustomerConversationById = (conversationId: string) => {
+    const conversation = conversations.find(conversation =>
+        conversation.customer.conversation.id === conversationId
+    );
+    return conversation
+}
+const findCustomerConversationByName = (inputWords: string[]) => {
+    let customerNameInArray = inputWords.slice(1);
+    let customerName = customerNameInArray.join(' ');
+    let grabbedUser = conversations.find(conversation =>
+        conversation.customer.user.name === customerName
+    );
+    return grabbedUser;
+}
+
+const findCustomerConversationWaitingLongest = () => {
     let waitingConversations = conversations.filter((x) => x.state === ConversationState.Waiting);
-    console.log('customers in Waiting state: ', waitingConversations);
     if (waitingConversations.length === 0) {
-        session.send("No users waiting");
         return;
     } else {
-        // TODO change to a non mutating method
         waitingConversations.sort((x, y) => Date.parse(y.transcript[y.transcript.length - 1].timestamp) - Date.parse(x.transcript[x.transcript.length - 1].timestamp))
         return waitingConversations[0];
     }
+}
 
-    /*
-    const  listCurrentConversations = (session: builder.Session) => {
-            if (conversations.length === 0) {
-                session.send("No customers are in conversation.");
-                return;
-            }
-    
-            let text = '### Current Conversations \n';
-            conversations.forEach(conversation => {
-                const starterText = ' - *' + conversation.customer.user.name + '*';
-                switch (ConversationState[conversation.state]) {
-                    case 'Bot':
-                        text += starterText + ' is talking to the bot\n';
-                        break;
-                    case 'Agent':
-                        text += starterText + ' is talking to an agent\n';
-                        break;
-                    case 'Waiting':
-                        text += starterText + ' is waiting to talk to an agent\n';
-                        break;
-                }
-            });
-    
-            session.send(text);
-        }
-    */
-    export const defaultProvider: Provider = {
-        addToTranscript,
-        connectCustomerToAgent,
-
+const listCurrentConversations = () => {
+    if (conversations.length === 0) {
+        return;
     }
+
+    let text = '### Current Conversations \n';
+    conversations.forEach(conversation => {
+        const starterText = ' - *' + conversation.customer.user.name + '*';
+        switch (ConversationState[conversation.state]) {
+            case 'Bot':
+                text += starterText + ' is talking to the bot\n';
+                break;
+            case 'Agent':
+                text += starterText + ' is talking to an agent\n';
+                break;
+            case 'Waiting':
+                text += starterText + ' is waiting to talk to an agent\n';
+                break;
+        }
+    });
+
+    return text;
+}
+
+export const defaultProvider: Provider = {
+    // Create
+    createNewCustomerConversation,
+
+    // Update
+    addToTranscript,
+    connectCustomerConversationToAgent,
+    disconnectAgentFromCustomerConversation,
+    updateCustomerConversationState,
+
+    // Get
+    findCustomerConversationByName,
+    findCurrentAgentConversation,
+    getCustomerConversationById,
+    listCurrentConversations,
+    findCustomerConversationWaitingLongest,
+
+}
 
 
 
