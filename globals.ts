@@ -7,7 +7,7 @@ export enum ConversationState {
 }
 
 export interface TranscriptLine {
-    timestamp: string,
+    timestamp: any,
     from: any,
     text: string
 }
@@ -19,22 +19,26 @@ export interface Conversation {
     transcript: TranscriptLine[]
 };
 
-export const conversations: Conversation[] = [];
+export interface By {
+    bestChoice?: true,
+    agentConversationId?: string,
+    customerConversationId?: string,
+    customerName?: string
+}
 
 export interface Provider {
+    init();
+
     // Create
-    createNewCustomerConversation: (customerAddress: builder.IAddress) => Conversation;
+    createConversation: (customerAddress: builder.IAddress) => Conversation;
 
     // Update
-    addToTranscript: (conversationId: string, message: builder.IMessage) => void;
-    connectCustomerConversationToAgent: (conversationId: string, address: builder.IAddress) => void;
-    disconnectAgentFromCustomerConversation: (conversationId: string) => void;
-    updateCustomerConversationState: (customerId: string, newState: ConversationState) => void;
+    addToTranscript: (by: By, text: string) => boolean;
+    connectCustomerToAgent: (by: By, agentAddress: builder.IAddress) => boolean;
+    connectCustomerToBot: (by: By) => boolean;
+    queueCustomerForAgent: (by: By) => boolean;
     
     // Get
-    findCustomerConversationWaitingLongest: () => any;
-    findCustomerConversationByName: (inputWords: string[]) => any;
-    findCurrentAgentConversation: (agentConversationId: string) => any;
-    getCustomerConversationById: (conversationId: string) => any;
-    listCurrentConversations: () => any;
+    getConversation: (by: By) => Conversation;
+    currentConversations: () => Conversation[];
 }
