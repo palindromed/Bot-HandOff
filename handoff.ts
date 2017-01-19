@@ -1,177 +1,85 @@
 import * as builder from 'botbuilder';
 import { Express } from 'express';
-import { Conversation, conversations, ConversationState, TranscriptLine, Provider } from './globals';
+import { Conversation, By, ConversationState, TranscriptLine, Provider } from './globals';
 import { defaultProvider } from './provider';
 
 export class Handoff {
     constructor(private bot: builder.UniversalBot, private provider: Provider = defaultProvider) {
+        this.provider.init();
     }
 
     public routingMiddleware() {
         return {
-            receive: (event: builder.IEvent, next: Function) => {
-                if (event.type === 'message') {
-                    this.routeMessage(event, next);
+            botbuilder: (session: builder.Session, next: Function) => {
+                if (session.message.type === 'message') {
+                    this.routeMessage(session, next);
                 }
             },
-            send: (event: builder.IEvent, next: Function) => {
-                this.captureMessagesFromBot(event, next);
-            }
-        }
-    }
-
-    public commandsMiddleware() {
-        return {
-            receive: (event: builder.IEvent, next: Function) => {
-                if (event.type === 'message') {
-                    this.command(event, next);
-                }
+            send: (session: builder.Session, next: Function) => {
+                this.trancribeMessageFromBot(session.message, next);
             }
         }
     }
 
     public addHandoffHooks(app: Express) {
         app.get('/handoff/conversations', (req, res) => {
-            res.send(JSON.stringify(conversations));
+            res.send(JSON.stringify(this.provider.currentConversations()));
         });
 
-        app.get('/handoff/conversation/:conversationId', (req, res) => {
-            let conversation = conversations.find(conversation =>
-                conversation.customer.conversation.id && conversation.customer.conversation.id === req.params.conversationId);
+        app.get('/handoff/conversations/:conversationId', (req, res) => {
+            let conversation = this.provider.getConversation({ customerConversationId: req.params.conversationId });
             res.send(JSON.stringify(conversation.transcript));
         });
     }
 
-    private command(
-        event: builder.IEvent,
+    private routeMessage(
+        session: builder.Session,
         next: Function
     ) {
-        const message = event as builder.IMessage;
-        if (message.user.name.startsWith("Agent")) {
-            this.agentCommand(message)
+        if (session.message.user.name.startsWith("Agent")) {
+            console.log("agent");
+            this.routeAgentMessage(session)
         } else {
-            this.customerCommand(message, next);
+            console.log("customer");
+            this.routeCustomerMessage(session, next);
         }
     }
 
-    routeMessage(
-        event: builder.IEvent,
-        next: Function
-    ) {
-        const message = event as builder.IMessage;
-
-        if (message.user.name.startsWith("Agent")) {
-            this.routeAgentMessage(message)
-        } else {
-            // located in userMessage.ts
-            this.routeCustomerMessage(message, next);
-        }
-    }
-
-    private agentCommand(message: builder.IMessage) {
-        const conversation = this.provider.findCurrentAgentConversation(message.address.conversation.id);
-
-        const inputWords = message.text.split(' ');
-        if (inputWords.length == 0)
-            return;
-
-        if (inputWords[0] === 'options') {
-            this.sendAgentCommandOptions(message.address);
-            return;
-        }
-
-        if (!conversation) {
-            switch (inputWords[0]) {
-                case 'connect':
-                    if (inputWords.length > 1) {
-                        this.getCustomerByName(message.address, inputWords);
-                    } else {
-                        this.connectToWaitingCustomerConversation(message.address);
-                    }
-                    break;
-                case 'list':
-                    const results = this.provider.listCurrentConversations();
-                    if (!results) {
-                        this.bot.send(new builder.Message().address(message.address).text("No customers are in conversation."));
-                        break;
-                    }
-                    this.bot.send(new builder.Message().address(message.address).text(results));
-                    break;
-                default:
-                    this.sendAgentCommandOptions(message.address);
-                    break;
-            }
-            return;
-        }
-
-        if (conversation.state !== ConversationState.Agent) {
-            // error state -- should not happen
-            this.bot.send(new builder.Message().address(message.address).text("Shouldn't be in this state - agent should have been cleared out."));
-            console.log("Shouldn't be in this state - agent should have been cleared out");
-            return;
-        }
-
-        if (message.text === 'disconnect') {
-            this.disconnectFromCustomer(conversation.customer.conversation.id);
-            return;
-        }
-        this.passMessageToCustomer(message, conversation);
-    }
-
-    private routeAgentMessage(message: builder.IMessage) {
-        const conversation = this.provider.findCurrentAgentConversation(message.address.conversation.id);
+    private routeAgentMessage(session: builder.Session) {
+        const message = session.message;
+        const conversation = this.provider.getConversation({ agentConversationId: message.address.conversation.id });
 
         if (!conversation)
             return;
 
         if (conversation.state !== ConversationState.Agent) {
             // error state -- should not happen
-            this.bot.send(new builder.Message().address(message.address).text("Shouldn't be in this state - agent should have been cleared out."));
+            session.send("Shouldn't be in this state - agent should have been cleared out.");
             console.log("Shouldn't be in this state - agent should have been cleared out");
             return;
         }
+
+        this.bot.send(new builder.Message().address(conversation.customer).text(message.text));
     }
 
-    private customerCommand(message: builder.IMessage, next: Function) {
-        if (message.text === 'help') {
-            let conversation = this.provider.getCustomerConversationById(message.address.conversation.id);
-
-            if (!conversation) {
-                // first time caller, long time listener
-                conversation = this.provider.createNewCustomerConversation(message.address);
-            }
-
-            if (conversation.state == ConversationState.Bot) {
-                this.provider.addToTranscript(conversation.customer.conversation.id, message);
-                this.provider.updateCustomerConversationState(conversation.customer.conversation.id, ConversationState.Waiting)
-                this.bot.send(new builder.Message().address(message.address).text("Connecting you to the next available agent."));
-
-                return;
-            }
-        }
-
-        return next();
-    }
-
-    private routeCustomerMessage(message: builder.IMessage, next: Function) {
-        let conversation = this.provider.getCustomerConversationById(message.address.conversation.id);
+    private routeCustomerMessage(session: builder.Session, next: Function) {
+        const message = session.message;
+        let conversation = this.provider.getConversation({ customerConversationId: message.address.conversation.id });
 
         if (!conversation) {
-            // first time caller, long time listener
-            conversation = this.provider.createNewCustomerConversation(message.address);
-
+            conversation = this.provider.createConversation(message.address);
         }
-        this.provider.addToTranscript(conversation.customer.conversation.id, message);
+        this.provider.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
 
         switch (conversation.state) {
             case ConversationState.Bot:
                 return next();
             case ConversationState.Waiting:
-                this.bot.send(new builder.Message().address(message.address).text("Connecting you to the next available agent."));
+                session.send("Connecting you to the next available agent.");
                 return;
             case ConversationState.Agent:
                 if (!conversation.agent) {
-                    this.bot.send(new builder.Message().address(message.address).text("No agent address present while customer in state Agent"));
+                    session.send("No agent address present while customer in state Agent");
                     console.log("No agent address present while customer in state Agent");
                     return;
                 }
@@ -180,54 +88,30 @@ export class Handoff {
         }
     }
 
-    private captureMessagesFromBot(event, next) {
-        let conversation = this.provider.getCustomerConversationById(event.address.conversation.id);
-
-        if (conversation && conversation.state !== ConversationState.Agent) {
-            this.provider.addToTranscript(conversation.customer.conversation.id, event);
-        }
+    private trancribeMessageFromBot(message: builder.IMessage, next: Function) {
+        this.provider.addToTranscript({ customerConversationId: message.address.conversation.id }, message.text);
         next();
     }
 
-    private passMessageToCustomer(message: builder.IMessage, conversation: Conversation) {
-        this.provider.addToTranscript(conversation.customer.conversation.id, message);
-        this.bot.send(new builder.Message().address(conversation.customer).text(message.text));
-        return;
-    };
+    public createConversation = (customerAddress: builder.IAddress) =>
+        this.provider.createConversation(customerAddress);
 
-    private connectToCustomer = (address: builder.IAddress, conversationId: string) => {
-        this.provider.connectCustomerConversationToAgent(conversationId, address);
-        return;
-    };
+    public connectCustomerToAgent = (by: By, agentAddress: builder.IAddress) =>
+        this.provider.connectCustomerToAgent(by, agentAddress);
 
-    private disconnectFromCustomer = (conversationId: string) => {
-        this.provider.disconnectAgentFromCustomerConversation(conversationId);
-        return;
-    };
+    public connectCustomerToBot = (by: By) =>
+        this.provider.connectCustomerToBot(by);
 
-    private connectToWaitingCustomerConversation = (agentAddress: builder.IAddress) => {
-        const waitingConversation = this.provider.findCustomerConversationWaitingLongest();
-        if (!waitingConversation) {
-            this.bot.send(new builder.Message().address(agentAddress).text("No users waiting"));
-            return;
-        }
+    public queueCustomerForAgent = (by: By) =>
+        this.provider.queueCustomerForAgent(by);
 
-        this.connectToCustomer(agentAddress, waitingConversation.customer.conversation.id);
-    }
+    public addToTranscript = (by: By, text: string) =>
+        this.provider.addToTranscript(by, text);
 
-    private getCustomerByName = (agentAddress: builder.IAddress, inputWords: string[]) => {
-        const grabbedUser = this.provider.findCustomerConversationByName(inputWords);
-        if (!grabbedUser) {
-            this.bot.send(new builder.Message().address(agentAddress).text('There is no active customer named by that name'));
-        } else {
-            this.provider.connectCustomerConversationToAgent(grabbedUser.customer.conversation.id, agentAddress);
-        }
-    }
-
-    private sendAgentCommandOptions = (agentAddress: builder.IAddress) => {
-        const commands = ' ### Agent Options\n - Type *connect* to connect to customer who has been waiting longest.\n - Type *connect { user name }* to connect to a specific conversation\n - Type *list* to see a list of all current conversations.\n - Type *disconnect* while talking to a user to end a conversation.\n - Type *options* at any time to see these options again.';
-        this.bot.send(new builder.Message().address(agentAddress).text(commands));
-        return;
-    }
+    public getConversation = (by: By) =>
+        this.provider.getConversation(by);
+    
+    public currentConversations = () =>
+        this.provider.currentConversations();
 
 };
