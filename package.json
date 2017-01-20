@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "license": "MIT",
   "description": "Create example to escalate to a human",
-  "main": "WebChatHandOff.js",
+  "main": "bot.js",
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "nodewatch": "nodemon dist/WebChatHandOff.js",
-    "start": "node dist/WebChatHandOff.js",
+    "nodewatch": "nodemon dist/bot.js",
+    "start": "node dist/bot.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {

@@ -17,7 +17,7 @@ function command(
     next: Function,
     handoff: Handoff
 ) {
-    if (session.message.user.name.startsWith("Agent")) {
+    if (handoff.isAgent(session)) {
         console.log("agent command");
         agentCommand(session, next, handoff);
     } else {
@@ -77,7 +77,7 @@ function agentCommand(
     }
 
     if (message.text === 'disconnect') {
-        handoff.connectCustomerToBot(conversation.customer.conversation.id);
+        handoff.connectCustomerToBot({ customerConversationId: conversation.customer.conversation.id });
         return;
     }
 

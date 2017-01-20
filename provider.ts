@@ -35,9 +35,7 @@ const addToTranscript = (by: By, text: string) => {
 }
 
 const connectCustomerToAgent = (by: By, agentAddress: builder.IAddress) => {
-    console.log("by", by);
     const conversation = getConversation(by);
-    console.log("conversation", conversation);
     if (!conversation)
         return false;
 
@@ -77,7 +75,6 @@ const getConversation = (by: By) => {
         const waitingLongest = conversations
             .filter(conversation => conversation.state === ConversationState.Waiting)
             .sort((x, y) => y.transcript[y.transcript.length - 1].timestamp - x.transcript[x.transcript.length - 1].timestamp);
-        console.log("wl", waitingLongest);
         return waitingLongest.length > 0 && waitingLongest[0];
     } else if (by.customerName) {
         return conversations.find(conversation =>
