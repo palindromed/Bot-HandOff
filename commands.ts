@@ -97,12 +97,8 @@ function agentCommand(
 function customerCommand(session: builder.Session, next: Function, handoff: Handoff) {
     const message = session.message;
     if (message.text === 'help') {
-        let conversation = handoff.getConversation({ customerConversationId: message.address.conversation.id });
-
-        if (!conversation) {
-            // first time caller, long time listener
-            conversation = handoff.createConversation(message.address);
-        }
+        // lookup the conversation (create it if one doesn't already exist)
+        const conversation = handoff.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
 
         if (conversation.state == ConversationState.Bot) {
             handoff.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);

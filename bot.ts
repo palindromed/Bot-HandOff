@@ -29,8 +29,6 @@ const isAgent = (session: builder.Session) =>
 
 const handoff = new Handoff(bot, isAgent);
 
-//handoff.addHandoffHooks(app);
-
 //========================================================
 // Bot Middleware
 //========================================================
