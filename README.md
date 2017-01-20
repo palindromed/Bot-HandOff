@@ -22,13 +22,13 @@ Customers connect to a bot as normal, through whatever channel the bot author al
 
 #### Customer Waiting
 
-A customer can enter a *Waiting* state. In this state, their messagers are no longer sent to the bot. 
+A customer can enter a *Waiting* state. In this state, their messages are no longer sent to the bot. 
 If they send any messages, they will be informed that they are waiting to be connected to an agent.
 
 Depending on how your bot is written, this could happen via any or all of:
 
 * customer request (e.g. "I want to talk to a human!" or just "help")
-* bot logic (e.g. sentiment analysis determins user is getting frustrated)
+* bot logic (e.g. sentiment analysis determines user is getting frustrated)
 * agent action
 
 The Handoff framework allows the bot author to decide the triggers for putting the customer into the Waiting state.
@@ -37,7 +37,7 @@ Depending on how your bot is written, they can exit this state by any or all of:
 
 * customer request ("Just let me talk to the bot" or "nevermind")
 * an agent connecting to them
-* bot logic (e.g. customer has waitied too long)
+* bot logic (e.g. customer has waited too long)
 
 #### Customer <-> Agent
 
@@ -125,7 +125,7 @@ For now, the easiest thing to do is to add your bot logic to the existing bot.ts
 ### Set up your customer(s) & agent(s), and go
 
 1. Make one or more instances an agent by giving it a user id starting with the word `Agent`
-2. Make one or more instances a customer by giving it a usr id *not* starting with the word `Agent`
+2. Make one or more instances a customer by giving it a user id *not* starting with the word `Agent`
 3. The customer bot is a simple echo bot. Type `help` to request an agent.
 4. As an agent, type `options` to see your available commands
 
