@@ -77,7 +77,7 @@ function agentCommand(
     }
 
     if (message.text === 'disconnect') {
-        handoff.connectCustomerToBot(conversation.customer.conversation.id);
+        handoff.connectCustomerToBot({ customerConversationId: conversation.customer.conversation.id });
         return;
     }
 

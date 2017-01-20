@@ -15,8 +15,8 @@ export class Handoff {
                     this.routeMessage(session, next);
                 }
             },
-            send: (session: builder.Session, next: Function) => {
-                this.trancribeMessageFromBot(session.message, next);
+            send: (event: builder.IEvent, next: Function) => {
+                this.trancribeMessageFromBot(event as builder.IMessage, next);
             }
         }
     }

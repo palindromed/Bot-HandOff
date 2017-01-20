@@ -6,6 +6,6 @@
         "outDir": "./dist"
     },
     "files": [
-        "WebChatHandoff.ts"
+        "bot.ts"
     ]
 }
