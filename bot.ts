@@ -22,7 +22,7 @@ var bot = new builder.UniversalBot(connector);
 app.post('/api/messages', connector.listen());
 
 // Create endpoint for agent / call center
-app.use('/agent', express.static('public'));
+app.use('/webchat', express.static('public'));
 
 const isAgent = (session: builder.Session) => 
     session.message.user.name.startsWith("Agent");
