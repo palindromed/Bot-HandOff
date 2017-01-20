@@ -1,6 +1,5 @@
 import * as builder from 'botbuilder';
-import { Handoff } from './handoff';
-import { ConversationState } from './globals';
+import { Handoff, ConversationState } from './handoff';
 
 export function commandsMiddleware(handoff: Handoff) {
     return {
@@ -17,6 +16,7 @@ function command(
     next: Function,
     handoff: Handoff
 ) {
+    console.log("handoff", handoff);
     if (handoff.isAgent(session)) {
         console.log("agent command");
         agentCommand(session, next, handoff);
@@ -40,26 +40,33 @@ function agentCommand(
     if (inputWords.length == 0)
         return;
 
+    // Commands to execute whether connected to a customer or not
+
     if (inputWords[0] === 'options') {
         sendAgentCommandOptions(session);
         return;
+    } else if (inputWords[0] === 'list') {
+        session.send(currentConversations(handoff));
+        return;
     }
+
+    // Commands to execute when not connected to a customer
 
     if (!conversation) {
         console.log("checking for commands");
         switch (inputWords[0]) {
             case 'connect':
-                if (!handoff.connectCustomerToAgent(
+                const newConversation = handoff.connectCustomerToAgent(
                     inputWords.length > 1
                         ? { customerName: inputWords.slice(1).join(' ') }
                         : { bestChoice: true },
                     message.address
-                )) {
+                );
+                if (newConversation) {
+                    session.send("You are connected to " + newConversation.customer.user.name);
+                } else {
                     session.send("No customers waiting.");
                 }
-                break;
-            case 'list':
-                session.send(currentConversations(handoff));
                 break;
             default:
                 console.log("default options");
@@ -77,7 +84,9 @@ function agentCommand(
     }
 
     if (message.text === 'disconnect') {
-        handoff.connectCustomerToBot({ customerConversationId: conversation.customer.conversation.id });
+        if (handoff.connectCustomerToBot({ customerConversationId: conversation.customer.conversation.id })) {
+            session.send("Customer " + conversation.customer.user.name + " is now connected to the bot.");
+        }
         return;
     }
 

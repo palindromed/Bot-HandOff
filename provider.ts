@@ -1,5 +1,5 @@
 import * as builder from 'botbuilder';
-import { Provider, Conversation, By, ConversationState } from './globals';
+import { Provider, Conversation, By, ConversationState } from './handoff';
 
 export let conversations: Conversation[];
 
@@ -36,13 +36,12 @@ const addToTranscript = (by: By, text: string) => {
 
 const connectCustomerToAgent = (by: By, agentAddress: builder.IAddress) => {
     const conversation = getConversation(by);
-    if (!conversation)
-        return false;
+    if (conversation) {
+        conversation.state = ConversationState.Agent;
+        conversation.agent = agentAddress;
+    }
 
-    conversation.state = ConversationState.Agent;
-    conversation.agent = agentAddress;
-
-    return true;
+    return conversation;
 }
 
 const queueCustomerForAgent = (by: By) => {
@@ -110,7 +109,6 @@ export const defaultProvider: Provider = {
     // Get
     getConversation,
     currentConversations,
-
 }
 
 

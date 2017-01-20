@@ -1,14 +1,57 @@
 import * as builder from 'botbuilder';
 import { Express } from 'express';
-import { Conversation, By, ConversationState, TranscriptLine, Provider } from './globals';
 import { defaultProvider } from './provider';
 
+export enum ConversationState {
+    Bot,
+    Waiting,
+    Agent
+}
+
+export interface TranscriptLine {
+    timestamp: any,
+    from: any,
+    text: string
+}
+ 
+export interface Conversation {
+    customer: builder.IAddress,
+    agent?: builder.IAddress,
+    state: ConversationState,
+    transcript: TranscriptLine[]
+};
+
+export interface By {
+    bestChoice?: true,
+    agentConversationId?: string,
+    customerConversationId?: string,
+    customerName?: string
+}
+
+export interface Provider {
+    init();
+
+    // Create
+    createConversation: (customerAddress: builder.IAddress) => Conversation;
+
+    // Update
+    addToTranscript: (by: By, text: string) => boolean;
+    connectCustomerToAgent: (by: By, agentAddress: builder.IAddress) => Conversation;
+    connectCustomerToBot: (by: By) => boolean;
+    queueCustomerForAgent: (by: By) => boolean;
+    
+    // Get
+    getConversation: (by: By) => Conversation;
+    currentConversations: () => Conversation[];
+}
+
 export class Handoff {
-    constructor(private bot: builder.UniversalBot,  private provider: Provider = defaultProvider) {
+    constructor(
+        private bot: builder.UniversalBot,
+        public isAgent: (session: builder.Session) => boolean,
+        private provider = defaultProvider
+    ) {
         this.provider.init();
-    }
-    public isAgent(session: builder.Session) {
-        return session.message.user.name.startsWith("Agent")
     }
 
     public routingMiddleware() {
@@ -39,7 +82,7 @@ export class Handoff {
         session: builder.Session,
         next: Function
     ) {
-        if (session.message.user.name.startsWith("Agent")) {
+        if (this.isAgent(session)) {
             console.log("agent");
             this.routeAgentMessage(session)
         } else {

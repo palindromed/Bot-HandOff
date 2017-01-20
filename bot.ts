@@ -24,9 +24,12 @@ app.post('/api/messages', connector.listen());
 // Create endpoint for agent / call center
 app.use('/agent', express.static('public'));
 
-const handoff = new Handoff(bot /*, yourProviderHere */);
+const isAgent = (session: builder.Session) => 
+    session.message.user.name.startsWith("Agent");
 
-handoff.addHandoffHooks(app);
+const handoff = new Handoff(bot, isAgent);
+
+//handoff.addHandoffHooks(app);
 
 //========================================================
 // Bot Middleware
