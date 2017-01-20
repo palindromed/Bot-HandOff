@@ -17,7 +17,7 @@ function command(
     next: Function,
     handoff: Handoff
 ) {
-    if (session.message.user.name.startsWith("Agent")) {
+    if (handoff.isAgent(session)) {
         console.log("agent command");
         agentCommand(session, next, handoff);
     } else {

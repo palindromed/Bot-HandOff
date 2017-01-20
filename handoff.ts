@@ -4,8 +4,11 @@ import { Conversation, By, ConversationState, TranscriptLine, Provider } from '.
 import { defaultProvider } from './provider';
 
 export class Handoff {
-    constructor(private bot: builder.UniversalBot, private provider: Provider = defaultProvider) {
+    constructor(private bot: builder.UniversalBot,  private provider: Provider = defaultProvider) {
         this.provider.init();
+    }
+    public isAgent(session: builder.Session) {
+        return session.message.user.name.startsWith("Agent")
     }
 
     public routingMiddleware() {
