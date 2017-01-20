@@ -113,14 +113,14 @@ For now, the easiest thing to do is to add your bot logic to the existing bot.ts
 
 1. Deploy your bot to the cloud
 2. Aim your bot registration at your bot's endpoint (probably `https://your_domain/api/messages`)
-3. Aim at least two browser instances at `https://your_domain/webchat`
+3. Aim at least two browser instances at `https://your_domain/webchat?s=direct_line_secret_key`
 
 ### ... or run locally
 
 1. Run `MICROSOFT_APP_ID=app_id MICROSOFT_APP_PASSWORD=app_password node dist/bot.js` to start your bot (remember to restart if you change your code)
 2. Create an ngrok public endpoint (see here for details)
 3. Aim your bot registration at that endpoint (probably `https://something.ngrok.io/api/messages`)
-3. Aim at least two browser instances at `localhost://3978/webchat`
+3. Aim at least two browser instances at `http://localhost:3978/webchat?s=direct_line_secret_key`
 
 ### Set up your customer(s) & agent(s), and go
 
