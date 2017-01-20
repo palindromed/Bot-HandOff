@@ -1,14 +1,54 @@
 import * as builder from 'botbuilder';
 import { Express } from 'express';
-import { Conversation, By, ConversationState, TranscriptLine, Provider } from './globals';
 import { defaultProvider } from './provider';
 
+export enum ConversationState {
+    Bot,
+    Waiting,
+    Agent
+}
+
+export interface TranscriptLine {
+    timestamp: any,
+    from: any,
+    text: string
+}
+ 
+export interface Conversation {
+    customer: builder.IAddress,
+    agent?: builder.IAddress,
+    state: ConversationState,
+    transcript: TranscriptLine[]
+};
+
+export interface By {
+    bestChoice?: true,
+    agentConversationId?: string,
+    customerConversationId?: string,
+    customerName?: string
+}
+
+export interface Provider {
+    init();
+
+    // Update
+    addToTranscript: (by: By, text: string) => boolean;
+    connectCustomerToAgent: (by: By, agentAddress: builder.IAddress) => Conversation;
+    connectCustomerToBot: (by: By) => boolean;
+    queueCustomerForAgent: (by: By) => boolean;
+    
+    // Get
+    getConversation: (by: By, customerAddress?: builder.IAddress) => Conversation;
+    currentConversations: () => Conversation[];
+}
+
 export class Handoff {
-    constructor(private bot: builder.UniversalBot,  private provider: Provider = defaultProvider) {
+    constructor(
+        private bot: builder.UniversalBot,
+        public isAgent: (session: builder.Session) => boolean,
+        private provider = defaultProvider
+    ) {
         this.provider.init();
-    }
-    public isAgent(session: builder.Session) {
-        return session.message.user.name.startsWith("Agent")
     }
 
     public routingMiddleware() {
@@ -24,22 +64,11 @@ export class Handoff {
         }
     }
 
-    public addHandoffHooks(app: Express) {
-        app.get('/handoff/conversations', (req, res) => {
-            res.send(JSON.stringify(this.provider.currentConversations()));
-        });
-
-        app.get('/handoff/conversations/:conversationId', (req, res) => {
-            let conversation = this.provider.getConversation({ customerConversationId: req.params.conversationId });
-            res.send(JSON.stringify(conversation.transcript));
-        });
-    }
-
     private routeMessage(
         session: builder.Session,
         next: Function
     ) {
-        if (session.message.user.name.startsWith("Agent")) {
+        if (this.isAgent(session)) {
             console.log("agent");
             this.routeAgentMessage(session)
         } else {
@@ -50,7 +79,7 @@ export class Handoff {
 
     private routeAgentMessage(session: builder.Session) {
         const message = session.message;
-        const conversation = this.provider.getConversation({ agentConversationId: message.address.conversation.id });
+        const conversation = this.getConversation({ agentConversationId: message.address.conversation.id });
 
         if (!conversation)
             return;
@@ -67,12 +96,8 @@ export class Handoff {
 
     private routeCustomerMessage(session: builder.Session, next: Function) {
         const message = session.message;
-        let conversation = this.provider.getConversation({ customerConversationId: message.address.conversation.id });
-
-        if (!conversation) {
-            conversation = this.provider.createConversation(message.address);
-        }
-        this.provider.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
+        const conversation = this.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
+        this.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
 
         switch (conversation.state) {
             case ConversationState.Bot:
@@ -96,9 +121,6 @@ export class Handoff {
         next();
     }
 
-    public createConversation = (customerAddress: builder.IAddress) =>
-        this.provider.createConversation(customerAddress);
-
     public connectCustomerToAgent = (by: By, agentAddress: builder.IAddress) =>
         this.provider.connectCustomerToAgent(by, agentAddress);
 
@@ -111,8 +133,8 @@ export class Handoff {
     public addToTranscript = (by: By, text: string) =>
         this.provider.addToTranscript(by, text);
 
-    public getConversation = (by: By) =>
-        this.provider.getConversation(by);
+    public getConversation = (by: By, customerAddress?: builder.IAddress) =>
+        this.provider.getConversation(by, customerAddress);
     
     public currentConversations = () =>
         this.provider.currentConversations();
