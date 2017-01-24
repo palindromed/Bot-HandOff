@@ -61,8 +61,8 @@ const getConversation = (
     by: By,
     customerAddress?: builder.IAddress // if looking up by customerConversationId, create new conversation if one doesn't already exist
 ) => {
+    // local function to create a conversation if customer does not already have one
     const createConversation = (customerAddress: builder.IAddress) => {
-        console.log("creating customer conversation");
         const conversation = {
             customer: customerAddress,
             state: ConversationState.Bot,

@@ -24,6 +24,7 @@ app.post('/api/messages', connector.listen());
 // Create endpoint for agent / call center
 app.use('/webchat', express.static('public'));
 
+// replace this function with custom login/verification for agents
 const isAgent = (session: builder.Session) => 
     session.message.user.name.startsWith("Agent");
 

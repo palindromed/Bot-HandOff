@@ -16,12 +16,9 @@ function command(
     next: Function,
     handoff: Handoff
 ) {
-    console.log("handoff", handoff);
     if (handoff.isAgent(session)) {
-        console.log("agent command");
         agentCommand(session, next, handoff);
     } else {
-        console.log("customer command");
         customerCommand(session, next, handoff);
     }
 }
@@ -32,9 +29,7 @@ function agentCommand(
     handoff: Handoff
 ) {
     const message = session.message;
-    console.log("agentCommand start");
     const conversation = handoff.getConversation({ agentConversationId: message.address.conversation.id });
-    console.log("agentCommand conversation", conversation);
     const inputWords = message.text.split(' ');
 
     if (inputWords.length == 0)
@@ -53,7 +48,6 @@ function agentCommand(
     // Commands to execute when not connected to a customer
 
     if (!conversation) {
-        console.log("checking for commands");
         switch (inputWords[0]) {
             case 'connect':
                 const newConversation = handoff.connectCustomerToAgent(
@@ -69,7 +63,6 @@ function agentCommand(
                 }
                 break;
             default:
-                console.log("default options");
                 sendAgentCommandOptions(session);
                 break;
         }

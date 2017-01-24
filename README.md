@@ -8,6 +8,8 @@ It also includes a very simple implementation that illustrates the core concepts
 
 This project is in heavy flux, but is now in a usable state. However this should still be considered a sample, and not an officially supported Microsoft product.
 
+This project is written in TypeScript. follow the instructions to compile the code before running or deploying.
+
 ## Conceptual Overview
 
 This framework connects *Customers* and *Agents*.

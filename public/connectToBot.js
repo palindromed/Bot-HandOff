@@ -26,7 +26,6 @@ var user_id = document.getElementById('user-id')
 logon_form.onsubmit = e => {
     e.preventDefault();
     logon_form.style.display = 'none';
-    console.log("e", e);
 
     var user = {
         id: user_id.value,
