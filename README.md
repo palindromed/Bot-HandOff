@@ -10,6 +10,8 @@ This project is in heavy flux, but is now in a usable state. However this should
 
 This project is written in TypeScript. follow the instructions to compile the code before running or deploying.
 
+There is also an example of [handoff to human using the C# SDK](https://github.com/tompaana/intermediator-bot-sample)
+
 ## Conceptual Overview
 
 This framework connects *Customers* and *Agents*.
