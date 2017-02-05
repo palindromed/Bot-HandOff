@@ -139,6 +139,16 @@ node dist/bot.js
 3. Aim your bot registration at that endpoint (probably `https://something.ngrok.io/api/messages`)
 3. Aim at least two browser instances at `http://localhost:3978/webchat?s=direct_line_secret_key`
 
+### ... or run in Docker
+
+1. Build your docker container
+`docker build -t obibot .`
+1. Run your docker container
+`docker run --rm -it -e "MICROSOFT_APP_ID=$MICROSOFT_APP_ID" -e "MICROSOFT_APP_PASSWORD=$MICROSOFT_APP_PASSWORD" -p 3978:3978 obibot`
+1. Create an ngrok public endpoint [see here for details](https://github.com/Microsoft-DXEIP/Tokyo-Hack-Docs#1-with-your-app-still-running-on-localhost-bind-the-localhost-deployment-with-ngrok-we-will-need-this-url-for-registering-our-bot)
+1. Aim your bot registration at that endpoint (probably `https://something.ngrok.io/api/messages`)
+1. Aim at least two browser instances at `http://localhost:3978/webchat?s=direct_line_secret_key`
+
 ### Set up your customer(s) & agent(s), and go
 
 1. Make one or more instances an agent by giving it a user id starting with the word `Agent`
