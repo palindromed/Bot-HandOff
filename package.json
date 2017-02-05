@@ -5,7 +5,7 @@
   "description": "Create example to escalate to a human",
   "main": "bot.js",
   "scripts": {
-    "postinstall": "node ./node_modules/typescript/bin/tsc",
+    "postinstall": "tsc",
     "build": "tsc",
     "watch": "tsc -w",
     "nodewatch": "nodemon dist/bot.js",
