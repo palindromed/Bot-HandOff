@@ -6,6 +6,6 @@
         "outDir": "./dist"
     },
     "files": [
-        "bot.ts"
+        "app.ts"
     ]
 }

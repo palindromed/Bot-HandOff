@@ -3,13 +3,13 @@
   "version": "0.1.0",
   "license": "MIT",
   "description": "Create example to escalate to a human",
-  "main": "bot.js",
+  "main": "app.js",
   "scripts": {
     "postinstall": "tsc",
     "build": "tsc",
     "watch": "tsc -w",
-    "nodewatch": "nodemon dist/bot.js",
-    "start": "node dist/bot.js",
+    "nodewatch": "nodemon dist/app.js",
+    "start": "node dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
