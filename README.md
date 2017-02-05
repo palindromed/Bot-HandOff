@@ -122,11 +122,13 @@ For now, the easiest thing to do is to add your bot logic to the existing bot.ts
 ### ... or run locally
 
 1. Run `dist/bot.js` to start your bot (remember to restart if you change your code)
-  1. Linux:
+
+* Linux:
 ```
 MICROSOFT_APP_ID=app_id MICROSOFT_APP_PASSWORD=app_password node dist/bot.js
 ```
-  1. Microsoft:
+
+* Microsoft:
 ```
 $env:MICROSOFT_APP_ID="app_id"
 $env:MICROSOFT_APP_PASSWORD="app_password"
