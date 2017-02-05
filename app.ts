@@ -64,4 +64,13 @@ var BasicQnAMakerDialog = new cognitiveservices.QnAMakerDialog({
 
 bot.dialog('/', BasicQnAMakerDialog);
 
-
+bot.on("event", function (event) {
+    console.log(event);
+    var msg = new builder.Message().address(event.address);
+    msg.textLocale("en-us");
+    //msg.data.textLocale = "en-us";
+    if (event.name === "buttonClicked") {
+        msg.text("I see that you just pushed that button");
+    }
+    bot.send(msg);
+})
