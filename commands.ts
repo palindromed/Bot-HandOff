@@ -9,7 +9,9 @@ export function commandsMiddleware(handoff: Handoff) {
             }
         }
     }
+
 }
+
 
 function command(
     session: builder.Session,
