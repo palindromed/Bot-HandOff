@@ -1,5 +1,6 @@
 import * as express from 'express';
 import * as builder from 'botbuilder';
+import * as cognitiveservices from 'botbuilder-cognitiveservices';
 import { Handoff } from './handoff';
 import { commandsMiddleware } from './commands';
 
@@ -44,9 +45,32 @@ bot.use(
 //=========================================================
 
 
-bot.dialog('/', [
-    function (session, args, next) {
-        session.send('Echo ' + session.message.text);
-    }]);
+// bot.dialog('/', [
+//     function (session, args, next) {
+//         session.send('Echo ' + session.message.text);
+//     }]);
 
+// QnA Maker Dialogs
 
+var recognizer = new cognitiveservices.QnAMakerRecognizer({
+	knowledgeBaseId: process.env.QNAKNOWLEDGEBASE_ID, 
+	subscriptionKey: process.env.QNASUBSCRIPTIONKEY
+});
+
+var BasicQnAMakerDialog = new cognitiveservices.QnAMakerDialog({ 
+	recognizers: [recognizer],
+	defaultMessage: 'No good match in FAQ.',
+	qnaThreshold: 0.5});
+
+bot.dialog('/', BasicQnAMakerDialog);
+
+bot.on("event", function (event) {
+    console.log(event);
+    var msg = new builder.Message().address(event.address);
+    msg.textLocale("en-us");
+    //msg.data.textLocale = "en-us";
+    if (event.name === "buttonClicked") {
+        msg.text("I see that you just pushed that button");
+    }
+    bot.send(msg);
+})
