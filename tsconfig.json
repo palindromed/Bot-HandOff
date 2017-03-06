@@ -6,6 +6,6 @@
         "outDir": "./dist"
     },
     "files": [
-        "app.ts"
+        "src/app.ts"
     ]
 }
