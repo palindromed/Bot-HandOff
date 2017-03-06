@@ -1,50 +1,19 @@
 import * as express from 'express';
-import * as builder from 'botbuilder';
-import Handoff from './middleware/handoff';
-import { commandsMiddleware } from './middleware/commands';
-
-//=========================================================
-// Bot Setup
-//=========================================================
+import BotHandler from './bot';
 
 const app = express();
+const bot = new BotHandler();
 
 // Setup Express Server
 app.listen(process.env.port || process.env.PORT || 3978, '::', () => {
     console.log('Server Up');
 });
-// Create chat bot
-var connector = new builder.ChatConnector({
-    appId: process.env.MICROSOFT_APP_ID,
-    appPassword: process.env.MICROSOFT_APP_PASSWORD
-});
-var bot = new builder.UniversalBot(connector);
-app.post('/api/messages', connector.listen());
+
+app.post('/api/messages', bot.getConnector().listen());
 
 // Create endpoint for agent / call center
 app.use('/webchat', express.static('public'));
 
-// replace this function with custom login/verification for agents
-const isAgent = (session: builder.Session) => 
-    session.message.user.name.startsWith("Agent");
 
-const handoff = new Handoff(bot, isAgent);
-
-//========================================================
-// Bot Middleware
-//========================================================
-bot.use(
-    commandsMiddleware(handoff),
-    handoff.routingMiddleware(),
-    /* other bot middlware should probably go here */
-);
-
-//=========================================================
-// Bots Dialogs
-//=========================================================
-
-import entry from './dialogs';
-
-bot.dialog('/', [entry]);
 
 
