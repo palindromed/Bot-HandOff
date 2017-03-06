@@ -43,10 +43,8 @@ bot.use(
 // Bots Dialogs
 //=========================================================
 
+import entry from './dialogs';
 
-bot.dialog('/', [
-    function (session, args, next) {
-        session.send('Echo ' + session.message.text);
-    }]);
+bot.dialog('/', [entry]);
 
 
