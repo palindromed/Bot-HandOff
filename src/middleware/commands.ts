@@ -1,5 +1,7 @@
 import * as builder from 'botbuilder';
-import { Handoff, ConversationState } from './handoff';
+
+import Handoff from './handoff';
+import ConversationState from '../framework/enum/ConversationState';
 
 export function commandsMiddleware(handoff: Handoff) {
     return {

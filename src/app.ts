@@ -1,7 +1,7 @@
 import * as express from 'express';
 import * as builder from 'botbuilder';
-import { Handoff } from './handoff';
-import { commandsMiddleware } from './commands';
+import Handoff from './middleware/handoff';
+import { commandsMiddleware } from './middleware/commands';
 
 //=========================================================
 // Bot Setup
