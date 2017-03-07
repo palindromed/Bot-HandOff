@@ -1,11 +1,14 @@
 {
     "compilerOptions": {
         "module": "commonjs",
+        "sourceMap": true,
         "target": "es6",
         "noImplicitAny": false,
-        "outDir": "./dist"
+        "outDir": "./dist",
+        "jsx": "react"
     },
     "files": [
-        "app.ts"
+        "src/app.ts",
+        "src/agent/agent.tsx"
     ]
 }

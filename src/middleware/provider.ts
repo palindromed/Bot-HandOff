@@ -1,5 +1,9 @@
 import * as builder from 'botbuilder';
-import { Provider, Conversation, By, ConversationState } from './handoff';
+
+import Provider from '../framework/interface/Provider';
+import Conversation from '../framework/interface/Conversation';
+import By from '../framework/interface/By';
+import ConversationState from '../framework/enum/ConversationState';
 
 export let conversations: Conversation[];
 

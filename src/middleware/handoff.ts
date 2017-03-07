@@ -1,53 +1,11 @@
 import * as builder from 'botbuilder';
-import { Express } from 'express';
+
 import { defaultProvider } from './provider';
 
-// Options for state of a conversation
-// Customer talking to bot, waiting for next available agent or talking to an agent
-export enum ConversationState {
-    Bot,
-    Waiting,
-    Agent
-}
+import By from '../framework/interface/By';
+import ConversationState from '../framework/enum/ConversationState';
 
-// What an entry in the customer transcript will have
-export interface TranscriptLine {
-    timestamp: any,
-    from: any,
-    text: string
-}
-
-// What is stored in a conversation. Agent only included if customer is talking to an agent
-export interface Conversation {
-    customer: builder.IAddress,
-    agent?: builder.IAddress,
-    state: ConversationState,
-    transcript: TranscriptLine[]
-};
-
-// Used in getConversation in provider. Gives context to the search and changes behavior
-export interface By {
-    bestChoice?: true,
-    agentConversationId?: string,
-    customerConversationId?: string,
-    customerName?: string
-}
-
-export interface Provider {
-    init();
-
-    // Update
-    addToTranscript: (by: By, text: string) => boolean;
-    connectCustomerToAgent: (by: By, agentAddress: builder.IAddress) => Conversation;
-    connectCustomerToBot: (by: By) => boolean;
-    queueCustomerForAgent: (by: By) => boolean;
-    
-    // Get
-    getConversation: (by: By, customerAddress?: builder.IAddress) => Conversation;
-    currentConversations: () => Conversation[];
-}
-
-export class Handoff {
+export default class Handoff {
     // if customizing, pass in your own check for isAgent and your own versions of methods in defaultProvider
     constructor(
         private bot: builder.UniversalBot,

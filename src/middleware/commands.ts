@@ -1,7 +1,9 @@
 import * as builder from 'botbuilder';
-import { Handoff, ConversationState } from './handoff';
 
-export function commandsMiddleware(handoff: Handoff) {
+import Handoff from './handoff';
+import ConversationState from '../framework/enum/ConversationState';
+
+export default function commandsMiddleware(handoff: Handoff) {
     return {
         botbuilder: (session: builder.Session, next: Function) => {
             if (session.message.type === 'message') {
