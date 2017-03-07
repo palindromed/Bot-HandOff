@@ -19,7 +19,8 @@
     "botframework-webchat": "^0.9.1",
     "express": "^4.14.0",
     "react": "^15.4.2",
-    "react-dom": "^15.4.2"
+    "react-dom": "^15.4.2",
+    "redux": "3.6.0"
   },
   "devDependencies": {
     "@types/express": "^4.0.34",

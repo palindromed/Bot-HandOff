@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Chat, User, DirectLineOptions } from 'botframework-webchat';
+import { store } from './redux';
 
 export const App = (props: {
         directLine: DirectLineOptions,
