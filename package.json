@@ -5,9 +5,11 @@
   "description": "Create example to escalate to a human",
   "main": "app.js",
   "scripts": {
-    "postinstall": "tsc",
-    "build": "tsc",
-    "watch": "tsc -w",
+    "foo": "tsc",
+    "build": "tsc && webpack",
+    "watch": "npm-run-all -p -r -l tsc-watch webpack-watch",
+    "tsc-watch": "tsc -w",
+    "webpack-watch": "webpack -w",
     "nodewatch": "nodemon dist/app.js",
     "start": "node dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -15,11 +17,18 @@
   "dependencies": {
     "botbuilder": "^3.7.0",
     "express": "^4.14.0",
-    "typescript": "^2.1.4"
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2"
   },
   "devDependencies": {
     "@types/express": "^4.0.34",
     "@types/node": "^6.0.59",
-    "nodemon": "^1.11.0"
+    "@types/react": "^15.0.14",
+    "@types/react-dom": "^0.14.23",
+    "nodemon": "^1.11.0",
+    "npm-run-all": "^4.0.2",
+    "source-map-loader": "^0.1.6",
+    "typescript": "^2.2.1",
+    "webpack": "^1.14.0"
   }
 }
