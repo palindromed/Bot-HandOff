@@ -60,43 +60,42 @@ function agentCommand(
                 //disconnect from current conversation if already watching/talking
                 disconnectCustomer(conversation, handoff, session);
             }
-            const newConversation = handoff.connectCustomerToAgent(
+            const waitingConversation = handoff.connectCustomerToAgent(
                 { bestChoice: true },
                 ConversationState.Agent,
                 message.address
             );
-            if (newConversation) {
-                session.send("You are connected to " + newConversation.customer.user.name);
+            if (waitingConversation) {
+                session.send("You are connected to " + waitingConversation.customer.user.name);
             } else {
                 session.send("No customers waiting.");
             }
             return;
         case 'connect':
-            let aConversation = handoff.connectCustomerToAgent(
-                inputWords.length > 1
-                    ? { customerName: inputWords.slice(1).join(' ') }
-                    : { customerConversationId: conversation.customer.conversation.id },
-                ConversationState.Agent,
-                message.address
-            );
-            if (aConversation) {
-                session.send("You are connected to " + aConversation.customer.user.name);
-                return;
-            } else {
-                session.send("something went wrong trying to connect to that customer");
-            }
-            return;
         case 'watch':
-            let conversationToWatch = handoff.connectCustomerToAgent(
-                { customerName: inputWords.slice(1).join(' ') },
-                ConversationState.Watch,
-                message.address
-            );
-            if (conversationToWatch) {
-                session.send("You are connected to " + conversationToWatch.customer.user.name);
+            let newConversation;
+            if (inputWords[0] === 'connect') {
+                newConversation = handoff.connectCustomerToAgent(
+                    inputWords.length > 1
+                        ? { customerName: inputWords.slice(1).join(' ') }
+                        : { customerConversationId: conversation.customer.conversation.id },
+                    ConversationState.Agent,
+                    message.address
+                );
+            } else {
+                // watch currently only supports specifying a customer to watch
+                newConversation = handoff.connectCustomerToAgent(
+                    { customerName: inputWords.slice(1).join(' ') },
+                    ConversationState.Watch,
+                    message.address
+                );
+            }
+
+            if (newConversation) {
+                session.send("You are connected to " + newConversation.customer.user.name);
                 return;
             } else {
-                session.send("something went wrong trying to monitor that customer");
+                session.send("something went wrong.");
             }
             return;
         default:
