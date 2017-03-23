@@ -1,5 +1,5 @@
 import * as builder from 'botbuilder';
-import { Handoff, ConversationState } from './handoff';
+import { Conversation, ConversationState, Handoff } from './handoff';
 
 export function commandsMiddleware(handoff: Handoff) {
     return {
@@ -35,57 +35,79 @@ function agentCommand(
     if (inputWords.length == 0)
         return;
 
-    // Commands to execute whether connected to a customer or not
-
-    if (inputWords[0] === 'options') {
-        sendAgentCommandOptions(session);
-        return;
-    } else if (inputWords[0] === 'list') {
-        session.send(currentConversations(handoff));
-        return;
-    }
-
-    // Commands to execute when not connected to a customer
-
-    if (!conversation) {
-        switch (inputWords[0]) {
-            case 'connect':
-                const newConversation = handoff.connectCustomerToAgent(
-                    inputWords.length > 1
-                        ? { customerName: inputWords.slice(1).join(' ') }
-                        : { bestChoice: true },
-                    message.address
-                );
-                if (newConversation) {
-                    session.send("You are connected to " + newConversation.customer.user.name);
-                } else {
-                    session.send("No customers waiting.");
-                }
-                break;
-            default:
-                sendAgentCommandOptions(session);
-                break;
-        }
-        return;
-    }
-
-    if (conversation.state !== ConversationState.Agent) {
-        // error state -- should not happen
-        session.send("Shouldn't be in this state - agent should have been cleared out.");
-        console.log("Shouldn't be in this state - agent should have been cleared out");
-        return;
-    }
-
     if (message.text === 'disconnect') {
-        if (handoff.connectCustomerToBot({ customerConversationId: conversation.customer.conversation.id })) {
-            session.send("Customer " + conversation.customer.user.name + " is now connected to the bot.");
-        }
+        disconnectCustomer(conversation, handoff, session);
         return;
     }
 
-    next();
+    // Commands to execute whether connected to a customer or not
+    switch (inputWords[0]) {
+        case 'options':
+            sendAgentCommandOptions(session);
+            return;
+        case 'list':
+            session.send(currentConversations(handoff));
+            return;
+        case 'history':
+            handoff.getCustomerTranscript(
+                inputWords.length > 1
+                    ? { customerName: inputWords.slice(1).join(' ') }
+                    : { agentConversationId: message.address.conversation.id },
+                session);
+            return;
+        case 'waiting':
+            if (conversation) {
+                //disconnect from current conversation if already watching/talking
+                disconnectCustomer(conversation, handoff, session);
+            }
+            const newConversation = handoff.connectCustomerToAgent(
+                { bestChoice: true },
+                ConversationState.Agent,
+                message.address
+            );
+            if (newConversation) {
+                session.send("You are connected to " + newConversation.customer.user.name);
+            } else {
+                session.send("No customers waiting.");
+            }
+            return;
+        case 'connect':
+            let aConversation = handoff.connectCustomerToAgent(
+                inputWords.length > 1
+                    ? { customerName: inputWords.slice(1).join(' ') }
+                    : { customerConversationId: conversation.customer.conversation.id },
+                ConversationState.Agent,
+                message.address
+            );
+            if (aConversation) {
+                session.send("You are connected to " + aConversation.customer.user.name);
+                return;
+            } else {
+                session.send("something went wrong trying to connect to that customer");
+            }
+            return;
+        case 'watch':
+            let conversationToWatch = handoff.connectCustomerToAgent(
+                { customerName: inputWords.slice(1).join(' ') },
+                ConversationState.Watch,
+                message.address
+            );
+            if (conversationToWatch) {
+                session.send("You are connected to " + conversationToWatch.customer.user.name);
+                return;
+            } else {
+                session.send("something went wrong trying to monitor that customer");
+            }
+            return;
+        default:
+            // TODO a better way to advance middleware in agent state while allowing for commands
+            if (conversation && conversation.state === ConversationState.Agent) {
+                return next();
+            }
+            sendAgentCommandOptions(session);
+            return;
+    }
 }
-
 
 function customerCommand(session: builder.Session, next: Function, handoff: Handoff) {
     const message = session.message;
@@ -106,7 +128,7 @@ function customerCommand(session: builder.Session, next: Function, handoff: Hand
 
 
 function sendAgentCommandOptions(session: builder.Session) {
-    const commands = ' ### Agent Options\n - Type *connect* to connect to customer who has been waiting longest.\n - Type *connect { user name }* to connect to a specific conversation\n - Type *list* to see a list of all current conversations.\n - Type *disconnect* while talking to a user to end a conversation.\n - Type *options* at any time to see these options again.';
+    const commands = ' ### Agent Options\n - Type *waiting* to connect to customer who has been waiting longest.\n - Type *connect { user name }* to connect to a specific conversation\n - Type *watch { user name }* to monitor a customer conversation\n - Type *history { user name }* to see a transcript of a given user\n - Type *history* while watching or talking to a customer to see their transcript\n - Type *list* to see a list of all current conversations.\n - Type *disconnect* while talking to a user to end a conversation.\n - Type *options* at any time to see these options again.';
     session.send(commands);
     return;
 }
@@ -118,6 +140,7 @@ function currentConversations(handoff) {
     }
 
     let text = '### Current Conversations \n';
+    // TODO is it worth reworking to see which agent is talking to each customer?
     conversations.forEach(conversation => {
         const starterText = ' - *' + conversation.customer.user.name + '*';
         switch (ConversationState[conversation.state]) {
@@ -130,9 +153,17 @@ function currentConversations(handoff) {
             case 'Waiting':
                 text += starterText + ' is waiting to talk to an agent\n';
                 break;
+            case 'Watch':
+                text += starterText + ' is being monitored by an agent\n';
         }
     });
 
     return text;
 }
 
+function disconnectCustomer(conversation: Conversation, handoff: any, session: builder.Session) {
+    if (handoff.connectCustomerToBot({ customerConversationId: conversation.customer.conversation.id })) {
+        session.send("Customer " + conversation.customer.user.name + " is now connected to the bot.");
+    }
+
+}

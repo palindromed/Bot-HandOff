@@ -22,10 +22,10 @@ const addToTranscript = (by: By, text: string) => {
     return true;
 }
 
-const connectCustomerToAgent = (by: By, agentAddress: builder.IAddress) => {
+const connectCustomerToAgent = (by: By, stateUpdate: ConversationState, agentAddress: builder.IAddress) => {
     const conversation = getConversation(by);
     if (conversation) {
-        conversation.state = ConversationState.Agent;
+        conversation.state = stateUpdate;
         conversation.agent = agentAddress;
     }
 
@@ -98,7 +98,7 @@ const getConversation = (
     return null;
 }
 
-const currentConversations = () => 
+const currentConversations = () =>
     conversations;
 
 export const defaultProvider: Provider = {
@@ -112,8 +112,5 @@ export const defaultProvider: Provider = {
 
     // Get
     getConversation,
-    currentConversations,
+    currentConversations
 }
-
-
-
