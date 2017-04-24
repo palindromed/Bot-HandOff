@@ -1,5 +1,5 @@
 import * as builder from 'botbuilder';
-import { Provider, Conversation, By, ConversationState } from './handoff';
+import { By, Conversation, ConversationState, Provider, TranscriptLine } from './handoff';
 
 export let conversations: Conversation[];
 
@@ -22,10 +22,14 @@ const addToTranscript = (by: By, text: string) => {
     return true;
 }
 
-const connectCustomerToAgent = (by: By, stateUpdate: ConversationState, agentAddress: builder.IAddress) => {
+const connectCustomerToAgent = (by: By, agentAddress: builder.IAddress, nextState?: ConversationState) => {
     const conversation = getConversation(by);
     if (conversation) {
-        conversation.state = stateUpdate;
+        if (by.bestChoice) {
+            conversation.state = conversation.state === ConversationState.Waiting ? ConversationState.Agent : ConversationState.Resolve;
+        } else {
+            conversation.state = nextState;
+        }
         conversation.agent = agentAddress;
     }
 
@@ -40,6 +44,16 @@ const queueCustomerForAgent = (by: By) => {
     conversation.state = ConversationState.Waiting;
     if (conversation.agent)
         delete conversation.agent;
+
+    return true;
+}
+
+const changeStateToResolve = (by: By) => {
+    const conversation = getConversation(by);
+    if (!conversation)
+        return false;
+
+    conversation.state = ConversationState.Resolve;
 
     return true;
 }
@@ -63,18 +77,19 @@ const getConversation = (
 ) => {
     // local function to create a conversation if customer does not already have one
     const createConversation = (customerAddress: builder.IAddress) => {
-        const conversation = {
+        const conversation: Conversation = {
             customer: customerAddress,
+            customerConversationId: customerAddress.conversation.id,
             state: ConversationState.Bot,
-            transcript: []
+            transcript: [],
         };
         conversations.push(conversation);
         return conversation;
     }
 
     if (by.bestChoice) {
-        const waitingLongest = conversations
-            .filter(conversation => conversation.state === ConversationState.Waiting)
+        const waitingLongest: Conversation[] = conversations
+            .filter(conversation => conversation.state === ConversationState.Waiting || conversation.state === ConversationState.Resolve)
             .sort((x, y) => y.transcript[y.transcript.length - 1].timestamp - x.transcript[x.transcript.length - 1].timestamp);
         return waitingLongest.length > 0 && waitingLongest[0];
     }
@@ -98,18 +113,33 @@ const getConversation = (
     return null;
 }
 
+const await = (customerConversationId: string, resolve: Function, reject: Function, toResolve?: builder.Message) => {
+    conversations.map((conversation) => {
+        if (conversation.customerConversationId === customerConversationId) {
+            // where do we add to transcript?
+            conversation.transcript[conversation.transcript.length - 1].toResolve = toResolve;
+            conversation.transcript[conversation.transcript.length - 1].deferred = {
+                resolve: resolve,
+                reject: reject
+            };
+        }
+        return conversation;
+    });
+}
+
 const currentConversations = () =>
     conversations;
 
 export const defaultProvider: Provider = {
     init,
-
+    // Supervised Handoff
+    await,
     // Update
     addToTranscript,
     connectCustomerToAgent,
     connectCustomerToBot,
     queueCustomerForAgent,
-
+    changeStateToResolve,
     // Get
     getConversation,
     currentConversations

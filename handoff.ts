@@ -8,14 +8,22 @@ export enum ConversationState {
     Bot,
     Waiting,
     Agent,
-    Watch
+    Watch,
+    Resolve
 }
 
 // What an entry in the customer transcript will have
 export interface TranscriptLine {
     timestamp: any,
     from: any,
-    text: string
+    text: string,
+    toResolve?: builder.Message,
+    deferred?: Deferred   
+}
+
+export interface Deferred {
+    resolve: Function,
+    reject: Function
 }
 
 // What is stored in a conversation. Agent only included if customer is talking to an agent
@@ -23,7 +31,8 @@ export interface Conversation {
     customer: builder.IAddress,
     agent?: builder.IAddress,
     state: ConversationState,
-    transcript: TranscriptLine[]
+    transcript: TranscriptLine[],
+    customerConversationId: string
 };
 
 // Used in getConversation in provider. Gives context to the search and changes behavior
@@ -37,9 +46,14 @@ export interface By {
 export interface Provider {
     init();
 
+    // Supervised
+    await: (customerConversationId: string, resolve: Function, reject: Function, toResolve?: builder.Message) => void;
+    changeStateToResolve: (by: By) => boolean;
+
+
     // Update
     addToTranscript: (by: By, text: string) => boolean;
-    connectCustomerToAgent: (by: By, nextState: ConversationState, agentAddress: builder.IAddress) => Conversation;
+    connectCustomerToAgent: (by: By, agentAddress: builder.IAddress, nextState?: ConversationState) => Conversation;
     connectCustomerToBot: (by: By) => boolean;
     queueCustomerForAgent: (by: By) => boolean;
 
@@ -53,7 +67,7 @@ export class Handoff {
     constructor(
         private bot: builder.UniversalBot,
         public isAgent: (session: builder.Session) => boolean,
-        private provider = defaultProvider
+        private provider: Provider = defaultProvider
     ) {
         this.provider.init();
     }
@@ -68,14 +82,13 @@ export class Handoff {
             },
             send: (event: builder.IEvent, next: Function) => {
                 // Messages sent from the bot do not need to be routed
-                const message = event as builder.IMessage;
-                const customerConversation = this.getConversation({ customerConversationId: event.address.conversation.id });
+                const message: builder.IMessage = event as builder.IMessage;
+                const customerConversation: Conversation = this.getConversation({ customerConversationId: event.address.conversation.id });
                 // TODO is error checking for state watch with no agent necessary here?
                 if (customerConversation.state === ConversationState.Watch) {
                     this.bot.send(new builder.Message().address(customerConversation.agent).text(message.text));
                 }
                 this.trancribeMessageFromBot(message, next);
-
             }
         }
     }
@@ -92,8 +105,8 @@ export class Handoff {
     }
 
     private routeAgentMessage(session: builder.Session) {
-        const message = session.message;
-        const conversation = this.getConversation({ agentConversationId: message.address.conversation.id });
+        const message: builder.IMessage = session.message;
+        const conversation: Conversation = this.getConversation({ agentConversationId: message.address.conversation.id });
 
         // if the agent is not in conversation, no further routing is necessary
         if (!conversation)
@@ -106,13 +119,14 @@ export class Handoff {
     }
 
     private routeCustomerMessage(session: builder.Session, next: Function) {
-        const message = session.message;
+        const message: builder.IMessage = session.message;
         // method will either return existing conversation or a newly created conversation if this is first time we've heard from customer
-        const conversation = this.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
+        const conversation: Conversation = this.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
         this.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
 
         switch (conversation.state) {
             case ConversationState.Bot:
+            case ConversationState.Resolve:
                 return next();
             case ConversationState.Waiting:
                 session.send("Connecting you to the next available agent.");
@@ -139,7 +153,7 @@ export class Handoff {
 
     public getCustomerTranscript(by: By, session: builder.Session) {
         // TODO clean up this logic. Probably shouldn't all live here.
-        const customerConversation = this.getConversation(by);
+        const customerConversation: Conversation = this.getConversation(by);
         if (customerConversation) {
             customerConversation.transcript.forEach(transcriptLine =>
                 session.send(transcriptLine.text));
@@ -148,8 +162,8 @@ export class Handoff {
         }
     }
 
-    public connectCustomerToAgent = (by: By, nextState: ConversationState, agentAddress: builder.IAddress) =>
-        this.provider.connectCustomerToAgent(by, nextState, agentAddress);
+    public connectCustomerToAgent = (by: By, agentAddress: builder.IAddress, nextState?: ConversationState) =>
+        this.provider.connectCustomerToAgent(by, agentAddress, nextState);
 
     public connectCustomerToBot = (by: By) =>
         this.provider.connectCustomerToBot(by);
@@ -166,5 +180,9 @@ export class Handoff {
     public currentConversations = () =>
         this.provider.currentConversations();
 
+    public await = (customerConversationId: string, resolve: Function, reject: Function, toResolve?: builder.Message) =>
+        this.provider.await(customerConversationId, resolve, reject, toResolve);
 
+    public changeStateToResolve = (by: By) =>
+        this.provider.changeStateToResolve(by);
 };
