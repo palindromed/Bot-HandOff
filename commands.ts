@@ -1,5 +1,6 @@
 import * as builder from 'botbuilder';
 import { Conversation, ConversationState, Handoff } from './handoff';
+import { sendAgentCommandOptions, disconnectCustomer, currentConversations } from './helpers'
 
 export function commandsMiddleware(handoff: Handoff) {
     return {
@@ -79,7 +80,9 @@ function agentCommand(
             return;
         case 'connect':
         case 'watch':
-            // TODO what if in convo and get here passing in different customer name?
+            if (conversation && inputWords.length > 1) {
+                disconnectCustomer(conversation, handoff, session);
+            }
             let newConversation: Conversation;
             if (inputWords[0] === 'connect') {
                 newConversation = handoff.connectCustomerToAgent(
@@ -91,12 +94,14 @@ function agentCommand(
 
                 );
             } else {
-                // watch currently only supports specifying a customer to watch
-                newConversation = handoff.connectCustomerToAgent(
-                    { customerName: inputWords.slice(1).join(' ') },
-                    message.address,
-                    ConversationState.Watch
-                );
+                if (inputWords.length > 1) {
+                    // watch currently only supports specifying a customer to watch
+                    newConversation = handoff.connectCustomerToAgent(
+                        { customerName: inputWords.slice(1).join(' ') },
+                        message.address,
+                        ConversationState.Watch
+                    );
+                }
             }
 
             if (newConversation) {
@@ -106,36 +111,54 @@ function agentCommand(
                 session.send("something went wrong.");
             }
             return;
-        default:
-            if (conversation) {
-                if (conversation.state === ConversationState.Agent) {
-                    return next();
-                }
-            }
     }
     if (conversation) {
+        if (conversation.state === ConversationState.Agent) {
+            return next();
+        }
 
         if (conversation.state === ConversationState.Resolve) {
+            console.log(conversation.state);
             if (inputWords[0] === 'manual') {
+                session.send('The next input you give will be sent to ' + conversation.customer.user.name);
+                
+                session.privateConversationData['resolveIndex'] = inputWords[1];
+                session.save();
+
                 return;
             }
             if (inputWords[0] === 'pass') {
+                console.log(inputWords[1]);
                 conversation.transcript[parseInt(inputWords[1])].deferred.resolve();
                 delete conversation.transcript[parseInt(inputWords[1])].deferred;
                 delete conversation.transcript[parseInt(inputWords[1])].toResolve;
+                session.send('resolved question without responding.');
                 return;
             }
             try {
-                let myIndex: number = parseInt(inputWords[inputWords.length - 1]);
+                let myIndex, sendToUser;
+                console.log('session storage ' + session.privateConversationData.resolveIndex);
+                if (session.privateConversationData.resolveIndex) {
+                    // if this is the input after 'manual' option was picked
+                    myIndex = parseInt(session.privateConversationData.resolveIndex);
+                    sendToUser = session.message.text;
+                    delete session.privateConversationData.resolveIndex;
+                    session.save();
+                } else {
+                    myIndex = parseInt(inputWords[inputWords.length - 1]);
+                    sendToUser = inputWords.slice(0, inputWords.length - 1).join(' ');
+                }
+                console.log(myIndex);
+                console.log(typeof myIndex);
                 if (conversation.transcript[myIndex].deferred) {
-                    let sendToUser: string = inputWords.slice(0, inputWords.length - 1).join(' ')
                     // send 'answer' to customer                        
                     conversation.transcript[myIndex].deferred.resolve(sendToUser);
                     // add message to transcript
-                    handoff.addToTranscript({ customerConversationId: conversation.customerConversationId }, sendToUser);
+                    // handoff.addToTranscript({ customerConversationId: conversation.customerConversationId }, sendToUser);
                     // remove the message to agent and callbacks for this Question                      
                     delete conversation.transcript[myIndex].deferred;
                     delete conversation.transcript[myIndex].toResolve;
+                    session.send('sent to customer: ' + sendToUser);
                     return;
                 }
             } catch (e) {
@@ -165,49 +188,4 @@ function customerCommand(session: builder.Session, next: Function, handoff: Hand
     }
 
     return next();
-}
-
-function sendAgentCommandOptions(session: builder.Session) {
-    const commands: string = ' ### Agent Options\n - Type *waiting* to connect to customer who has been waiting longest.\n - Type *connect { user name }* to connect to a specific conversation\n - Type *watch { user name }* to monitor a customer conversation\n - Type *history { user name }* to see a transcript of a given user\n - Type *history* while watching or talking to a customer to see their transcript\n - Type *list* to see a list of all current conversations.\n - Type *disconnect* while talking to a user to end a conversation.\n - Type *options* at any time to see these options again.';
-    session.send(commands);
-    return;
-}
-
-function currentConversations(handoff) {
-    const conversations: Conversation[] = handoff.currentConversations();
-    if (conversations.length === 0) {
-        return "No customers are in conversation.";
-    }
-
-    let text: string = '### Current Conversations \n';
-    conversations.forEach(conversation => {
-        const starterText: string = ' - *' + conversation.customer.user.name + '*';
-        switch (ConversationState[conversation.state]) {
-            case 'Bot':
-                text += starterText + ' is talking to the bot\n';
-                break;
-            case 'Agent':
-                text += starterText + ' is talking to an agent\n';
-                break;
-            case 'Waiting':
-                text += starterText + ' is waiting to talk to an agent\n';
-                break;
-            case 'Watch':
-                text += starterText + ' is being monitored by an agent\n';
-            case 'Resolve':
-                if (conversation.agent) {
-                    text += starterText + ' is receiving supervised answers from an agent\n';
-                } else {
-                    text += starterText + ' is waiting to receive supervised answers from an agent\n';
-                }
-        }
-    });
-
-    return text;
-}
-
-function disconnectCustomer(conversation: Conversation, handoff: any, session: builder.Session) {
-    if (handoff.connectCustomerToBot({ customerConversationId: conversation.customer.conversation.id })) {
-        session.send("Customer " + conversation.customer.user.name + " is now connected to the bot.");
-    }
 }

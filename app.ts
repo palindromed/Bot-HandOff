@@ -21,7 +21,7 @@ const connector = new builder.ChatConnector({
 });
 const bot = new builder.UniversalBot(connector, [
     (session) => {
-        session.endDialog('Welcome to the handoff bot!');
+        session.endDialog('Welcome to the handoff bot! \nType "help" to be connected to an agent');
     }
 ]);
 app.post('/api/messages', connector.listen());
@@ -39,8 +39,8 @@ const handoff = new Handoff(bot, isAgent);
 // Bot Middleware
 //========================================================
 bot.use(
-    commandsMiddleware(handoff),
-    handoff.routingMiddleware(),
+    commandsMiddleware(handoff), // Check for specified inputs
+    handoff.routingMiddleware(), // Decide where to send the message
     /* other bot middlware should probably go here */
 );
 
@@ -50,7 +50,6 @@ bot.use(
 
 bot.dialog('special', [
     (session, args, next) => {
-        var msg = new builder.Message().text(session.message.text);
         askAgent(bot, session, handoff).then(response => {
             session.send('Echo ' + session.message.text);
             if (response) {
@@ -62,4 +61,6 @@ bot.dialog('special', [
         })
         session.endDialog();
     }
-]).triggerAction({ matches: [/help/i, /problem/i, /special/i] });
+]).triggerAction({ matches: [/problem/i, /special/i] });
+
+

@@ -112,9 +112,10 @@ export class Handoff {
         if (!conversation)
             return;
 
-        // send text that agent typed to the customer they are in conversation with
         if (conversation.state === ConversationState.Watch)
             return;
+
+        // send text that agent typed to the customer they are in conversation with
         this.bot.send(new builder.Message().address(conversation.customer).text(message.text));
     }
 

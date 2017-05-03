@@ -89,7 +89,7 @@ const getConversation = (
 
     if (by.bestChoice) {
         const waitingLongest: Conversation[] = conversations
-            .filter(conversation => conversation.state === ConversationState.Waiting || conversation.state === ConversationState.Resolve)
+            .filter(conversation => conversation.state === ConversationState.Waiting || conversation.state === ConversationState.Resolve && !conversation.agent)
             .sort((x, y) => y.transcript[y.transcript.length - 1].timestamp - x.transcript[x.transcript.length - 1].timestamp);
         return waitingLongest.length > 0 && waitingLongest[0];
     }
@@ -116,7 +116,6 @@ const getConversation = (
 const await = (customerConversationId: string, resolve: Function, reject: Function, toResolve?: builder.Message) => {
     conversations.map((conversation) => {
         if (conversation.customerConversationId === customerConversationId) {
-            // where do we add to transcript?
             conversation.transcript[conversation.transcript.length - 1].toResolve = toResolve;
             conversation.transcript[conversation.transcript.length - 1].deferred = {
                 resolve: resolve,
