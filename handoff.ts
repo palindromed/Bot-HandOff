@@ -1,6 +1,6 @@
 import * as builder from 'botbuilder';
 import { Express } from 'express';
-import { defaultProvider } from './provider';
+import { MongooseProvider } from './mongoose-provider';
 
 // Options for state of a conversation
 // Customer talking to bot, waiting for next available agent or talking to an agent
@@ -38,14 +38,14 @@ export interface Provider {
     init();
 
     // Update
-    addToTranscript: (by: By, text: string) => boolean;
-    connectCustomerToAgent: (by: By, nextState: ConversationState, agentAddress: builder.IAddress) => Conversation;
-    connectCustomerToBot: (by: By) => boolean;
-    queueCustomerForAgent: (by: By) => boolean;
-
+    addToTranscript: (by: By, text: string) => Promise<boolean>;
+    connectCustomerToAgent: (by: By, agentAddress: builder.IAddress) => Promise<Conversation>;
+    connectCustomerToBot: (by: By) => Promise<boolean>;
+    queueCustomerForAgent: (by: By) => Promise<boolean>;
+    
     // Get
-    getConversation: (by: By, customerAddress?: builder.IAddress) => Conversation;
-    currentConversations: () => Conversation[];
+    getConversation: (by: By, customerAddress?: builder.IAddress) => Promise<Conversation>;
+    getCurrentConversations: () => Promise<Conversation[]>;
 }
 
 export class Handoff {
@@ -53,7 +53,7 @@ export class Handoff {
     constructor(
         private bot: builder.UniversalBot,
         public isAgent: (session: builder.Session) => boolean,
-        private provider = defaultProvider
+        private provider = new MongooseProvider()
     ) {
         this.provider.init();
     }
@@ -68,14 +68,7 @@ export class Handoff {
             },
             send: (event: builder.IEvent, next: Function) => {
                 // Messages sent from the bot do not need to be routed
-                const message = event as builder.IMessage;
-                const customerConversation = this.getConversation({ customerConversationId: event.address.conversation.id });
-                // send message to agent observing conversation
-                if (customerConversation.state === ConversationState.Watch) {
-                    this.bot.send(new builder.Message().address(customerConversation.agent).text(message.text));
-                }
-                this.trancribeMessageFromBot(message, next);
-
+                this.transcribeMessageFromBot(event as builder.IMessage, next);
             }
         }
     }
@@ -91,9 +84,9 @@ export class Handoff {
         }
     }
 
-    private routeAgentMessage(session: builder.Session) {
+    private async routeAgentMessage(session: builder.Session) {
         const message = session.message;
-        const conversation = this.getConversation({ agentConversationId: message.address.conversation.id });
+        const conversation = await this.getConversation({ agentConversationId: message.address.conversation.id });
 
         // if the agent is not in conversation, no further routing is necessary
         if (!conversation)
@@ -105,10 +98,10 @@ export class Handoff {
         this.bot.send(new builder.Message().address(conversation.customer).text(message.text));
     }
 
-    private routeCustomerMessage(session: builder.Session, next: Function) {
+    private async routeCustomerMessage(session: builder.Session, next: Function) {
         const message = session.message;
         // method will either return existing conversation or a newly created conversation if this is first time we've heard from customer
-        const conversation = this.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
+        const conversation = await this.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
         this.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
 
         switch (conversation.state) {
@@ -132,7 +125,7 @@ export class Handoff {
     }
 
     // These methods are wrappers around provider which handles data
-    private trancribeMessageFromBot(message: builder.IMessage, next: Function) {
+    private transcribeMessageFromBot(message: builder.IMessage, next: Function) {
         this.provider.addToTranscript({ customerConversationId: message.address.conversation.id }, message.text);
         next();
     }
@@ -163,7 +156,7 @@ export class Handoff {
         this.provider.getConversation(by, customerAddress);
 
     public currentConversations = () =>
-        this.provider.currentConversations();
+        this.provider.getCurrentConversations();
 
 
 };
