@@ -93,7 +93,6 @@ export class Handoff {
         if (conversation.state !== ConversationState.Agent) {
             // error state -- should not happen
             session.send("Shouldn't be in this state - agent should have been cleared out.");
-            console.log("Shouldn't be in this state - agent should have been cleared out");
             return;
         }
         // send text that agent typed to the customer they are in conversation with
@@ -149,7 +148,7 @@ export class Handoff {
         return await this.provider.getConversation(by, customerAddress);
     }
     
-    public currentConversations = async () => {
+    public getCurrentConversations = async (): Promise<Conversation[]> => {
         return await this.provider.getCurrentConversations();
     }
 };
