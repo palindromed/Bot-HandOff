@@ -44,7 +44,6 @@ async function agentCommand(
         session.send(await currentConversations(handoff));
         return;
     }
-
     // Commands to execute when not connected to a customer
 
     if (!conversation) {
@@ -92,15 +91,13 @@ async function customerCommand(session: builder.Session, next: Function, handoff
     if (message.text === 'help') {
         // lookup the conversation (create it if one doesn't already exist)
         const conversation = await handoff.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
-
         if (conversation.state == ConversationState.Bot) {
             await handoff.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
-            await handoff.queueCustomerForAgent({ customerConversationId: conversation.customer.conversation.id })
-            session.send("Connecting you to the next available agent.");
+            await handoff.queueCustomerForAgent({ customerConversationId: conversation.customer.conversation.id });
+            session.endConversation("Connecting you to the next available agent.");
             return;
         }
     }
-
     return next();
 }
 
