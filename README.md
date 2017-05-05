@@ -121,10 +121,19 @@ For now, the easiest thing to do is to add your bot logic to the existing app.ts
 
 ### ... or run locally
 
-1. Run `MICROSOFT_APP_ID=app_id MICROSOFT_APP_PASSWORD=app_password node dist/app.js` to start your bot (remember to restart if you change your code)
-2. Create an ngrok public endpoint [see here for details](https://github.com/Microsoft-DXEIP/Tokyo-Hack-Docs#1-with-your-app-still-running-on-localhost-bind-the-localhost-deployment-with-ngrok-we-will-need-this-url-for-registering-our-bot)
-3. Aim your bot registration at that endpoint (probably `https://something.ngrok.io/api/messages`)
-3. Aim at least two browser instances at `http://localhost:3978/webchat?s=direct_line_secret_key`
+1. Create an ngrok public endpoint [see here for details](https://github.com/Microsoft-DXEIP/Tokyo-Hack-Docs#1-with-your-app-still-running-on-localhost-bind-the-localhost-deployment-with-ngrok-we-will-need-this-url-for-registering-our-bot)
+2. Update your bot registration to reference that endpoint (probably `https://something.ngrok.io/api/messages`)
+3. Run your bot on Mac (remember to restart if you change your code):  
+    Set your environment variables and run your code:  
+    `MICROSOFT_APP_ID=app_id MICROSOFT_APP_PASSWORD=app_password node dist/app.js`   
+4. Run your bot on Windows with PowerShell (remember to restart if you change your code):   
+    Set your environment variables  
+          `$env:MICROSOFT_APP_ID = "app_id"`  
+          `$env:MICROSOFT_APP_PASSWORD = "app_password"`  
+        Run your code:  
+          `node .\dist\app.js` or `npm run start` 
+
+5. Aim at least two browser instances at `http://localhost:3978/webchat?s=direct_line_secret_key`
 
 ### Set up your customer(s) & agent(s), and go
 
