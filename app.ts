@@ -14,11 +14,17 @@ app.listen(process.env.port || process.env.PORT || 3978, '::', () => {
     console.log('Server Up');
 });
 // Create chat bot
-var connector = new builder.ChatConnector({
+const connector = new builder.ChatConnector({
     appId: process.env.MICROSOFT_APP_ID,
     appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
-var bot = new builder.UniversalBot(connector);
+
+const bot = new builder.UniversalBot(connector, [
+    function (session, args, next) {
+        session.send('Echo ' + session.message.text);
+    }
+]);
+
 app.post('/api/messages', connector.listen());
 
 // Create endpoint for agent / call center
@@ -38,15 +44,4 @@ bot.use(
     handoff.routingMiddleware(),
     /* other bot middlware should probably go here */
 );
-
-//=========================================================
-// Bots Dialogs
-//=========================================================
-
-
-bot.dialog('/', [
-    function (session, args, next) {
-        session.send('Echo ' + session.message.text);
-    }]);
-
 

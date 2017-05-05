@@ -13,7 +13,7 @@ export enum ConversationState {
 // What an entry in the customer transcript will have
 export interface TranscriptLine {
     timestamp: any,
-    from: any,
+    from: string,
     text: string
 }
 
