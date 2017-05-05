@@ -108,8 +108,8 @@ function sendAgentCommandOptions(session: builder.Session) {
     return;
 }
 
-async function currentConversations(handoff): Promise<string> {
-    const conversations = await handoff.currentConversations();
+async function currentConversations(handoff : Handoff): Promise<string> {
+    const conversations = await handoff.getCurrentConversations();
     if (conversations.length === 0) {
         return "No customers are in conversation.";
     }
