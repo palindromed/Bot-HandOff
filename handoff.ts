@@ -7,7 +7,8 @@ import { defaultProvider } from './provider';
 export enum ConversationState {
     Bot,
     Waiting,
-    Agent
+    Agent,
+    Watch
 }
 
 // What an entry in the customer transcript will have
@@ -38,10 +39,10 @@ export interface Provider {
 
     // Update
     addToTranscript: (by: By, text: string) => boolean;
-    connectCustomerToAgent: (by: By, agentAddress: builder.IAddress) => Conversation;
+    connectCustomerToAgent: (by: By, nextState: ConversationState, agentAddress: builder.IAddress) => Conversation;
     connectCustomerToBot: (by: By) => boolean;
     queueCustomerForAgent: (by: By) => boolean;
-    
+
     // Get
     getConversation: (by: By, customerAddress?: builder.IAddress) => Conversation;
     currentConversations: () => Conversation[];
@@ -67,7 +68,14 @@ export class Handoff {
             },
             send: (event: builder.IEvent, next: Function) => {
                 // Messages sent from the bot do not need to be routed
-                this.trancribeMessageFromBot(event as builder.IMessage, next);
+                const message = event as builder.IMessage;
+                const customerConversation = this.getConversation({ customerConversationId: event.address.conversation.id });
+                // TODO is error checking for state watch with no agent necessary here?
+                if (customerConversation.state === ConversationState.Watch) {
+                    this.bot.send(new builder.Message().address(customerConversation.agent).text(message.text));
+                }
+                this.trancribeMessageFromBot(message, next);
+
             }
         }
     }
@@ -91,13 +99,9 @@ export class Handoff {
         if (!conversation)
             return;
 
-        if (conversation.state !== ConversationState.Agent) {
-            // error state -- should not happen
-            session.send("Shouldn't be in this state - agent should have been cleared out.");
-            console.log("Shouldn't be in this state - agent should have been cleared out");
-            return;
-        }
         // send text that agent typed to the customer they are in conversation with
+        if (conversation.state === ConversationState.Watch)
+            return;
         this.bot.send(new builder.Message().address(conversation.customer).text(message.text));
     }
 
@@ -113,6 +117,9 @@ export class Handoff {
             case ConversationState.Waiting:
                 session.send("Connecting you to the next available agent.");
                 return;
+            case ConversationState.Watch:
+                this.bot.send(new builder.Message().address(conversation.agent).text(message.text));
+                return next();
             case ConversationState.Agent:
                 if (!conversation.agent) {
                     session.send("No agent address present while customer in state Agent");
@@ -130,8 +137,19 @@ export class Handoff {
         next();
     }
 
-    public connectCustomerToAgent = (by: By, agentAddress: builder.IAddress) =>
-        this.provider.connectCustomerToAgent(by, agentAddress);
+    public getCustomerTranscript(by: By, session: builder.Session) {
+        // TODO clean up this logic. Probably shouldn't all live here.
+        const customerConversation = this.getConversation(by);
+        if (customerConversation) {
+            customerConversation.transcript.forEach(transcriptLine =>
+                session.send(transcriptLine.text));
+        } else {
+            session.send('No Transcript to show. Try entering a username or try again when connected to a customer');
+        }
+    }
+
+    public connectCustomerToAgent = (by: By, nextState: ConversationState, agentAddress: builder.IAddress) =>
+        this.provider.connectCustomerToAgent(by, nextState, agentAddress);
 
     public connectCustomerToBot = (by: By) =>
         this.provider.connectCustomerToBot(by);
@@ -144,8 +162,9 @@ export class Handoff {
 
     public getConversation = (by: By, customerAddress?: builder.IAddress) =>
         this.provider.getConversation(by, customerAddress);
-    
+
     public currentConversations = () =>
         this.provider.currentConversations();
+
 
 };
