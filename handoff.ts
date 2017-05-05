@@ -90,8 +90,15 @@ export class Handoff {
         // if the agent is not in conversation, no further routing is necessary
         if (!conversation)
             return;
+<<<<<<< HEAD
         // if the agent is observing a customer, no need to route message
         if (conversation.state !== ConversationState.Agent)
+=======
+
+        if (conversation.state !== ConversationState.Agent) {
+            // error state -- should not happen
+            session.send("Shouldn't be in this state - agent should have been cleared out.");
+>>>>>>> Fixed async issue
             return;
         // send text that agent typed to the customer they are in conversation with
         this.bot.send(new builder.Message().address(conversation.customer).text(message.text));
@@ -149,7 +156,7 @@ export class Handoff {
         return await this.provider.getConversation(by, customerAddress);
     }
     
-    public currentConversations = async () => {
+    public getCurrentConversations = async (): Promise<Conversation[]> => {
         return await this.provider.getCurrentConversations();
     }
 };
