@@ -9,6 +9,9 @@ export const IIdentitySchema = new mongoose.Schema({
     id: { type: String, required: true },
     isGroup: { type: Boolean, required: false },
     name: { type: String, required: false },
+}, {
+    _id: false,
+    strict: false,
 });
 
 export const IAddressSchema = new mongoose.Schema({
@@ -16,6 +19,13 @@ export const IAddressSchema = new mongoose.Schema({
     channelId: { type: String, required: true },
     conversation: { type: IIdentitySchema, required: false },
     user: { type: IIdentitySchema, required: true },
+    id: { type: String, required: false },
+    serviceUrl: { type: String, required: false },
+    useAuth: { type: Boolean, required: false }
+}, {
+    strict: false,
+    id: false,
+    _id: false
 });
 
 // -------------
@@ -31,9 +41,10 @@ export const ConversationSchema = new mongoose.Schema({
     customer: { type: IAddressSchema, required: true },
     agent: { type: IAddressSchema, required: false },
     state: {
-        type: String,
+        type: Number,
         required: true,
-        enum: ['Bot', 'Waiting', 'Agent'],
+        min: 0,
+        max: 2
     },
     transcript: [TranscriptLineSchema]
 });
@@ -109,33 +120,46 @@ export class MongooseProvider implements Provider {
         if (by.customerName) {
             return await ConversationModel.findOne({ 'customer.user.name': by.customerName });
         } else if (by.agentConversationId) {
-            return await ConversationModel.findOne({ 'agent.conversation.id': by.agentConversationId });
+            const conversation = await ConversationModel.findOne({ 'agent.conversation.id': by.agentConversationId });
+            if(conversation) return conversation;
+            else return null;
         } else if (by.customerConversationId) {
             let conversation: Conversation = await ConversationModel.findOne({ 'customer.conversation.id': by.customerConversationId });
-            if (!conversation) {
-                conversation = (await this.createConversation(customerAddress));
-                return conversation;
+            if (!conversation && customerAddress) {
+                conversation = await this.createConversation(customerAddress);
             }
+            return conversation;
         }
         return null;
     }
 
     async getCurrentConversations(): Promise<Conversation[]> {
-        return await ConversationModel.find();
+        let conversations;
+        try {
+            conversations = await ConversationModel.find();
+        } catch (error) {
+            console.log('Failed loading conversations');
+            console.log(error);
+        }
+        return conversations;
     }
 
     private async createConversation(customerAddress: builder.IAddress): Promise<Conversation> {
         return await ConversationModel.create({
             customer: customerAddress,
-            state: ConversationState.Bot.toString(),
+            state: ConversationState.Bot,
             transcript: []
         });
     }
 
     private async updateConversation(conversation: Conversation): Promise<boolean> {
-        return new Promise<boolean>((resolve) => {
+        return new Promise<boolean>((resolve, reject) => {
             ConversationModel.findByIdAndUpdate((conversation as any)._id, conversation).then((error) => {
                 resolve(true)
+            }).catch((error) => {
+                console.log('Failed to update conversation');
+                console.log(conversation as any);
+                resolve(false);
             });
         });
     }
