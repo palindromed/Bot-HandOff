@@ -86,7 +86,6 @@ export class Handoff {
     private async routeAgentMessage(session: builder.Session) {
         const message = session.message;
         const conversation = await this.getConversation({ agentConversationId: message.address.conversation.id });
-
         // if the agent is not in conversation, no further routing is necessary
         if (!conversation)
             return;
@@ -130,22 +129,27 @@ export class Handoff {
         next();
     }
 
-    public connectCustomerToAgent = (by: By, agentAddress: builder.IAddress) =>
-        this.provider.connectCustomerToAgent(by, agentAddress);
+    public connectCustomerToAgent = async (by: By, agentAddress: builder.IAddress): Promise<Conversation> => {
+        return await this.provider.connectCustomerToAgent(by, agentAddress);
+    }
 
-    public connectCustomerToBot = (by: By) =>
-        this.provider.connectCustomerToBot(by);
+    public connectCustomerToBot = async (by: By): Promise<boolean> => {
+        return await this.provider.connectCustomerToBot(by);
+    }
 
-    public queueCustomerForAgent = (by: By) =>
-        this.provider.queueCustomerForAgent(by);
+    public queueCustomerForAgent = async (by: By): Promise<boolean> => {
+        return await this.provider.queueCustomerForAgent(by);
+    }
 
-    public addToTranscript = (by: By, text: string) =>
-        this.provider.addToTranscript(by, text);
+    public addToTranscript = async (by: By, text: string): Promise<boolean> => {
+        return await this.provider.addToTranscript(by, text);
+    }
 
-    public getConversation = (by: By, customerAddress?: builder.IAddress) =>
-        this.provider.getConversation(by, customerAddress);
+    public getConversation = async (by: By, customerAddress?: builder.IAddress): Promise<Conversation> => {
+        return await this.provider.getConversation(by, customerAddress);
+    }
     
-    public currentConversations = () =>
-        this.provider.getCurrentConversations();
-
+    public currentConversations = async () => {
+        return await this.provider.getCurrentConversations();
+    }
 };
