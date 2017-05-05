@@ -87,7 +87,6 @@ export class Handoff {
     private async routeAgentMessage(session: builder.Session) {
         const message = session.message;
         const conversation = await this.getConversation({ agentConversationId: message.address.conversation.id });
-
         // if the agent is not in conversation, no further routing is necessary
         if (!conversation)
             return;
@@ -130,33 +129,27 @@ export class Handoff {
         next();
     }
 
-    public getCustomerTranscript(by: By, session: builder.Session) {
-        const customerConversation = this.getConversation(by);
-        if (customerConversation) {
-            customerConversation.transcript.forEach(transcriptLine =>
-                session.send(transcriptLine.text));
-        } else {
-            session.send('No Transcript to show. Try entering a username or try again when connected to a customer');
-        }
+    public connectCustomerToAgent = async (by: By, agentAddress: builder.IAddress): Promise<Conversation> => {
+        return await this.provider.connectCustomerToAgent(by, agentAddress);
     }
 
-    public connectCustomerToAgent = (by: By, nextState: ConversationState, agentAddress: builder.IAddress) =>
-        this.provider.connectCustomerToAgent(by, nextState, agentAddress);
+    public connectCustomerToBot = async (by: By): Promise<boolean> => {
+        return await this.provider.connectCustomerToBot(by);
+    }
 
-    public connectCustomerToBot = (by: By) =>
-        this.provider.connectCustomerToBot(by);
+    public queueCustomerForAgent = async (by: By): Promise<boolean> => {
+        return await this.provider.queueCustomerForAgent(by);
+    }
 
-    public queueCustomerForAgent = (by: By) =>
-        this.provider.queueCustomerForAgent(by);
+    public addToTranscript = async (by: By, text: string): Promise<boolean> => {
+        return await this.provider.addToTranscript(by, text);
+    }
 
-    public addToTranscript = (by: By, text: string) =>
-        this.provider.addToTranscript(by, text);
-
-    public getConversation = (by: By, customerAddress?: builder.IAddress) =>
-        this.provider.getConversation(by, customerAddress);
-
-    public currentConversations = () =>
-        this.provider.getCurrentConversations();
-
-
+    public getConversation = async (by: By, customerAddress?: builder.IAddress): Promise<Conversation> => {
+        return await this.provider.getConversation(by, customerAddress);
+    }
+    
+    public currentConversations = async () => {
+        return await this.provider.getCurrentConversations();
+    }
 };
