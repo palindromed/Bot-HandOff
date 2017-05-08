@@ -53,6 +53,14 @@ Depending on how your bot is written, this can happen progamatically (automatica
 However in this version of the framework there is no concept of a directory of agents availability thereof.
 So at the moment this happens primarily through an agent manually choosing to connect to a customer.
 
+### Agent Monitoring
+
+An Agent can monitor a Customer conversation without interfering in bot funtionality.
+
+Messages will go between Customer and the bot as well as Customer and Agent.
+
+The connected Agent can then choose to take over (change state to *Agent*) or disconnect (change state to *Bot*)
+
 ### Conversational Metadata and Provider
 
 Handoff depends on a database of conversations, including a transcription of every message sent between customer and bot, or between customer and agent.

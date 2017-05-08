@@ -70,7 +70,7 @@ export class Handoff {
                 // Messages sent from the bot do not need to be routed
                 const message = event as builder.IMessage;
                 const customerConversation = this.getConversation({ customerConversationId: event.address.conversation.id });
-                // TODO is error checking for state watch with no agent necessary here?
+                // send message to agent observing conversation
                 if (customerConversation.state === ConversationState.Watch) {
                     this.bot.send(new builder.Message().address(customerConversation.agent).text(message.text));
                 }
@@ -98,10 +98,10 @@ export class Handoff {
         // if the agent is not in conversation, no further routing is necessary
         if (!conversation)
             return;
-
-        // send text that agent typed to the customer they are in conversation with
-        if (conversation.state === ConversationState.Watch)
+        // if the agent is observing a customer, no need to route message
+        if (conversation.state !== ConversationState.Agent)
             return;
+        // send text that agent typed to the customer they are in conversation with
         this.bot.send(new builder.Message().address(conversation.customer).text(message.text));
     }
 
@@ -138,7 +138,6 @@ export class Handoff {
     }
 
     public getCustomerTranscript(by: By, session: builder.Session) {
-        // TODO clean up this logic. Probably shouldn't all live here.
         const customerConversation = this.getConversation(by);
         if (customerConversation) {
             customerConversation.transcript.forEach(transcriptLine =>
