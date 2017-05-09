@@ -46,24 +46,56 @@ async function agentCommand(
     }
     // Commands to execute when not connected to a customer
 
-    if (!conversation) {
-        switch (inputWords[0]) {
-            case 'connect':
-                const newConversation = await handoff.connectCustomerToAgent(
+    // Commands to execute whether connected to a customer or not
+    switch (inputWords[0]) {
+        case 'options':
+            sendAgentCommandOptions(session);
+            return;
+        case 'list':
+            session.send( await currentConversations(handoff));
+            return;
+        case 'history':
+            await handoff.getCustomerTranscript(
+                inputWords.length > 1
+                    ? { customerName: inputWords.slice(1).join(' ') }
+                    : { agentConversationId: message.address.conversation.id },
+                session);
+            return;
+        case 'waiting':
+            if (conversation) {
+                //disconnect from current conversation if already watching/talking
+                disconnectCustomer(conversation, handoff, session);
+            }
+            const waitingConversation = await handoff.connectCustomerToAgent(
+                { bestChoice: true },
+                ConversationState.Agent,
+                message.address
+            );
+            if (waitingConversation) {
+                session.send("You are connected to " + waitingConversation.customer.user.name);
+            } else {
+                session.send("No customers waiting.");
+            }
+            return;
+        case 'connect':
+        case 'watch':
+            let newConversation;
+            if (inputWords[0] === 'connect') {
+                newConversation = await handoff.connectCustomerToAgent(
                     inputWords.length > 1
                         ? { customerName: inputWords.slice(1).join(' ') }
                         : { customerConversationId: conversation.customer.conversation.id },
                     ConversationState.Agent,
                     message.address
                 );
-        } else {
-            // watch currently only supports specifying a customer to watch
-            newConversation = handoff.connectCustomerToAgent(
-                { customerName: inputWords.slice(1).join(' ') },
-                ConversationState.Watch,
-                message.address
-            );
-        }
+            } else {
+                // watch currently only supports specifying a customer to watch
+                newConversation = await handoff.connectCustomerToAgent(
+                    { customerName: inputWords.slice(1).join(' ') },
+                    ConversationState.Watch,
+                    message.address
+                );
+            }
 
         if (message.text === 'disconnect') {
             if (await handoff.connectCustomerToBot({ customerConversationId: conversation.customer.conversation.id })) {
@@ -73,7 +105,6 @@ async function agentCommand(
         }
     }
 }
-
 
 async function customerCommand(session: builder.Session, next: Function, handoff: Handoff) {
     const message = session.message;
@@ -97,8 +128,8 @@ function sendAgentCommandOptions(session: builder.Session) {
     return;
 }
 
-async function currentConversations(handoff : Handoff): Promise<string> {
-    const conversations = await handoff.getCurrentConversations();
+async function currentConversations(handoff) {
+    const conversations = await handoff.currentConversations();
     if (conversations.length === 0) {
         return "No customers are in conversation.";
     }
@@ -125,8 +156,8 @@ async function currentConversations(handoff : Handoff): Promise<string> {
     return text;
 }
 
-function disconnectCustomer(conversation: Conversation, handoff: any, session: builder.Session) {
-    if (handoff.connectCustomerToBot({ customerConversationId: conversation.customer.conversation.id })) {
+async function disconnectCustomer(conversation: Conversation, handoff: any, session: builder.Session) {
+    if (await handoff.connectCustomerToBot({ customerConversationId: conversation.customer.conversation.id })) {
         session.send("Customer " + conversation.customer.user.name + " is now connected to the bot.");
     }
 

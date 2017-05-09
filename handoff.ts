@@ -39,13 +39,13 @@ export interface Provider {
 
     // Update
     addToTranscript: (by: By, text: string) => Promise<boolean>;
-    connectCustomerToAgent: (by: By, agentAddress: builder.IAddress) => Promise<Conversation>;
+    connectCustomerToAgent: (by: By, nextState: ConversationState, agentAddress: builder.IAddress) => Promise<Conversation>;
     connectCustomerToBot: (by: By) => Promise<boolean>;
     queueCustomerForAgent: (by: By) => Promise<boolean>;
-    
+
     // Get
     getConversation: (by: By, customerAddress?: builder.IAddress) => Promise<Conversation>;
-    getCurrentConversations: () => Promise<Conversation[]>;
+    currentConversations: () => Promise<Conversation[]>;
 }
 
 export class Handoff {
@@ -66,9 +66,16 @@ export class Handoff {
                     this.routeMessage(session, next);
                 }
             },
-            send: (event: builder.IEvent, next: Function) => {
+            send: async (event: builder.IEvent, next: Function) => {
                 // Messages sent from the bot do not need to be routed
-                this.transcribeMessageFromBot(event as builder.IMessage, next);
+                const message = event as builder.IMessage;
+                const customerConversation = await this.getConversation({ customerConversationId: event.address.conversation.id });
+                // send message to agent observing conversation
+                if (customerConversation && customerConversation.state === ConversationState.Watch) {
+                    this.bot.send(new builder.Message().address(customerConversation.agent).text(message.text));
+                }
+                this.trancribeMessageFromBot(message, next);
+
             }
         }
     }
@@ -90,15 +97,10 @@ export class Handoff {
         // if the agent is not in conversation, no further routing is necessary
         if (!conversation)
             return;
-<<<<<<< HEAD
-        // if the agent is observing a customer, no need to route message
-        if (conversation.state !== ConversationState.Agent)
-=======
 
         if (conversation.state !== ConversationState.Agent) {
             // error state -- should not happen
             session.send("Shouldn't be in this state - agent should have been cleared out.");
->>>>>>> Fixed async issue
             return;
         // send text that agent typed to the customer they are in conversation with
         this.bot.send(new builder.Message().address(conversation.customer).text(message.text));
@@ -136,27 +138,37 @@ export class Handoff {
         next();
     }
 
-    public connectCustomerToAgent = async (by: By, agentAddress: builder.IAddress): Promise<Conversation> => {
-        return await this.provider.connectCustomerToAgent(by, agentAddress);
+     public async getCustomerTranscript(by: By, session: builder.Session) {
+        const customerConversation = await this.getConversation(by);
+        if (customerConversation) {
+            customerConversation.transcript.forEach(transcriptLine =>
+                session.send(transcriptLine.text));
+        } else {
+            session.send('No Transcript to show. Try entering a username or try again when connected to a customer');
+        }
     }
 
-    public connectCustomerToBot = async (by: By): Promise<boolean> => {
+    public connectCustomerToAgent = async (by: By, nextState: ConversationState, agentAddress: builder.IAddress) => {
+        return await this.provider.connectCustomerToAgent(by, nextState, agentAddress);
+    }
+
+    public connectCustomerToBot = async (by: By) => {
         return await this.provider.connectCustomerToBot(by);
     }
 
-    public queueCustomerForAgent = async (by: By): Promise<boolean> => {
+    public queueCustomerForAgent = async (by: By) => {
         return await this.provider.queueCustomerForAgent(by);
     }
 
-    public addToTranscript = async (by: By, text: string): Promise<boolean> => {
+    public addToTranscript = async (by: By, text: string) => {
         return await this.provider.addToTranscript(by, text);
     }
 
-    public getConversation = async (by: By, customerAddress?: builder.IAddress): Promise<Conversation> => {
+    public getConversation = async (by: By, customerAddress?: builder.IAddress) => {
         return await this.provider.getConversation(by, customerAddress);
     }
-    
-    public getCurrentConversations = async (): Promise<Conversation[]> => {
-        return await this.provider.getCurrentConversations();
+
+    public currentConversations = async () => {
+        return await this.provider.currentConversations();
     }
 };
