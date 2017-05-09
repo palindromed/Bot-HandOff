@@ -38,14 +38,14 @@ export interface Provider {
     init();
 
     // Update
-    addToTranscript: (by: By, text: string) => boolean;
-    connectCustomerToAgent: (by: By, nextState: ConversationState, agentAddress: builder.IAddress) => Conversation;
-    connectCustomerToBot: (by: By) => boolean;
-    queueCustomerForAgent: (by: By) => boolean;
+    addToTranscript: (by: By, text: string) => Promise<boolean>;
+    connectCustomerToAgent: (by: By, nextState: ConversationState, agentAddress: builder.IAddress) => Promise<Conversation>;
+    connectCustomerToBot: (by: By) => Promise<boolean>;
+    queueCustomerForAgent: (by: By) => Promise<boolean>;
 
     // Get
-    getConversation: (by: By, customerAddress?: builder.IAddress) => Conversation;
-    currentConversations: () => Conversation[];
+    getConversation: (by: By, customerAddress?: builder.IAddress) => Promise<Conversation>;
+    currentConversations: () => Promise<Conversation[]>;
 }
 
 export class Handoff {
@@ -66,12 +66,12 @@ export class Handoff {
                     this.routeMessage(session, next);
                 }
             },
-            send: (event: builder.IEvent, next: Function) => {
+            send: async (event: builder.IEvent, next: Function) => {
                 // Messages sent from the bot do not need to be routed
                 const message = event as builder.IMessage;
-                const customerConversation = this.getConversation({ customerConversationId: event.address.conversation.id });
+                const customerConversation = await this.getConversation({ customerConversationId: event.address.conversation.id });
                 // send message to agent observing conversation
-                if (customerConversation.state === ConversationState.Watch) {
+                if (customerConversation && customerConversation.state === ConversationState.Watch) {
                     this.bot.send(new builder.Message().address(customerConversation.agent).text(message.text));
                 }
                 this.trancribeMessageFromBot(message, next);
@@ -91,9 +91,9 @@ export class Handoff {
         }
     }
 
-    private routeAgentMessage(session: builder.Session) {
+    private async routeAgentMessage(session: builder.Session) {
         const message = session.message;
-        const conversation = this.getConversation({ agentConversationId: message.address.conversation.id });
+        const conversation = await this.getConversation({ agentConversationId: message.address.conversation.id });
 
         // if the agent is not in conversation, no further routing is necessary
         if (!conversation)
@@ -105,10 +105,10 @@ export class Handoff {
         this.bot.send(new builder.Message().address(conversation.customer).text(message.text));
     }
 
-    private routeCustomerMessage(session: builder.Session, next: Function) {
+    private async routeCustomerMessage(session: builder.Session, next: Function) {
         const message = session.message;
         // method will either return existing conversation or a newly created conversation if this is first time we've heard from customer
-        const conversation = this.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
+        const conversation = await this.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
         this.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
 
         switch (conversation.state) {
@@ -137,8 +137,8 @@ export class Handoff {
         next();
     }
 
-    public getCustomerTranscript(by: By, session: builder.Session) {
-        const customerConversation = this.getConversation(by);
+     public async getCustomerTranscript(by: By, session: builder.Session) {
+        const customerConversation = await this.getConversation(by);
         if (customerConversation) {
             customerConversation.transcript.forEach(transcriptLine =>
                 session.send(transcriptLine.text));
@@ -147,23 +147,27 @@ export class Handoff {
         }
     }
 
-    public connectCustomerToAgent = (by: By, nextState: ConversationState, agentAddress: builder.IAddress) =>
-        this.provider.connectCustomerToAgent(by, nextState, agentAddress);
+    public connectCustomerToAgent = async (by: By, nextState: ConversationState, agentAddress: builder.IAddress) => {
+        return await this.provider.connectCustomerToAgent(by, nextState, agentAddress);
+    }
 
-    public connectCustomerToBot = (by: By) =>
-        this.provider.connectCustomerToBot(by);
+    public connectCustomerToBot = async (by: By) => {
+        return await this.provider.connectCustomerToBot(by);
+    }
 
-    public queueCustomerForAgent = (by: By) =>
-        this.provider.queueCustomerForAgent(by);
+    public queueCustomerForAgent = async (by: By) => {
+        return await this.provider.queueCustomerForAgent(by);
+    }
 
-    public addToTranscript = (by: By, text: string) =>
-        this.provider.addToTranscript(by, text);
+    public addToTranscript = async (by: By, text: string) => {
+        return await this.provider.addToTranscript(by, text);
+    }
 
-    public getConversation = (by: By, customerAddress?: builder.IAddress) =>
-        this.provider.getConversation(by, customerAddress);
+    public getConversation = async (by: By, customerAddress?: builder.IAddress) => {
+        return await this.provider.getConversation(by, customerAddress);
+    }
 
-    public currentConversations = () =>
-        this.provider.currentConversations();
-
-
+    public currentConversations = async () => {
+        return await this.provider.currentConversations();
+    }
 };

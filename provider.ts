@@ -3,13 +3,13 @@ import { Provider, Conversation, By, ConversationState } from './handoff';
 
 export let conversations: Conversation[];
 
-export const init = () => {
+export const  init = async () => {
     conversations = [];
 }
 
 // Update
-const addToTranscript = (by: By, text: string) => {
-    const conversation = getConversation(by);
+const addToTranscript = async (by: By, text: string) => {
+    const conversation = await getConversation(by);
     if (!conversation)
         return false;
 
@@ -22,8 +22,8 @@ const addToTranscript = (by: By, text: string) => {
     return true;
 }
 
-const connectCustomerToAgent = (by: By, stateUpdate: ConversationState, agentAddress: builder.IAddress) => {
-    const conversation = getConversation(by);
+const connectCustomerToAgent = async (by: By, stateUpdate: ConversationState, agentAddress: builder.IAddress) => {
+    const conversation = await getConversation(by);
     if (conversation) {
         conversation.state = stateUpdate;
         conversation.agent = agentAddress;
@@ -32,8 +32,8 @@ const connectCustomerToAgent = (by: By, stateUpdate: ConversationState, agentAdd
     return conversation;
 }
 
-const queueCustomerForAgent = (by: By) => {
-    const conversation = getConversation(by);
+const queueCustomerForAgent = async (by: By) => {
+    const conversation = await getConversation(by);
     if (!conversation)
         return false;
 
@@ -44,8 +44,8 @@ const queueCustomerForAgent = (by: By) => {
     return true;
 }
 
-const connectCustomerToBot = (by: By) => {
-    const conversation = getConversation(by);
+const connectCustomerToBot = async (by: By) => {
+    const conversation = await getConversation(by);
     if (!conversation)
         return false;
 
@@ -57,7 +57,7 @@ const connectCustomerToBot = (by: By) => {
 }
 
 // Get
-const getConversation = (
+const getConversation = async (
     by: By,
     customerAddress?: builder.IAddress // if looking up by customerConversationId, create new conversation if one doesn't already exist
 ) => {
@@ -98,7 +98,7 @@ const getConversation = (
     return null;
 }
 
-const currentConversations = () =>
+const currentConversations = async () =>
     conversations;
 
 export const defaultProvider: Provider = {

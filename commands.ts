@@ -23,13 +23,13 @@ function command(
     }
 }
 
-function agentCommand(
+async function agentCommand(
     session: builder.Session,
     next: Function,
     handoff: Handoff
 ) {
     const message = session.message;
-    const conversation = handoff.getConversation({ agentConversationId: message.address.conversation.id });
+    const conversation = await handoff.getConversation({ agentConversationId: message.address.conversation.id });
     const inputWords = message.text.split(' ');
 
     if (inputWords.length == 0)
@@ -46,10 +46,10 @@ function agentCommand(
             sendAgentCommandOptions(session);
             return;
         case 'list':
-            session.send(currentConversations(handoff));
+            session.send( await currentConversations(handoff));
             return;
         case 'history':
-            handoff.getCustomerTranscript(
+            await handoff.getCustomerTranscript(
                 inputWords.length > 1
                     ? { customerName: inputWords.slice(1).join(' ') }
                     : { agentConversationId: message.address.conversation.id },
@@ -60,7 +60,7 @@ function agentCommand(
                 //disconnect from current conversation if already watching/talking
                 disconnectCustomer(conversation, handoff, session);
             }
-            const waitingConversation = handoff.connectCustomerToAgent(
+            const waitingConversation = await handoff.connectCustomerToAgent(
                 { bestChoice: true },
                 ConversationState.Agent,
                 message.address
@@ -75,7 +75,7 @@ function agentCommand(
         case 'watch':
             let newConversation;
             if (inputWords[0] === 'connect') {
-                newConversation = handoff.connectCustomerToAgent(
+                newConversation = await handoff.connectCustomerToAgent(
                     inputWords.length > 1
                         ? { customerName: inputWords.slice(1).join(' ') }
                         : { customerConversationId: conversation.customer.conversation.id },
@@ -84,7 +84,7 @@ function agentCommand(
                 );
             } else {
                 // watch currently only supports specifying a customer to watch
-                newConversation = handoff.connectCustomerToAgent(
+                newConversation = await handoff.connectCustomerToAgent(
                     { customerName: inputWords.slice(1).join(' ') },
                     ConversationState.Watch,
                     message.address
@@ -107,11 +107,11 @@ function agentCommand(
     }
 }
 
-function customerCommand(session: builder.Session, next: Function, handoff: Handoff) {
+async function customerCommand(session: builder.Session, next: Function, handoff: Handoff) {
     const message = session.message;
     if (message.text === 'help') {
         // lookup the conversation (create it if one doesn't already exist)
-        const conversation = handoff.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
+        const conversation = await handoff.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
 
         if (conversation.state == ConversationState.Bot) {
             handoff.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
@@ -131,8 +131,8 @@ function sendAgentCommandOptions(session: builder.Session) {
     return;
 }
 
-function currentConversations(handoff) {
-    const conversations = handoff.currentConversations();
+async function currentConversations(handoff) {
+    const conversations = await handoff.currentConversations();
     if (conversations.length === 0) {
         return "No customers are in conversation.";
     }
@@ -159,8 +159,8 @@ function currentConversations(handoff) {
     return text;
 }
 
-function disconnectCustomer(conversation: Conversation, handoff: any, session: builder.Session) {
-    if (handoff.connectCustomerToBot({ customerConversationId: conversation.customer.conversation.id })) {
+async function disconnectCustomer(conversation: Conversation, handoff: any, session: builder.Session) {
+    if (await handoff.connectCustomerToBot({ customerConversationId: conversation.customer.conversation.id })) {
         session.send("Customer " + conversation.customer.user.name + " is now connected to the bot.");
     }
 
