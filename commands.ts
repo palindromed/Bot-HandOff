@@ -18,6 +18,8 @@ function command(
 ) {
     if (handoff.isAgent(session)) {
         agentCommand(session, next, handoff);
+    } else if (handoff.isOperator(session)) {
+        operatorCommand(session, next, handoff);
     } else {
         customerCommand(session, next, handoff);
     }
@@ -101,6 +103,17 @@ async function customerCommand(session: builder.Session, next: Function, handoff
     return next();
 }
 
+async function operatorCommand(session: builder.Session, next: Function, handoff: Handoff) {
+    const message = session.message;
+    console.log(message.sourceEvent);
+    const conversation = await handoff.getConversation({ customerConversationId: message.sourceEvent.conversation.id }, message.sourceEvent);
+    if (conversation.state == ConversationState.Bot) {
+        await handoff.queueCustomerForAgent({ customerConversationId: message.sourceEvent.conversation.id });
+        console.log("State set to 1. It works!");
+        return;
+    }
+    return next();
+}
 
 function sendAgentCommandOptions(session: builder.Session) {
     const commands = ' ### Agent Options\n - Type *connect* to connect to customer who has been waiting longest.\n - Type *connect { user name }* to connect to a specific conversation\n - Type *list* to see a list of all current conversations.\n - Type *disconnect* while talking to a user to end a conversation.\n - Type *options* at any time to see these options again.';

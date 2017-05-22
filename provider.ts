@@ -12,7 +12,7 @@ const convertToPromise = <T>(value: T): Promise<T> => {
 }
 
 // Update
-const addToTranscript = async (by: By, text: string): Promise<boolean> => {
+const addToTranscript = async (by: By, text: string, from: string): Promise<boolean> => {
     const conversation = await getConversation(by);
     if (!conversation)
         return convertToPromise<boolean>(false);

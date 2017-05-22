@@ -10,9 +10,9 @@ export const IIdentitySchema = new mongoose.Schema({
     isGroup: { type: Boolean, required: false },
     name: { type: String, required: false },
 }, {
-    _id: false,
-    strict: false,
-});
+        _id: false,
+        strict: false,
+    });
 
 export const IAddressSchema = new mongoose.Schema({
     bot: { type: IIdentitySchema, required: true },
@@ -23,10 +23,10 @@ export const IAddressSchema = new mongoose.Schema({
     serviceUrl: { type: String, required: false },
     useAuth: { type: Boolean, required: false }
 }, {
-    strict: false,
-    id: false,
-    _id: false
-});
+        strict: false,
+        id: false,
+        _id: false
+    });
 
 // -------------
 // Handoff types
@@ -68,12 +68,12 @@ export class MongooseProvider implements Provider {
         mongoose.connect('mongodb://localhost/bot-handoff');
     }
 
-    async addToTranscript(by: By, text: string): Promise<boolean> {
+    async addToTranscript(by: By, text: string, from: string): Promise<boolean> {
         const conversation: Conversation = await this.getConversation(by);
         if (!conversation) return false;
         conversation.transcript.push({
             timestamp: Date.now(),
-            from: by.agentConversationId ? 'agent' : 'customer',
+            from: from,
             text
         });
         return await this.updateConversation(conversation);
@@ -121,7 +121,7 @@ export class MongooseProvider implements Provider {
             return await ConversationModel.findOne({ 'customer.user.name': by.customerName });
         } else if (by.agentConversationId) {
             const conversation = await ConversationModel.findOne({ 'agent.conversation.id': by.agentConversationId });
-            if(conversation) return conversation;
+            if (conversation) return conversation;
             else return null;
         } else if (by.customerConversationId) {
             let conversation: Conversation = await ConversationModel.findOne({ 'customer.conversation.id': by.customerConversationId });

@@ -34,7 +34,10 @@ app.use('/webchat', express.static('public'));
 const isAgent = (session: builder.Session) => 
     session.message.user.name.startsWith("Agent");
 
-const handoff = new Handoff(bot, isAgent);
+const isOperator = (session: builder.Session) => 
+    session.message.user.name.startsWith("Operator");
+
+const handoff = new Handoff(bot, isAgent, isOperator);
 
 //========================================================
 // Bot Middleware
