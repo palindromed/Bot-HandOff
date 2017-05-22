@@ -21,7 +21,7 @@ const connector = new builder.ChatConnector({
 
 const bot = new builder.UniversalBot(connector, [
     function (session, args, next) {
-        session.send('Echo ' + session.message.text);
+        session.endConversation('Echo ' + session.message.text);
     }
 ]);
 

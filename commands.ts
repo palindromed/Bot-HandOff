@@ -23,13 +23,13 @@ function command(
     }
 }
 
-function agentCommand(
+async function agentCommand(
     session: builder.Session,
     next: Function,
     handoff: Handoff
 ) {
     const message = session.message;
-    const conversation = handoff.getConversation({ agentConversationId: message.address.conversation.id });
+    const conversation = await handoff.getConversation({ agentConversationId: message.address.conversation.id });
     const inputWords = message.text.split(' ');
 
     if (inputWords.length == 0)
@@ -41,16 +41,15 @@ function agentCommand(
         sendAgentCommandOptions(session);
         return;
     } else if (inputWords[0] === 'list') {
-        session.send(currentConversations(handoff));
+        session.send(await currentConversations(handoff));
         return;
     }
-
     // Commands to execute when not connected to a customer
 
     if (!conversation) {
         switch (inputWords[0]) {
             case 'connect':
-                const newConversation = handoff.connectCustomerToAgent(
+                const newConversation = await handoff.connectCustomerToAgent(
                     inputWords.length > 1
                         ? { customerName: inputWords.slice(1).join(' ') }
                         : { bestChoice: true },
@@ -77,7 +76,7 @@ function agentCommand(
     }
 
     if (message.text === 'disconnect') {
-        if (handoff.connectCustomerToBot({ customerConversationId: conversation.customer.conversation.id })) {
+        if (await handoff.connectCustomerToBot({ customerConversationId: conversation.customer.conversation.id })) {
             session.send("Customer " + conversation.customer.user.name + " is now connected to the bot.");
         }
         return;
@@ -87,20 +86,18 @@ function agentCommand(
 }
 
 
-function customerCommand(session: builder.Session, next: Function, handoff: Handoff) {
+async function customerCommand(session: builder.Session, next: Function, handoff: Handoff) {
     const message = session.message;
     if (message.text === 'help') {
         // lookup the conversation (create it if one doesn't already exist)
-        const conversation = handoff.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
-
+        const conversation = await handoff.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
         if (conversation.state == ConversationState.Bot) {
-            handoff.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
-            handoff.queueCustomerForAgent({ customerConversationId: conversation.customer.conversation.id })
-            session.send("Connecting you to the next available agent.");
+            await handoff.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
+            await handoff.queueCustomerForAgent({ customerConversationId: conversation.customer.conversation.id });
+            session.endConversation("Connecting you to the next available agent.");
             return;
         }
     }
-
     return next();
 }
 
@@ -111,8 +108,8 @@ function sendAgentCommandOptions(session: builder.Session) {
     return;
 }
 
-function currentConversations(handoff) {
-    const conversations = handoff.currentConversations();
+async function currentConversations(handoff : Handoff): Promise<string> {
+    const conversations = await handoff.getCurrentConversations();
     if (conversations.length === 0) {
         return "No customers are in conversation.";
     }

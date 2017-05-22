@@ -7,11 +7,15 @@ export const init = () => {
     conversations = [];
 }
 
+const convertToPromise = <T>(value: T): Promise<T> => {
+    return new Promise<T>((resolve) => { return resolve(value) });
+}
+
 // Update
-const addToTranscript = (by: By, text: string) => {
-    const conversation = getConversation(by);
+const addToTranscript = async (by: By, text: string): Promise<boolean> => {
+    const conversation = await getConversation(by);
     if (!conversation)
-        return false;
+        return convertToPromise<boolean>(false);
 
     conversation.transcript.push({
         timestamp: Date.now(),
@@ -19,48 +23,48 @@ const addToTranscript = (by: By, text: string) => {
         text
     });
 
-    return true;
+    return convertToPromise<boolean>(true);
 }
 
-const connectCustomerToAgent = (by: By, agentAddress: builder.IAddress) => {
-    const conversation = getConversation(by);
+const connectCustomerToAgent = async (by: By, agentAddress: builder.IAddress): Promise<Conversation> => {
+    const conversation = await getConversation(by);
     if (conversation) {
         conversation.state = ConversationState.Agent;
         conversation.agent = agentAddress;
     }
 
-    return conversation;
+    return convertToPromise(conversation);
 }
 
-const queueCustomerForAgent = (by: By) => {
-    const conversation = getConversation(by);
+const queueCustomerForAgent = async (by: By) => {
+    const conversation = await getConversation(by);
     if (!conversation)
-        return false;
+        return convertToPromise(false);
 
     conversation.state = ConversationState.Waiting;
     if (conversation.agent)
         delete conversation.agent;
 
-    return true;
+    return convertToPromise(true);
 }
 
-const connectCustomerToBot = (by: By) => {
-    const conversation = getConversation(by);
+const connectCustomerToBot = async (by: By) => {
+    const conversation = await getConversation(by);
     if (!conversation)
-        return false;
+        return convertToPromise(false);
 
     conversation.state = ConversationState.Bot;
     if (conversation.agent)
         delete conversation.agent;
 
-    return true;
+    return convertToPromise(true);
 }
 
 // Get
-const getConversation = (
+const getConversation = async (
     by: By,
     customerAddress?: builder.IAddress // if looking up by customerConversationId, create new conversation if one doesn't already exist
-) => {
+): Promise<Conversation> => {
     // local function to create a conversation if customer does not already have one
     const createConversation = (customerAddress: builder.IAddress) => {
         const conversation = {
@@ -69,37 +73,37 @@ const getConversation = (
             transcript: []
         };
         conversations.push(conversation);
-        return conversation;
+        return convertToPromise(conversation);
     }
 
     if (by.bestChoice) {
         const waitingLongest = conversations
             .filter(conversation => conversation.state === ConversationState.Waiting)
             .sort((x, y) => y.transcript[y.transcript.length - 1].timestamp - x.transcript[x.transcript.length - 1].timestamp);
-        return waitingLongest.length > 0 && waitingLongest[0];
+        return await convertToPromise(waitingLongest.length > 0 && waitingLongest[0]);
     }
     if (by.customerName) {
-        return conversations.find(conversation =>
+        return convertToPromise(conversations.find(conversation =>
             conversation.customer.user.name == by.customerName
-        );
+        ));
     } else if (by.agentConversationId) {
-        return conversations.find(conversation =>
+        return convertToPromise(conversations.find(conversation =>
             conversation.agent && conversation.agent.conversation.id === by.agentConversationId
-        );
+        ));
     } else if (by.customerConversationId) {
         let conversation = conversations.find(conversation =>
             conversation.customer.conversation.id === by.customerConversationId
         );
         if (!conversation && customerAddress) {
-            conversation = createConversation(customerAddress);
+            conversation = await createConversation(customerAddress);
         }
-        return conversation;
+        return convertToPromise(conversation);
     }
     return null;
 }
 
-const currentConversations = () => 
-    conversations;
+const getCurrentConversations = (): Promise<Conversation[]> =>
+    convertToPromise(conversations);
 
 export const defaultProvider: Provider = {
     init,
@@ -112,7 +116,7 @@ export const defaultProvider: Provider = {
 
     // Get
     getConversation,
-    currentConversations,
+    getCurrentConversations,
 }
 
 
