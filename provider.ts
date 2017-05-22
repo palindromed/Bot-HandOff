@@ -8,7 +8,7 @@ export const  init = async () => {
 }
 
 // Update
-const addToTranscript = async (by: By, text: string) => {
+const addToTranscript = async (by: By, text: string, from: string): Promise<boolean> => {
     const conversation = await getConversation(by);
     if (!conversation)
         return false;

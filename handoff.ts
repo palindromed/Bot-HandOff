@@ -38,8 +38,8 @@ export interface Provider {
     init();
 
     // Update
-    addToTranscript: (by: By, text: string) => Promise<boolean>;
-    connectCustomerToAgent: (by: By, nextState: ConversationState, agentAddress: builder.IAddress) => Promise<Conversation>;
+    addToTranscript: (by: By, text: string, from: string) => Promise<boolean>;
+    connectCustomerToAgent: (by: By, agentAddress: builder.IAddress) => Promise<Conversation>;
     connectCustomerToBot: (by: By) => Promise<boolean>;
     queueCustomerForAgent: (by: By) => Promise<boolean>;
 
@@ -53,6 +53,7 @@ export class Handoff {
     constructor(
         private bot: builder.UniversalBot,
         public isAgent: (session: builder.Session) => boolean,
+        public isOperator: (session: builder.Session) => boolean,
         private provider = new MongooseProvider()
     ) {
         this.provider.init();
@@ -68,14 +69,13 @@ export class Handoff {
             },
             send: async (event: builder.IEvent, next: Function) => {
                 // Messages sent from the bot do not need to be routed
-                const message = event as builder.IMessage;
-                const customerConversation = await this.getConversation({ customerConversationId: event.address.conversation.id });
-                // send message to agent observing conversation
-                if (customerConversation && customerConversation.state === ConversationState.Watch) {
-                    this.bot.send(new builder.Message().address(customerConversation.agent).text(message.text));
+                // Not all messages from the bot are type message, we only want to record the actual messages  
+                if (event.type === 'message') {
+                    this.transcribeMessageFromBot(event as builder.IMessage, next);
+                } else {
+                    //If not a message (text), just send to user without transcribing
+                    next();
                 }
-                this.trancribeMessageFromBot(message, next);
-
             }
         }
     }
@@ -134,7 +134,7 @@ export class Handoff {
 
     // These methods are wrappers around provider which handles data
     private transcribeMessageFromBot(message: builder.IMessage, next: Function) {
-        this.provider.addToTranscript({ customerConversationId: message.address.conversation.id }, message.text);
+        this.provider.addToTranscript({ customerConversationId: message.address.conversation.id }, message.text, 'Bot');
         next();
     }
 
@@ -160,15 +160,16 @@ export class Handoff {
         return await this.provider.queueCustomerForAgent(by);
     }
 
-    public addToTranscript = async (by: By, text: string) => {
-        return await this.provider.addToTranscript(by, text);
+    public addToTranscript = async (by: By, text: string): Promise<boolean> => {
+        let from = by.agentConversationId ? 'Agent' : 'Customer';
+        return await this.provider.addToTranscript(by, text, from);
     }
 
     public getConversation = async (by: By, customerAddress?: builder.IAddress) => {
         return await this.provider.getConversation(by, customerAddress);
     }
 
-    public currentConversations = async () => {
-        return await this.provider.currentConversations();
+    public getCurrentConversations = async (): Promise<Conversation[]> => {
+        return await this.provider.getCurrentConversations();
     }
 };
