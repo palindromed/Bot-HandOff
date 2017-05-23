@@ -29,14 +29,18 @@ const bot = new builder.UniversalBot(connector, [
 
 app.use(bodyParser.json());
 
+// Create endpoint for agent / call center
+app.use('/webchat', express.static('public'));
+
 app.post('/api/messages', connector.listen());
 
+// Endpoint to get current conversations
 app.get('/api/conversations', async (req, res) => {
     const authHeader = req.headers['authorization'];
     console.log(authHeader);
     console.log(req.headers);
-    if(authHeader) {
-        if(authHeader === 'Bearer ' + process.env.MICROSOFT_APP_PASSWORD) {
+    if (authHeader) {
+        if (authHeader === 'Bearer ' + process.env.MICROSOFT_DIRECTLINE_SECRET) {
             let conversations = await mongooseProvider.getCurrentConversations()
             res.status(200).send(conversations);
         }
@@ -44,13 +48,14 @@ app.get('/api/conversations', async (req, res) => {
     res.status(401).send('Not Authorized');
 });
 
+// Endpoint to trigger handover
 app.post('/api/conversations', async (req, res) => {
     const authHeader = req.headers['authorization'];
     console.log(authHeader);
     console.log(req.headers);
-    if(authHeader) {
-        if(authHeader === 'Bearer ' + process.env.MICROSOFT_APP_PASSWORD) {
-            if (await handoff.tweakConvo(req.body.conversationId)) {
+    if (authHeader) {
+        if (authHeader === 'Bearer ' + process.env.MICROSOFT_DIRECTLINE_SECRET) {
+            if (await handoff.queueCustomerForAgent({ customerConversationId: req.body.conversationId })) {
                 res.status(200).send("Ok");
             } else {
                 res.status(400).send("Meh");
@@ -60,17 +65,11 @@ app.post('/api/conversations', async (req, res) => {
     res.status(401).send('Not Authorized');
 });
 
-// Create endpoint for agent / call center
-app.use('/webchat', express.static('public'));
-
-// replace this function with custom login/verification for agents
+// Replace this function with custom login/verification for agents
 const isAgent = (session: builder.Session) =>
     session.message.user.name.startsWith("Agent");
 
-const isOperator = (session: builder.Session) =>
-    session.message.user.name.startsWith("Operator");
-
-const handoff = new Handoff(bot, isAgent, isOperator);
+const handoff = new Handoff(bot, isAgent);
 
 //========================================================
 // Bot Middleware

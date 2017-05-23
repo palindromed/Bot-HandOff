@@ -11,25 +11,15 @@ export function commandsMiddleware(handoff: Handoff) {
     }
 }
 
-function command(
-    session: builder.Session,
-    next: Function,
-    handoff: Handoff
-) {
+function command(session: builder.Session, next: Function, handoff: Handoff) {
     if (handoff.isAgent(session)) {
         agentCommand(session, next, handoff);
-    } else if (handoff.isOperator(session)) {
-        operatorCommand(session, next, handoff);
     } else {
         customerCommand(session, next, handoff);
     }
 }
 
-async function agentCommand(
-    session: builder.Session,
-    next: Function,
-    handoff: Handoff
-) {
+async function agentCommand(session: builder.Session, next: Function, handoff: Handoff) {
     const message = session.message;
     const conversation = await handoff.getConversation({ agentConversationId: message.address.conversation.id });
     const inputWords = message.text.split(' ');
@@ -87,7 +77,6 @@ async function agentCommand(
     next();
 }
 
-
 async function customerCommand(session: builder.Session, next: Function, handoff: Handoff) {
     const message = session.message;
     if (message.text === 'help') {
@@ -103,25 +92,13 @@ async function customerCommand(session: builder.Session, next: Function, handoff
     return next();
 }
 
-async function operatorCommand(session: builder.Session, next: Function, handoff: Handoff) {
-    const message = session.message;
-    console.log(message.sourceEvent);
-    const conversation = await handoff.getConversation({ customerConversationId: message.sourceEvent.conversation.id }, message.sourceEvent);
-    if (conversation.state == ConversationState.Bot) {
-        await handoff.queueCustomerForAgent({ customerConversationId: message.sourceEvent.conversation.id });
-        console.log("State set to 1. It works!");
-        return;
-    }
-    return next();
-}
-
 function sendAgentCommandOptions(session: builder.Session) {
     const commands = ' ### Agent Options\n - Type *connect* to connect to customer who has been waiting longest.\n - Type *connect { user name }* to connect to a specific conversation\n - Type *list* to see a list of all current conversations.\n - Type *disconnect* while talking to a user to end a conversation.\n - Type *options* at any time to see these options again.';
     session.send(commands);
     return;
 }
 
-async function currentConversations(handoff : Handoff): Promise<string> {
+async function currentConversations(handoff: Handoff): Promise<string> {
     const conversations = await handoff.getCurrentConversations();
     if (conversations.length === 0) {
         return "No customers are in conversation.";
