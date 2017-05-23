@@ -90,6 +90,12 @@ export class Handoff {
         }
     }
 
+    public async tweakConvo(
+         conversationId: string
+    ){
+        return await this.queueCustomerForAgent({ customerConversationId: conversationId});
+    }
+
     private async routeAgentMessage(session: builder.Session) {
         const message = session.message;
         const conversation = await this.getConversation({ agentConversationId: message.address.conversation.id });
