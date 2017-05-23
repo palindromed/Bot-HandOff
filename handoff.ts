@@ -53,7 +53,6 @@ export class Handoff {
     constructor(
         private bot: builder.UniversalBot,
         public isAgent: (session: builder.Session) => boolean,
-        public isOperator: (session: builder.Session) => boolean,
         private provider = new MongooseProvider()
     ) {
         this.provider.init();
@@ -80,21 +79,12 @@ export class Handoff {
         }
     }
 
-    private routeMessage(
-        session: builder.Session,
-        next: Function
-    ) {
+    private routeMessage(session: builder.Session, next: Function) {
         if (this.isAgent(session)) {
             this.routeAgentMessage(session)
         } else {
             this.routeCustomerMessage(session, next);
         }
-    }
-
-    public async tweakConvo(
-         conversationId: string
-    ){
-        return await this.queueCustomerForAgent({ customerConversationId: conversationId});
     }
 
     private async routeAgentMessage(session: builder.Session) {
