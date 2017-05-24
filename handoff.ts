@@ -53,6 +53,7 @@ export class Handoff {
     constructor(
         private bot: builder.UniversalBot,
         public isAgent: (session: builder.Session) => boolean,
+        public isOperator: (session: builder.Session) => boolean,
         private provider = new MongooseProvider()
     ) {
         this.provider.init();

@@ -28,7 +28,7 @@ const bot = new builder.UniversalBot(connector, [
     }
 ]);
 
-app.use(cors({origin: '*'}));
+app.use(cors({ origin: '*' }));
 
 app.use(bodyParser.json());
 
@@ -72,7 +72,10 @@ app.post('/api/conversations', async (req, res) => {
 const isAgent = (session: builder.Session) =>
     session.message.user.name.startsWith("Agent");
 
-const handoff = new Handoff(bot, isAgent);
+const isOperator = (session: builder.Session) =>
+    session.message.user.name.startsWith("Operator");
+
+const handoff = new Handoff(bot, isAgent, isOperator);
 
 //========================================================
 // Bot Middleware

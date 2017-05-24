@@ -14,6 +14,8 @@ export function commandsMiddleware(handoff: Handoff) {
 function command(session: builder.Session, next: Function, handoff: Handoff) {
     if (handoff.isAgent(session)) {
         agentCommand(session, next, handoff);
+    } else if (handoff.isOperator(session)) {
+        operatorCommand(session, next, handoff);
     } else {
         customerCommand(session, next, handoff);
     }
@@ -109,6 +111,17 @@ async function customerCommand(session: builder.Session, next: Function, handoff
             session.endConversation("Connecting you to the next available agent.");
             return;
         }
+    }
+    return next();
+}
+
+async function operatorCommand(session: builder.Session, next: Function, handoff: Handoff) {
+    const message = session.message;
+    console.log(message.sourceEvent);
+    const conversation = await handoff.getConversation({ customerConversationId: message.sourceEvent.conversation.id }, message.sourceEvent);
+    if (conversation.state == ConversationState.Bot) {
+        await handoff.queueCustomerForAgent({ customerConversationId: message.sourceEvent.conversation.id });
+        return;
     }
     return next();
 }
