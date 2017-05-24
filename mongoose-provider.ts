@@ -1,6 +1,9 @@
-import * as mongoose from 'mongoose';
-import { By, Conversation, Provider, ConversationState } from './handoff';
 import * as builder from 'botbuilder';
+import * as bluebird from 'bluebird';
+import mongoose = require('mongoose');
+mongoose.Promise = bluebird;
+
+import { By, Conversation, Provider, ConversationState } from './handoff';
 
 // -------------------
 // Bot Framework types
