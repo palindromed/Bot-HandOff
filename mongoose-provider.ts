@@ -65,7 +65,7 @@ export const ByModel = mongoose.model<ByDocument>('By', BySchema);
 // -----------------
 export class MongooseProvider implements Provider {
     public init(): void {
-        mongoose.connect('mongodb://localhost/bot-handoff');
+        mongoose.connect(process.env.MONGODB_PROVIDER);
     }
 
     async addToTranscript(by: By, text: string, from: string): Promise<boolean> {
