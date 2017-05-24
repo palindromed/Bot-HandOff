@@ -4,6 +4,7 @@ import * as bodyParser from 'body-parser';
 import { Handoff } from './handoff';
 import { commandsMiddleware } from './commands';
 import { MongooseProvider } from './mongoose-provider';
+import * as cors from 'cors';
 
 //=========================================================
 // Bot Setup
@@ -26,6 +27,8 @@ const bot = new builder.UniversalBot(connector, [
         session.endConversation('Echo ' + session.message.text);
     }
 ]);
+
+app.use(cors({origin: '*'}));
 
 app.use(bodyParser.json());
 
