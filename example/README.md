@@ -105,6 +105,14 @@ In future we plan to extract the core `Handoff` object into its own npm package 
 
 For now, the easiest thing to do is to add your bot logic to the existing app.ts file.
 
+Required environment variables:
+```
+"MICROSOFT_APP_ID" : "",
+"MICROSOFT_APP_PASSWORD" : "",
+"MICROSOFT_DIRECTLINE_SECRET" : "",
+"MONGODB_PROVIDER" : ""      
+```
+
 ## How to build and run this sample project
 
 0. Clone this repo
@@ -121,7 +129,7 @@ For now, the easiest thing to do is to add your bot logic to the existing app.ts
 
 ### ... or run locally
 
-1. Run `MICROSOFT_APP_ID=app_id MICROSOFT_APP_PASSWORD=app_password node dist/app.js` to start your bot (remember to restart if you change your code)
+1. Run `node dist/app.js` to start your bot (remember to restart if you change your code)
 2. Create an ngrok public endpoint [see here for details](https://github.com/Microsoft-DXEIP/Tokyo-Hack-Docs#1-with-your-app-still-running-on-localhost-bind-the-localhost-deployment-with-ngrok-we-will-need-this-url-for-registering-our-bot)
 3. Aim your bot registration at that endpoint (probably `https://something.ngrok.io/api/messages`)
 3. Aim at least two browser instances at `http://localhost:3978/webchat?s=direct_line_secret_key`
