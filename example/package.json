@@ -1,6 +1,6 @@
 {
-  "name": "bot_handoff",
-  "version": "1.0.2",
+  "name": "handoffbot",
+  "version": "0.1.0",
   "license": "MIT",
   "description": "Create example to escalate to a human",
   "main": "app.js",
@@ -12,21 +12,11 @@
     "start": "node dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/liliankasem/Bot-HandOff.git"
-  },
-  "keywords": [
-    "bot",
-    "handover",
-    "hand off",
-    "bot framework"
-  ],
   "dependencies": {
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.2",
     "botbuilder": "^3.7.0",
-    "bot_handoff": "^1.0.0",
+    "bot_handoff": "^1.0.2",
     "cors": "2.8.3",
     "express": "^4.14.0",
     "mongoose": "^4.9.7",
