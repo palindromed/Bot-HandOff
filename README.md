@@ -26,6 +26,11 @@ After all initial bot setup, paste in the following code:
 //=========================================================
 // Hand Off Setup
 //=========================================================
+/** 
+MongooseProvidor is using a mongo db connection string. 
+It is looking for this this variable in your environemnt:
+    MONGODB_PROVIDER
+**/
 const mongooseProvider = new bot_handoff.MongooseProvider();
 
 // Replace this function with custom login/verification for agents
@@ -81,6 +86,14 @@ bot.use(
 );
 
 
+```
+
+Required environment variables:
+```
+"MICROSOFT_APP_ID" : "",
+"MICROSOFT_APP_PASSWORD" : "",
+"MICROSOFT_DIRECTLINE_SECRET" : "",
+"MONGODB_PROVIDER" : ""      
 ```
 
 See example folder for a full bot example.
