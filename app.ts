@@ -59,13 +59,14 @@ app.post('/api/conversations', async (req, res) => {
     if (authHeader) {
         if (authHeader === 'Bearer ' + process.env.MICROSOFT_DIRECTLINE_SECRET) {
             if (await handoff.queueCustomerForAgent({ customerConversationId: req.body.conversationId })) {
-                res.status(200).send("Ok");
+                res.status(200).send("OK");
             } else {
-                res.status(400).send("Meh");
+                res.status(400).send("Can't find conversation ID");
             }
         }
+    } else {
+        res.status(401).send('Not Authorized');
     }
-    res.status(401).send('Not Authorized');
 });
 
 // Replace this function with custom login/verification for agents
