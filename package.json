@@ -12,6 +12,16 @@
     "start": "node dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liliankasem/Bot-HandOff.git"
+  },
+  "keywords": [
+    "bot",
+    "handover",
+    "hand off",
+    "bot framework"
+  ],
   "dependencies": {
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.2",
