@@ -2,7 +2,7 @@ import * as express from 'express';
 import * as builder from 'botbuilder';
 import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
-import * as bot_handoff from './bot_handoff/src/index';
+import * as bot_handoff from 'bot_handoff';
 
 //=========================================================
 // Normal Bot Setup
@@ -69,7 +69,7 @@ app.post('/api/conversations', async (req, res) => {
     console.log(authHeader);
     console.log(req.headers);
     if (authHeader) {
-        if (authHeader === 'Bearer ' + process.env.MICROSOFT_DIRECTLINE_SECRET) {
+        if (authHeader === 'Bearer ' + process.env) {
             if (await handoff.queueCustomerForAgent({ customerConversationId: req.body.conversationId })) {
                 res.status(200).send({ "code": 200, "message": "OK" });
             } else {

@@ -16,6 +16,7 @@
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.2",
     "botbuilder": "^3.7.0",
+    "bot_handoff": "^1.0.0",
     "cors": "2.8.3",
     "express": "^4.14.0",
     "mongoose": "^4.9.7",
