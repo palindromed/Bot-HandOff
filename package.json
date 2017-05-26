@@ -1,6 +1,6 @@
 {
-  "name": "handoffbot",
-  "version": "0.1.0",
+  "name": "bot_handoff",
+  "version": "1.0.1",
   "license": "MIT",
   "description": "Create example to escalate to a human",
   "main": "app.js",
