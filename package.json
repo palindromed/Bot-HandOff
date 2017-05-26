@@ -1,17 +1,28 @@
 {
-  "name": "handoffbot",
-  "version": "0.1.0",
+  "name": "bot_handoff",
+  "version": "1.0.0",
   "license": "MIT",
-  "description": "Create example to escalate to a human",
-  "main": "app.js",
+  "description": "Bot hand off module for the Microsoft Bot Framework. It allows you to transfer a customer from talking to a bot to talking to a human.",
+  "main": "dist/index.js",
   "scripts": {
     "postinstall": "tsc",
     "build": "tsc",
     "watch": "tsc -w",
-    "nodewatch": "nodemon dist/app.js",
-    "start": "node dist/app.js",
+    "nodewatch": "nodemon dist/index.js",
+    "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liliankasem/Bot-HandOff.git"
+  },
+  "keywords": [
+    "bot",
+    "handover",
+    "hand off",
+    "bot framework"
+  ],
+  "license": "MIT",
   "dependencies": {
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.2",

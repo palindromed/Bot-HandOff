@@ -1,0 +1,18 @@
+{
+    "default_text": "我没听明白。请重复。",
+    "default_number": "这好像不是数字. 请输入数字",
+    "default_confirm": "我没听明白。 请选择'是'或'否'。",
+    "default_choice": "我没听明白。请从可选项中选择。",
+    "default_time": "这好像不是日期，时间。 请输入日期，时间 (月月/日日/年年年年 时时:分分:秒秒)。",
+    "default_file": "我没有收到文件，请再传一次。",
+    "default_error": "啊呀。发生故障了，我需要重启。",
+    "list_or": "或",
+    "list_or_more": ", 或",
+    "confirm_yes": "是",
+    "confirm_no": "不",
+    "boolean_choices": "true=y,yes,\\u662f,\\u786e\\u8ba4,\\u662f\\u7684,\\u597d\\u7684,\\u597d,\\u6ca1\\u95ee\\u9898,\\u5bf9,\\u5bf9\\u7684,\u1F44D,\u1F44C|false=n,no,\\u4e0d,\\u4e0d\\u662f,\\u4e0d\\u5bf9,\\u4e0d\\u77e5\\u9053,\\u4e0d\\u884c,\u1F44E,\u270B,\u1F590",
+    "yesExp": "^(\\u662f|\\u786e\\u8ba4|\\u662f\\u7684|\\u597d\\u7684|\\u597d|\\u6ca1\\u95ee\\u9898|\\u5bf9|\\u5bf9\\u7684)(\\W|$)",
+    "noExp": "^(\\u4e0d|\\u4e0d\\u662f|\\u4e0d\\u5bf9|\\u4e0d\\u77e5\\u9053|\\u4e0d\\u884c)(\\W|$)"
+}   
+
+

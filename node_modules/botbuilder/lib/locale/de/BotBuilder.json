@@ -1,0 +1,16 @@
+{
+    "default_text": "Das habe ich nicht verstanden. Bitte versuchen Sie es nochmal",
+    "default_number": "Die Zahl habe ich nicht verstanden. Bitte geben Sie eine Zahl ein.",
+    "default_confirm": "Das habe ich nicht verstanden. Bitte antworten Sie 'ja' oder 'nein'",
+    "default_choice": "Das habe ich nicht verstanden. Bitte waehlen Sie aus der Liste.",
+    "default_time": "Die eingegebene Zeit habe ich nicht verstanden. Bitte geben Sie es im folgenden Format ein (MM/TT/JJJJ HH:MM:SS).",
+    "default_file": "Ich habe nichts empfangen. Bitte versuchen Sie es erneut.",
+    "default_error": "Ups. Irgendetwas ist schief gelaufen. Wir versuchen es erneut.",
+    "list_or": " oder ",
+    "list_or_more": ", oder ",
+    "confirm_yes": "ja",
+    "confirm_no": "nein",
+    "boolean_choices": "true=y,yes,ja,\u1F44D,\u1F44C|false=n,no,nein,\u1F44E,\u270B,\u1F590",
+    "yesExp": "^(1|ja)(\\W|$)",
+    "noExp": "^(2|nein)(\\W|$)"
+}

@@ -1,0 +1,16 @@
+{
+    "default_text": "Ik heb het niet begrepen. Kun je het opnieuw proberen? ",
+    "default_number": "Ik kan dit getal niet herkennen. Kun je opnieuw een getal invoeren?",
+    "default_confirm": "Ik heb je niet begrepen. Kun je 'ja' of 'nee' antwoorden?",
+    "default_choice": "Ik heb het niet begrepen. Kies een optie uit de lijst.",
+    "default_time": "Ik kan de tijd die je hebt ingevoerd niet herkennen. Kun je het opnieuw proberen in het formaat MM/DD/YYYY HH:MM:SS?",
+    "default_file": "Ik heb geen bestand ontvangen. Kun je het opnieuw proberen?",
+    "default_error": "Oeps. Er is iets foutgegaan en we moeten helaas opnieuw beginnen.",
+    "list_or": " of ",
+    "list_or_more": ", of ",
+    "confirm_yes": "ja",
+    "confirm_no": "nee",
+    "boolean_choices": "true=y,yes,ja,\u1F44D,\u1F44C|false=n,no,nee,\u1F44E,\u270B,\u1F590",
+    "yesExp": "^(1|y|yes|ja)(\\W|$)",
+    "noExp": "^(2|n|no|nee)(\\W|$)"
+}   

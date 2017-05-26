@@ -1,0 +1,16 @@
+{
+    "default_text": "Non ho capito. Riprova per favore.",
+    "default_number": "Il valore inserito non sembra essere un numero. Per favore inserisci un numero.",
+    "default_confirm": "Non ho capito. Per favore rispondi 'sì' o 'no'.",
+    "default_choice": "Non ho capito. Per favore scegli un'opzione dalla lista.",
+    "default_time": "Il valore inserito non sembra essere una data. Attualmente capisco solo date in inglese. Per favore riprova specificando la data in inglese (p.es. 17 August 2013, 08/17/2013 [nota: il mese viene prima in questo formato!], 5 days ago, Today, ecc.).",
+    "default_file": "Non ho ricevuto nessun file. Riprova per favore.",
+    "default_error": "Ops. Qualcosa è andato storto e dobbiamo ricominciare da capo.",
+    "list_or": " o ",
+    "list_or_more": " o ",
+    "confirm_yes": "sì",
+    "confirm_no": "no",
+    "boolean_choices": "true=y,yes,sì,\u1F44D,\u1F44C|false=n,no,\u1F44E,\u270B,\u1F590",
+    "yesExp": "^(1|sì)(\\W|$)",
+    "noExp": "^(2|no)(\\W|$)"
+}   

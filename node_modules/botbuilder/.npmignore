@@ -1,0 +1,6 @@
+/built
+/docs
+/examples
+/**/node_modules
+/src
+/**/.vscode

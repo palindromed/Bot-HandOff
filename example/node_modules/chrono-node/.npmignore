@@ -1,0 +1,11 @@
+# Node Modules
+node_modules/*
+
+# Coverages
+coverage/
+
+# Misc
+.Rhistory
+.idea/
+
+

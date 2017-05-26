@@ -1,0 +1,16 @@
+{
+    "default_text": "Je n'ai pas compris. Veuillez réessayer.",
+    "default_number": "Ce n'est pas un nombre. Merci d'entrer un nombre.",
+    "default_confirm": "Je n'ai pas compris. Merci de répondre 'oui' ou 'non'.",
+    "default_choice": "Je n'ai pas compris. Merci de choisir une option de la liste.",
+    "default_time": "Je n'ai pas reconnu la date. Veuillez réessayer en utilisant le format (MM/JJ/AAAA HH:MM:SS).",
+    "default_file": "Je n'ai reçu aucun fichier. Veuillez réessayer.",
+    "default_error": "Oups. Il y a eu un problème et je crains que nous devions recommencer.",
+    "list_or": " ou ",
+    "list_or_more": ", ou ",
+    "confirm_yes": "oui",
+    "confirm_no": "non",
+    "boolean_choices": "true=y,yes,oui,\u1F44D,\u1F44C|false=n,no,non,\u1F44E,\u270B,\u1F590",
+    "yesExp": "^(1|oui)(\\W|$)",
+    "noExp": "^(2|non)(\\W|$)"
+}   
