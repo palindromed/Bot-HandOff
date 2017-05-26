@@ -10,6 +10,10 @@ This project is in heavy flux, but is now in a usable state. However this should
 
 This project is written in TypeScript.
 
+[Source Code](https://github.com/liliankasem/Bot-HandOff/tree/v.1.0.0)
+
+See [example folder](https://github.com/liliankasem/Bot-HandOff/tree/v.1.0.0/example) for a full bot example.
+
 ## Basic Usage
 
 ```javascript
@@ -95,8 +99,6 @@ Required environment variables:
 "MICROSOFT_DIRECTLINE_SECRET" : "",
 "MONGODB_PROVIDER" : ""      
 ```
-
-See example folder for a full bot example.
 
 ## License
 

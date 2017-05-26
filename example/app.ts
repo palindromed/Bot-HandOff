@@ -69,7 +69,7 @@ app.post('/api/conversations', async (req, res) => {
     console.log(authHeader);
     console.log(req.headers);
     if (authHeader) {
-        if (authHeader === 'Bearer ' + process.env) {
+        if (authHeader === 'Bearer ' + process.env.MICROSOFT_DIRECTLINE_SECRET) {
             if (await handoff.queueCustomerForAgent({ customerConversationId: req.body.conversationId })) {
                 res.status(200).send({ "code": 200, "message": "OK" });
             } else {
