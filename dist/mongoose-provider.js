@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const bluebird = require("bluebird");
 const mongoose = require("mongoose");
+exports.mongoose = mongoose;
 mongoose.Promise = bluebird;
 const handoff_1 = require("./handoff");
 // -------------------
@@ -68,7 +69,7 @@ exports.ByModel = mongoose.model('By', exports.BySchema);
 // -----------------
 class MongooseProvider {
     init() {
-        mongoose.connect(process.env.MONGODB_PROVIDER);
+        //mongoose.connect(process.env.MONGODB_PROVIDER);
     }
     addToTranscript(by, text, from) {
         return __awaiter(this, void 0, void 0, function* () {

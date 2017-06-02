@@ -62,13 +62,13 @@ export const BySchema = new mongoose.Schema({
 });
 export interface ByDocument extends By, mongoose.Document { }
 export const ByModel = mongoose.model<ByDocument>('By', BySchema);
-
+export {mongoose};
 // -----------------
 // Mongoose Provider
 // -----------------
 export class MongooseProvider implements Provider {
     public init(): void {
-        mongoose.connect(process.env.MONGODB_PROVIDER);
+        //mongoose.connect(process.env.MONGODB_PROVIDER);
     }
 
     async addToTranscript(by: By, text: string, from: string): Promise<boolean> {
