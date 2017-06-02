@@ -1,10 +1,5 @@
 import * as express from 'express';
 import * as builder from 'botbuilder';
-import * as bodyParser from 'body-parser';
-import { Handoff } from './handoff';
-import { commandsMiddleware } from './commands';
-import { MongooseProvider } from './mongoose-provider';
-import * as cors from 'cors';
 import * as bot_handoff from 'bot_handoff';
 
 //=========================================================
@@ -29,62 +24,15 @@ const bot = new builder.UniversalBot(connector, [
     }
 ]);
 
-app.use(cors({ origin: '*' }));
-
-app.use(bodyParser.json());
-
-// Create endpoint for agent / call center
-app.use('/webchat', express.static('public'));
-
-app.post('/api/messages', connector.listen());
-
-// Endpoint to get current conversations
-app.get('/api/conversations', async (req, res) => {
-    const authHeader = req.headers['authorization'];
-    console.log(authHeader);
-    console.log(req.headers);
-    if (authHeader) {
-        if (authHeader === 'Bearer ' + process.env.MICROSOFT_DIRECTLINE_SECRET) {
-            let conversations = await mongooseProvider.getCurrentConversations()
-            res.status(200).send(conversations);
-        }
-    }
-    res.status(401).send('Not Authorized');
-});
-
-// Endpoint to trigger handover
-app.post('/api/conversations', async (req, res) => {
-    const authHeader = req.headers['authorization'];
-    console.log(authHeader);
-    console.log(req.headers);
-    if (authHeader) {
-        if (authHeader === 'Bearer ' + process.env.MICROSOFT_DIRECTLINE_SECRET) {
-            if (await handoff.queueCustomerForAgent({ customerConversationId: req.body.conversationId })) {
-                res.status(200).send("OK");
-            } else {
-                res.status(400).send("Can't find conversation ID");
-            }
-        }
-    } else {
-        res.status(401).send('Not Authorized');
-    }
-});
+//=========================================================
+// Hand Off Setup
+//=========================================================
 
 // Replace this function with custom login/verification for agents
-const isAgent = (session: builder.Session) =>
-    session.message.user.name.startsWith("Agent");
+const isAgent = (session: builder.Session) => session.message.user.name.startsWith("Agent");
+const isOperator = (session: builder.Session) => session.message.user.name.startsWith("Operator");
 
-const isOperator = (session: builder.Session) =>
-    session.message.user.name.startsWith("Operator");
-
-const handoff = new Handoff(bot, isAgent, isOperator);
-
-//========================================================
-// Bot Middleware
-//========================================================
-bot.use(
-    commandsMiddleware(handoff),
-    handoff.routingMiddleware(),
-    /* other bot middlware should probably go here */
-);
-
+bot_handoff.setup(bot, app, isAgent, isOperator, {
+    mongodbProvider: process.env.MONGODB_PROVIDER,
+    directlineSecret: process.env.MICROSOFT_DIRECTLINE_SECRET
+});
