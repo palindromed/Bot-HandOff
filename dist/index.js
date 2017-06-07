@@ -14,7 +14,7 @@ const commands_1 = require("./commands");
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-let setup = (bot, app, isAgent, isOperator, options) => {
+let setup = (bot, app, isAgent, options) => {
     let _directLineSecret = null;
     let _mongodbProvider = null;
     let mongooseProvider = null;
@@ -41,7 +41,7 @@ let setup = (bot, app, isAgent, isOperator, options) => {
         _textAnalyiticsKey = options.textAnalyiticsKey || process.env.CS_TEXT_ANALYITCS_KEY;
         exports._textAnalyiticsKey = _textAnalyiticsKey;
     }
-    const handoff = new handoff_1.Handoff(bot, isAgent, isOperator);
+    const handoff = new handoff_1.Handoff(bot, isAgent);
     if (bot) {
         bot.use(commands_1.commandsMiddleware(handoff), handoff.routingMiddleware());
     }

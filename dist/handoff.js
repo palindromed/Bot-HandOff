@@ -21,10 +21,9 @@ var ConversationState;
 ;
 class Handoff {
     // if customizing, pass in your own check for isAgent and your own versions of methods in defaultProvider
-    constructor(bot, isAgent, isOperator, provider = new mongoose_provider_1.MongooseProvider()) {
+    constructor(bot, isAgent, provider = new mongoose_provider_1.MongooseProvider()) {
         this.bot = bot;
         this.isAgent = isAgent;
-        this.isOperator = isOperator;
         this.provider = provider;
         this.connectCustomerToAgent = (by, agentAddress) => __awaiter(this, void 0, void 0, function* () {
             return yield this.provider.connectCustomerToAgent(by, agentAddress);
