@@ -23,9 +23,6 @@ function command(session, next, handoff) {
     if (handoff.isAgent(session)) {
         agentCommand(session, next, handoff);
     }
-    else if (handoff.isOperator(session)) {
-        operatorCommand(session, next, handoff);
-    }
     else {
         customerCommand(session, next, handoff);
     }
@@ -93,18 +90,6 @@ function customerCommand(session, next, handoff) {
                 session.endConversation("Connecting you to the next available agent.");
                 return;
             }
-        }
-        return next();
-    });
-}
-function operatorCommand(session, next, handoff) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const message = session.message;
-        console.log(message.sourceEvent);
-        const conversation = yield handoff.getConversation({ customerConversationId: message.sourceEvent.conversation.id }, message.sourceEvent);
-        if (conversation.state == handoff_1.ConversationState.Bot) {
-            yield handoff.queueCustomerForAgent({ customerConversationId: message.sourceEvent.conversation.id });
-            return;
         }
         return next();
     });

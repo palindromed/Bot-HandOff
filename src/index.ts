@@ -5,7 +5,7 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
 
-let setup = (bot, app, isAgent, isOperator, options) => {  
+let setup = (bot, app, isAgent, options) => {  
 
     let _directLineSecret = null;
     let _mongodbProvider = null;
@@ -35,7 +35,7 @@ let setup = (bot, app, isAgent, isOperator, options) => {
         exports._textAnalyiticsKey = _textAnalyiticsKey;
     }
 
-    const handoff = new Handoff(bot, isAgent, isOperator);
+    const handoff = new Handoff(bot, isAgent);
 
     if (bot) {
         bot.use(

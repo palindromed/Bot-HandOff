@@ -33,19 +33,17 @@ const bot = new builder.UniversalBot(connector, [
 
 // Replace this function with custom login/verification for agents
 const isAgent = (session: builder.Session) => session.message.user.name.startsWith("Agent");
-const isOperator = (session: builder.Session) => session.message.user.name.startsWith("Operator");
 
 /**
     bot: builder.UniversalBot
     app: express ( e.g. const app = express(); )
     isAgent: function to determine when agent is talking to the bot
-    isOperator: function to determine when operator is talking to the bot 
                 NB - recommended not to change the operator function as this is what the IBEX dashboard is looking for
     options: { }
         - mongodbProvider and directlineSecret are required (both can be left out of setup options if provided in environment variables.)
         - textAnalyiticsKey is optional. This is the Microsoft Cognitive Services Text Analytics key. Providing this value will result in running sentiment analysis on all user text, saving the sentiment score to the transcript in mongodb.
 **/
-bot_handoff.setup(bot, app, isAgent, isOperator, {
+bot_handoff.setup(bot, app, isAgent, {
     mongodbProvider: process.env.MONGODB_PROVIDER,
     directlineSecret: process.env.MICROSOFT_DIRECTLINE_SECRET,
     textAnalyiticsKey: process.env.CS_TEXT_ANALYITCS_KEY
