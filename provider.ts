@@ -15,7 +15,8 @@ const addToTranscript = async (by: By, text: string, from: string): Promise<bool
 
     conversation.transcript.push({
         timestamp: Date.now(),
-        from: by.agentConversationId ? 'agent' : 'customer',
+        from: by.agentConversationId ? 'Agent' : 'Customer',
+        sentimentScore: 1,
         text
     });
 
