@@ -2,7 +2,7 @@
 
 A common request from companies and organizations considering bots is the ability to "hand off" a customer from a bot to a human agent, as seamlessly as possible.
 
-This project implements an unopinionated core framework called **Handoff** which enables bot authors to implement a wide variety of scenarios, including a full-fledged call center app, with minimal changes to the actual bot.
+This project implements a framework called **Handoff** which enables bot authors to implement a wide variety of scenarios, including a full-fledged call center app, with minimal changes to the actual bot.
 
 It also includes a very simple implementation that illustrates the core concepts with minimal configuration.
 

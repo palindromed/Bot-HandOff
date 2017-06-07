@@ -3,14 +3,10 @@
   "version": "1.1.6",
   "license": "MIT",
   "description": "Bot hand off module for the Microsoft Bot Framework. It allows you to transfer a customer from talking to a bot to talking to a human.",
-  "main": "dist/index.js",
+  "main": "index.js",
   "homepage": "https://github.com/liliankasem/Bot-HandOff/tree/v.1.0.0",
   "scripts": {
-    "postinstall": "tsc",
-    "build": "tsc",
-    "watch": "tsc -w",
-    "nodewatch": "nodemon dist/app.js",
-    "start": "node dist/app.js",
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -27,16 +23,8 @@
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.2",
     "botbuilder": "^3.7.0",
-    "bot_handoff": "^1.0.0",
     "cors": "2.8.3",
     "express": "^4.14.0",
-    "mongoose": "^4.9.7",
-    "typescript": "^2.1.4"
-  },
-  "devDependencies": {
-    "@types/express": "^4.0.34",
-    "@types/mongoose": "^4.7.11",
-    "@types/node": "^6.0.59",
-    "nodemon": "^1.11.0"
+    "mongoose": "^4.9.7"
   }
 }
