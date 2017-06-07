@@ -1,22 +1,21 @@
 import { MongooseProvider, mongoose } from './mongoose-provider';
 import { Handoff } from './handoff';
 import { commandsMiddleware } from './commands';
+import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
-import * as express from 'express';
-
-//export {MongooseProvider, Handoff, commandsMiddleware};
 
 let setup = (bot, app, isAgent, isOperator, options) => {  
 
-    let _directLineSecret = "";
-    let _mongodbProvider = "";
+    let _directLineSecret = null;
+    let _mongodbProvider = null;
     let mongooseProvider = null;
+    let _textAnalyiticsKey = null;
 
     options = options || {};
 
     if (!options.mongodbProvider && !process.env.MONGODB_PROVIDER){
-        throw new Error('Mongo DB Connection String was not provided in options or the environment variable MONGODB_PROVIDER');
+        throw new Error('Bot-Handoff: Mongo DB Connection String was not provided in setup options or the environment variable MONGODB_PROVIDER');
     } else {
         _mongodbProvider = options.mongodbProvider || process.env.MONGODB_PROVIDER;
         mongooseProvider = new MongooseProvider();
@@ -24,9 +23,16 @@ let setup = (bot, app, isAgent, isOperator, options) => {
     }
 
     if (!options.directlineSecret && !process.env.MICROSOFT_DIRECTLINE_SECRET) {
-        throw new Error('Microsoft Bot Builder Direct Line Secret was not provided in options or the environment variable MICROSOFT_DIRECTLINE_SECRET');
+        throw new Error('Bot-Handoff: Microsoft Bot Builder Direct Line Secret was not provided in setup options or the environment variable MICROSOFT_DIRECTLINE_SECRET');
     } else {
         _directLineSecret = options.directlineSecret || process.env.MICROSOFT_DIRECTLINE_SECRET;
+    }
+
+    if (!options.textAnalyiticsKey && !process.env.CS_TEXT_ANALYITCS_KEY) {
+        console.warn('Bot-Handoff: Microsoft Cognitive Services Text Analytics Key was not provided in setup options or the environment variable CS_TEXT_ANALYITCS_KEY. Sentiment will not be analysed in the transcript, the score will be recorded as -1 for all text.');
+    }else{
+        _textAnalyiticsKey = options.textAnalyiticsKey || process.env.CS_TEXT_ANALYITCS_KEY;
+        exports._textAnalyiticsKey = _textAnalyiticsKey;
     }
 
     const handoff = new Handoff(bot, isAgent, isOperator);
@@ -38,7 +44,7 @@ let setup = (bot, app, isAgent, isOperator, options) => {
         )
     }
 
-    if(app && _directLineSecret !=""){
+    if(app && _directLineSecret != null){
         app.use(cors({ origin: '*' }));
         app.use(bodyParser.json());
 

@@ -14,6 +14,7 @@ export enum ConversationState {
 export interface TranscriptLine {
     timestamp: any,
     from: string,
+    sentimentScore: number,
     text: string
 }
 
@@ -107,7 +108,7 @@ export class Handoff {
         const message = session.message;
         // method will either return existing conversation or a newly created conversation if this is first time we've heard from customer
         const conversation = await this.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
-        this.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
+        await this.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
 
         switch (conversation.state) {
             case ConversationState.Bot:

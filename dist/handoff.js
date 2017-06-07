@@ -97,7 +97,7 @@ class Handoff {
             const message = session.message;
             // method will either return existing conversation or a newly created conversation if this is first time we've heard from customer
             const conversation = yield this.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
-            this.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
+            yield this.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
             switch (conversation.state) {
                 case ConversationState.Bot:
                     return next();

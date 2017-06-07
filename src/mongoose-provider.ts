@@ -1,9 +1,13 @@
 import * as builder from 'botbuilder';
 import * as bluebird from 'bluebird';
+import * as request from 'request';
+import * as _ from 'lodash';
 import mongoose = require('mongoose');
 mongoose.Promise = bluebird;
 
 import { By, Conversation, Provider, ConversationState } from './handoff';
+
+const indexImport = require('./index');
 
 // -------------------
 // Bot Framework types
@@ -37,6 +41,7 @@ export const IAddressSchema = new mongoose.Schema({
 export const TranscriptLineSchema = new mongoose.Schema({
     timestamp: {},
     from: String,
+    sentimentScore: Number,
     text: String
 });
 
@@ -62,23 +67,28 @@ export const BySchema = new mongoose.Schema({
 });
 export interface ByDocument extends By, mongoose.Document { }
 export const ByModel = mongoose.model<ByDocument>('By', BySchema);
-export {mongoose};
+export { mongoose };
 // -----------------
 // Mongoose Provider
 // -----------------
 export class MongooseProvider implements Provider {
-    public init(): void {
-        //mongoose.connect(process.env.MONGODB_PROVIDER);
-    }
-
+    public init(): void {}
     async addToTranscript(by: By, text: string, from: string): Promise<boolean> {
+        let sentimentScore = -1;
         const conversation: Conversation = await this.getConversation(by);
         if (!conversation) return false;
+
+        if (from == "Customer") {
+            if (indexImport._textAnalyiticsKey) { sentimentScore = await this.collectSentiment(text); }
+        }
+
         conversation.transcript.push({
             timestamp: Date.now(),
             from: from,
+            sentimentScore: sentimentScore,
             text
         });
+
         return await this.updateConversation(conversation);
     }
 
@@ -172,6 +182,41 @@ export class MongooseProvider implements Provider {
             ConversationModel.findByIdAndRemove((conversation as any)._id).then((error) => {
                 resolve(true);
             })
+        });
+    }
+
+    private async collectSentiment(text: string): Promise<number> {
+        if(text == null || text == '') return;
+        let _sentimentUrl = 'https://westus.api.cognitive.microsoft.com/text/analytics/v2.0/sentiment';
+        let _sentimentId = 'bot-analytics';
+        let _sentimentKey = indexImport._textAnalyiticsKey;
+
+        let options = {
+            url: _sentimentUrl,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Ocp-Apim-Subscription-Key': _sentimentKey
+            },
+            json: true,
+            body: {
+                "documents": [
+                    {
+                        "language": "en",
+                        "id": _sentimentId,
+                        "text": text
+                    }
+                ]
+            }
+        };
+
+        return new Promise<number>(function (resolve, reject) {
+            request(options, (error, response, body) => {
+                if (error) { reject(error); }
+                let result: any = _.find(body.documents, { id: _sentimentId }) || {};
+                let score = result.score || null;
+                resolve(score);
+            });
         });
     }
 }
