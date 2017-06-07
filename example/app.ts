@@ -38,7 +38,6 @@ const isAgent = (session: builder.Session) => session.message.user.name.startsWi
     bot: builder.UniversalBot
     app: express ( e.g. const app = express(); )
     isAgent: function to determine when agent is talking to the bot
-                NB - recommended not to change the operator function as this is what the IBEX dashboard is looking for
     options: { }
         - mongodbProvider and directlineSecret are required (both can be left out of setup options if provided in environment variables.)
         - textAnalyiticsKey is optional. This is the Microsoft Cognitive Services Text Analytics key. Providing this value will result in running sentiment analysis on all user text, saving the sentiment score to the transcript in mongodb.
