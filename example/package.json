@@ -1,0 +1,31 @@
+{
+  "name": "handoffbot",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Create example to escalate to a human",
+  "main": "app.js",
+  "scripts": {
+    "postinstall": "tsc",
+    "build": "tsc",
+    "watch": "tsc -w",
+    "nodewatch": "nodemon dist/app.js",
+    "start": "node dist/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "body-parser": "^1.17.2",
+    "bot_handoff": "^1.1.6",
+    "botbuilder": "^3.7.0",
+    "cors": "2.8.3",
+    "express": "^4.14.0",
+    "mongoose": "^4.9.7",
+    "typescript": "^2.1.4"
+  },
+  "devDependencies": {
+    "@types/express": "^4.0.34",
+    "@types/mongoose": "^4.7.11",
+    "@types/node": "^6.0.59",
+    "nodemon": "^1.11.0"
+  }
+}

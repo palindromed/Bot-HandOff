@@ -2,52 +2,32 @@
 
 A common request from companies and organizations considering bots is the ability to "hand off" a customer from a bot to a human agent, as seamlessly as possible.
 
-This project implements a framework called **Handoff** which enables bot authors to implement a wide variety of scenarios, including a full-fledged call center app, with minimal changes to the actual bot.
+This project implements an unopinionated core framework called **Handoff** which enables bot authors to implement a wide variety of scenarios, including a full-fledged call center app, with minimal changes to the actual bot.
 
 It also includes a very simple implementation that illustrates the core concepts with minimal configuration.
 
 This project is in heavy flux, but is now in a usable state. However this should still be considered a sample, and not an officially supported Microsoft product.
 
-This project is written in TypeScript.
+This project is written in TypeScript. follow the instructions to compile the code before running or deploying.
 
-[Source Code](https://github.com/liliankasem/Bot-HandOff/tree/v.1.0.0)
+There is also an example of [handoff to human using the C# SDK](https://github.com/tompaana/intermediator-bot-sample)
 
-See [example folder](https://github.com/liliankasem/Bot-HandOff/tree/v.1.0.0/example) for a full bot example.
+## Conceptual Overview
 
-## Basic Usage
+This framework connects *Customers* and *Agents*.
 
-```javascript
-// Imports
-const express = require('express');
-const builder = require('botbuilder');
-const bot_handoff = require('bot_handoff');
+### Conversation State
 
-// Setup Express Server (N.B: If you are already using restify for your bot, you will need replace it with an express server)
-const app = express();
-app.listen(process.env.port || process.env.PORT || 3978, '::', () => {
-    console.log('Server Up');
-});
+Each customer conversation is in one of the following states:
 
-// Replace this functions with custom login/verification for agents
-const isAgent = (session) => session.message.user.name.startsWith("Agent");
+#### Customer <-> Bot
 
-/**
-    bot: builder.UniversalBot
-    app: express ( e.g. const app = express(); )
-    isAgent: function to determine when agent is talking to the bot
-    options: { }
-        - mongodbProvider and directlineSecret are required (both can be left out of setup options if provided in environment variables.)
-        - textAnalyiticsKey is optional. This is the Microsoft Cognitive Services Text Analytics key. Providing this value will result in running sentiment analysis on all user text, saving the sentiment score to the transcript in mongodb.
-**/
-bot_handoff.setup(bot, app, isAgent, {
-    mongodbProvider: process.env.MONGODB_PROVIDER,
-    directlineSecret: process.env.MICROSOFT_DIRECTLINE_SECRET,
-    textAnalyiticsKey: process.env.CS_TEXT_ANALYITCS_KEY
-});
+Customers connect to a bot as normal, through whatever channel the bot author allows. This conversation is in state *Bot*.
 
-```
+#### Customer Waiting
 
-If you want the sample `/webchat` endpoint to work (endpoint for the example agent / call center), you will need to include this [`public` folder](https://github.com/liliankasem/Bot-HandOff/tree/v.1.0.0/example/public) in the root directory of your project, or replace with your own.
+A customer can enter a *Waiting* state. In this state, their messages are no longer sent to the bot. 
+If they send any messages, they will be informed that they are waiting to be connected to an agent.
 
 Depending on how your bot is written, this could happen via any or all of:
 
@@ -72,14 +52,6 @@ An Agent can connect to a specific customer (waiting or not) or to the 'best cho
 Depending on how your bot is written, this can happen progamatically (automatically connect user to agents) or by agent action.
 However in this version of the framework there is no concept of a directory of agents availability thereof.
 So at the moment this happens primarily through an agent manually choosing to connect to a customer.
-
-### Agent Monitoring
-
-An Agent can monitor a Customer conversation without interfering in bot funtionality.
-
-Messages will go between Customer and the bot as well as Customer and Agent.
-
-The connected Agent can then choose to take over (change state to *Agent*) or disconnect (change state to *Bot*)
 
 ### Conversational Metadata and Provider
 
@@ -133,6 +105,14 @@ In future we plan to extract the core `Handoff` object into its own npm package 
 
 For now, the easiest thing to do is to add your bot logic to the existing app.ts file.
 
+Required environment variables:
+```
+"MICROSOFT_APP_ID" : "",
+"MICROSOFT_APP_PASSWORD" : "",
+"MICROSOFT_DIRECTLINE_SECRET" : "",
+"MONGODB_PROVIDER" : ""      
+```
+
 ## How to build and run this sample project
 
 0. Clone this repo
@@ -149,19 +129,10 @@ For now, the easiest thing to do is to add your bot logic to the existing app.ts
 
 ### ... or run locally
 
-1. Create an ngrok public endpoint [see here for details](https://github.com/Microsoft-DXEIP/Tokyo-Hack-Docs#1-with-your-app-still-running-on-localhost-bind-the-localhost-deployment-with-ngrok-we-will-need-this-url-for-registering-our-bot)
-2. Update your bot registration to reference that endpoint (probably `https://something.ngrok.io/api/messages`)
-3. Run your bot on Mac (remember to restart if you change your code):  
-    Set your environment variables and run your code:  
-    `MICROSOFT_APP_ID=app_id MICROSOFT_APP_PASSWORD=app_password node dist/app.js`   
-4. Run your bot on Windows with PowerShell (remember to restart if you change your code):   
-    Set your environment variables  
-          `$env:MICROSOFT_APP_ID = "app_id"`  
-          `$env:MICROSOFT_APP_PASSWORD = "app_password"`  
-        Run your code:  
-          `node .\dist\app.js` or `npm run start` 
-
-5. Aim at least two browser instances at `http://localhost:3978/webchat?s=direct_line_secret_key`
+1. Run `node dist/app.js` to start your bot (remember to restart if you change your code)
+2. Create an ngrok public endpoint [see here for details](https://github.com/Microsoft-DXEIP/Tokyo-Hack-Docs#1-with-your-app-still-running-on-localhost-bind-the-localhost-deployment-with-ngrok-we-will-need-this-url-for-registering-our-bot)
+3. Aim your bot registration at that endpoint (probably `https://something.ngrok.io/api/messages`)
+3. Aim at least two browser instances at `http://localhost:3978/webchat?s=direct_line_secret_key`
 
 ### Set up your customer(s) & agent(s), and go
 
@@ -179,14 +150,6 @@ Aside from providing your own bot logic, you'll likely want to build call center
 * a persistant data provider
 
 Good luck!
-
-Required environment variables:
-```
-"MICROSOFT_APP_ID" : "",
-"MICROSOFT_APP_PASSWORD" : "",
-"MICROSOFT_DIRECTLINE_SECRET" : "",
-"MONGODB_PROVIDER" : ""      
-```
 
 ## License
 

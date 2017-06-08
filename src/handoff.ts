@@ -1,6 +1,6 @@
 import * as builder from 'botbuilder';
 import { Express } from 'express';
-import { defaultProvider } from './provider';
+import { MongooseProvider } from './mongoose-provider';
 
 // Options for state of a conversation
 // Customer talking to bot, waiting for next available agent or talking to an agent
@@ -15,6 +15,7 @@ export enum ConversationState {
 export interface TranscriptLine {
     timestamp: any,
     from: string,
+    sentimentScore: number,
     text: string
 }
 
@@ -38,14 +39,15 @@ export interface Provider {
     init();
 
     // Update
-    addToTranscript: (by: By, text: string) => Promise<boolean>;
-    connectCustomerToAgent: (by: By, nextState: ConversationState, agentAddress: builder.IAddress) => Promise<Conversation>;
+
+    addToTranscript: (by: By, text: string, from: string) => Promise<boolean>;
+    connectCustomerToAgent: (by: By, agentAddress: builder.IAddress) => Promise<Conversation>;
     connectCustomerToBot: (by: By) => Promise<boolean>;
     queueCustomerForAgent: (by: By) => Promise<boolean>;
 
     // Get
     getConversation: (by: By, customerAddress?: builder.IAddress) => Promise<Conversation>;
-    currentConversations: () => Promise<Conversation[]>;
+    getCurrentConversations: () => Promise<Conversation[]>;
 }
 
 export class Handoff {
@@ -53,7 +55,7 @@ export class Handoff {
     constructor(
         private bot: builder.UniversalBot,
         public isAgent: (session: builder.Session) => boolean,
-        private provider = defaultProvider
+        private provider = new MongooseProvider()
     ) {
         this.provider.init();
     }
@@ -68,22 +70,18 @@ export class Handoff {
             },
             send: async (event: builder.IEvent, next: Function) => {
                 // Messages sent from the bot do not need to be routed
-                const message = event as builder.IMessage;
-                const customerConversation = await this.getConversation({ customerConversationId: event.address.conversation.id });
-                // send message to agent observing conversation
-                if (customerConversation && customerConversation.state === ConversationState.Watch) {
-                    this.bot.send(new builder.Message().address(customerConversation.agent).text(message.text));
+                // Not all messages from the bot are type message, we only want to record the actual messages  
+                if (event.type === 'message') {
+                    this.transcribeMessageFromBot(event as builder.IMessage, next);
+                } else {
+                    //If not a message (text), just send to user without transcribing
+                    next();
                 }
-                this.trancribeMessageFromBot(message, next);
-
             }
         }
     }
 
-    private routeMessage(
-        session: builder.Session,
-        next: Function
-    ) {
+    private routeMessage(session: builder.Session, next: Function) {
         if (this.isAgent(session)) {
             this.routeAgentMessage(session)
         } else {
@@ -94,13 +92,15 @@ export class Handoff {
     private async routeAgentMessage(session: builder.Session) {
         const message = session.message;
         const conversation = await this.getConversation({ agentConversationId: message.address.conversation.id });
-
         // if the agent is not in conversation, no further routing is necessary
         if (!conversation)
             return;
-        // if the agent is observing a customer, no need to route message
-        if (conversation.state !== ConversationState.Agent)
+
+        if (conversation.state !== ConversationState.Agent) {
+            // error state -- should not happen
+            session.send("Shouldn't be in this state - agent should have been cleared out.");
             return;
+        }
         // send text that agent typed to the customer they are in conversation with
         this.bot.send(new builder.Message().address(conversation.customer).text(message.text));
     }
@@ -109,7 +109,7 @@ export class Handoff {
         const message = session.message;
         // method will either return existing conversation or a newly created conversation if this is first time we've heard from customer
         const conversation = await this.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
-        this.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
+        await this.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
 
         switch (conversation.state) {
             case ConversationState.Bot:
@@ -132,42 +132,33 @@ export class Handoff {
     }
 
     // These methods are wrappers around provider which handles data
-    private trancribeMessageFromBot(message: builder.IMessage, next: Function) {
-        this.provider.addToTranscript({ customerConversationId: message.address.conversation.id }, message.text);
+    private transcribeMessageFromBot(message: builder.IMessage, next: Function) {
+        this.provider.addToTranscript({ customerConversationId: message.address.conversation.id }, message.text, 'Bot');
         next();
     }
 
-     public async getCustomerTranscript(by: By, session: builder.Session) {
-        const customerConversation = await this.getConversation(by);
-        if (customerConversation) {
-            customerConversation.transcript.forEach(transcriptLine =>
-                session.send(transcriptLine.text));
-        } else {
-            session.send('No Transcript to show. Try entering a username or try again when connected to a customer');
-        }
+    public connectCustomerToAgent = async (by: By, agentAddress: builder.IAddress): Promise<Conversation> => {
+        return await this.provider.connectCustomerToAgent(by, agentAddress);
     }
 
-    public connectCustomerToAgent = async (by: By, nextState: ConversationState, agentAddress: builder.IAddress) => {
-        return await this.provider.connectCustomerToAgent(by, nextState, agentAddress);
-    }
-
-    public connectCustomerToBot = async (by: By) => {
+    public connectCustomerToBot = async (by: By): Promise<boolean> => {
         return await this.provider.connectCustomerToBot(by);
     }
 
-    public queueCustomerForAgent = async (by: By) => {
+    public queueCustomerForAgent = async (by: By): Promise<boolean> => {
         return await this.provider.queueCustomerForAgent(by);
     }
 
-    public addToTranscript = async (by: By, text: string) => {
-        return await this.provider.addToTranscript(by, text);
+    public addToTranscript = async (by: By, text: string): Promise<boolean> => {
+        let from = by.agentConversationId ? 'Agent' : 'Customer';
+        return await this.provider.addToTranscript(by, text, from);
     }
 
-    public getConversation = async (by: By, customerAddress?: builder.IAddress) => {
+    public getConversation = async (by: By, customerAddress?: builder.IAddress): Promise<Conversation> => {
         return await this.provider.getConversation(by, customerAddress);
     }
 
-    public currentConversations = async () => {
-        return await this.provider.currentConversations();
+    public getCurrentConversations = async (): Promise<Conversation[]> => {
+        return await this.provider.getCurrentConversations();
     }
 };
