@@ -57,6 +57,11 @@ Required environment variables:
 "MONGODB_PROVIDER" : ""      
 ```
 
+Optional environment variables:
+```
+"CG_SENTIMENT_KEY" : ""
+```
+
 ## License
 
 MIT License

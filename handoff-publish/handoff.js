@@ -17,6 +17,7 @@ var ConversationState;
     ConversationState[ConversationState["Bot"] = 0] = "Bot";
     ConversationState[ConversationState["Waiting"] = 1] = "Waiting";
     ConversationState[ConversationState["Agent"] = 2] = "Agent";
+    ConversationState[ConversationState["Watch"] = 3] = "Watch";
 })(ConversationState = exports.ConversationState || (exports.ConversationState = {}));
 ;
 class Handoff {
@@ -54,7 +55,7 @@ class Handoff {
                     this.routeMessage(session, next);
                 }
             },
-            send: (event, next) => {
+            send: (event, next) => __awaiter(this, void 0, void 0, function* () {
                 // Messages sent from the bot do not need to be routed
                 // Not all messages from the bot are type message, we only want to record the actual messages  
                 if (event.type === 'message') {
@@ -64,7 +65,7 @@ class Handoff {
                     //If not a message (text), just send to user without transcribing
                     next();
                 }
-            }
+            })
         };
     }
     routeMessage(session, next) {
@@ -103,6 +104,9 @@ class Handoff {
                 case ConversationState.Waiting:
                     session.send("Connecting you to the next available agent.");
                     return;
+                case ConversationState.Watch:
+                    this.bot.send(new builder.Message().address(conversation.agent).text(message.text));
+                    return next();
                 case ConversationState.Agent:
                     if (!conversation.agent) {
                         session.send("No agent address present while customer in state Agent");
