@@ -1,6 +1,6 @@
 import * as express from 'express';
 import * as builder from 'botbuilder';
-import * as bot_handoff from 'bot_handoff';
+import * as bot_handoff from 'botbuilder-handoff';
 
 //=========================================================
 // Normal Bot Setup
