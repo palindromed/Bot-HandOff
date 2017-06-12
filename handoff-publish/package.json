@@ -1,6 +1,6 @@
 {
   "name": "bot_handoff",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "license": "MIT",
   "description": "Bot hand off module for the Microsoft Bot Framework. It allows you to transfer a customer from talking to a bot to talking to a human.",
   "main": "index.js",
