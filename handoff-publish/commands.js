@@ -85,7 +85,7 @@ function customerCommand(session, next, handoff) {
             // lookup the conversation (create it if one doesn't already exist)
             const conversation = yield handoff.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
             if (conversation.state == handoff_1.ConversationState.Bot) {
-                yield handoff.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
+                yield handoff.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message);
                 yield handoff.queueCustomerForAgent({ customerConversationId: conversation.customer.conversation.id });
                 session.endConversation("Connecting you to the next available agent.");
                 return;

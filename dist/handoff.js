@@ -35,9 +35,9 @@ class Handoff {
         this.queueCustomerForAgent = (by) => __awaiter(this, void 0, void 0, function* () {
             return yield this.provider.queueCustomerForAgent(by);
         });
-        this.addToTranscript = (by, text) => __awaiter(this, void 0, void 0, function* () {
+        this.addToTranscript = (by, message) => __awaiter(this, void 0, void 0, function* () {
             let from = by.agentConversationId ? 'Agent' : 'Customer';
-            return yield this.provider.addToTranscript(by, text, from);
+            return yield this.provider.addToTranscript(by, message, from);
         });
         this.getConversation = (by, customerAddress) => __awaiter(this, void 0, void 0, function* () {
             return yield this.provider.getConversation(by, customerAddress);
@@ -97,7 +97,7 @@ class Handoff {
             const message = session.message;
             // method will either return existing conversation or a newly created conversation if this is first time we've heard from customer
             const conversation = yield this.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
-            yield this.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
+            yield this.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message);
             switch (conversation.state) {
                 case ConversationState.Bot:
                     return next();
@@ -120,7 +120,7 @@ class Handoff {
     }
     // These methods are wrappers around provider which handles data
     transcribeMessageFromBot(message, next) {
-        this.provider.addToTranscript({ customerConversationId: message.address.conversation.id }, message.text, 'Bot');
+        this.provider.addToTranscript({ customerConversationId: message.address.conversation.id }, message, 'Bot');
         next();
     }
 }

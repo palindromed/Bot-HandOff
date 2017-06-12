@@ -73,17 +73,21 @@ export { mongoose };
 // -----------------
 export class MongooseProvider implements Provider {
     public init(): void {}
-    async addToTranscript(by: By, text: string, from: string): Promise<boolean> {
+    async addToTranscript(by: By, message: builder.IMessage, from: string): Promise<boolean> {
         let sentimentScore = -1;
+        let text = message.text;
+        let datetime = new Date().toString();
         const conversation: Conversation = await this.getConversation(by);
+
         if (!conversation) return false;
 
         if (from == "Customer") {
-            if (indexImport._textAnalyiticsKey) { sentimentScore = await this.collectSentiment(text); }
+            if (indexImport._textAnalyiticsKey) { sentimentScore = await this.collectSentiment(text); }datetime = new Date(message.localTimestamp).toString();
+            datetime = new Date(message.localTimestamp).toString();
         }
 
         conversation.transcript.push({
-            timestamp: Date.now(),
+            timestamp: datetime,
             from: from,
             sentimentScore: sentimentScore,
             text

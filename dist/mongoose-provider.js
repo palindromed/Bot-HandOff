@@ -73,9 +73,11 @@ exports.ByModel = mongoose.model('By', exports.BySchema);
 // -----------------
 class MongooseProvider {
     init() { }
-    addToTranscript(by, text, from) {
+    addToTranscript(by, message, from) {
         return __awaiter(this, void 0, void 0, function* () {
             let sentimentScore = -1;
+            let text = message.text;
+            let datetime = new Date().toString();
             const conversation = yield this.getConversation(by);
             if (!conversation)
                 return false;
@@ -83,9 +85,11 @@ class MongooseProvider {
                 if (indexImport._textAnalyiticsKey) {
                     sentimentScore = yield this.collectSentiment(text);
                 }
+                datetime = new Date(message.localTimestamp).toString();
+                datetime = new Date(message.localTimestamp).toString();
             }
             conversation.transcript.push({
-                timestamp: Date.now(),
+                timestamp: datetime,
                 from: from,
                 sentimentScore: sentimentScore,
                 text
