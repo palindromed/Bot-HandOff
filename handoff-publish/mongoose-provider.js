@@ -82,7 +82,7 @@ class MongooseProvider {
             if (!conversation)
                 return false;
             if (from == "Customer") {
-                if (indexImport._textAnalyiticsKey) {
+                if (indexImport._textAnalyticsKey) {
                     sentimentScore = yield this.collectSentiment(text);
                 }
                 datetime = new Date(message.localTimestamp).toString();
@@ -212,7 +212,7 @@ class MongooseProvider {
                 return;
             let _sentimentUrl = 'https://westus.api.cognitive.microsoft.com/text/analytics/v2.0/sentiment';
             let _sentimentId = 'bot-analytics';
-            let _sentimentKey = indexImport._textAnalyiticsKey;
+            let _sentimentKey = indexImport._textAnalyticsKey;
             let options = {
                 url: _sentimentUrl,
                 method: 'POST',

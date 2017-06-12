@@ -82,7 +82,7 @@ export class MongooseProvider implements Provider {
         if (!conversation) return false;
 
         if (from == "Customer") {
-            if (indexImport._textAnalyiticsKey) { sentimentScore = await this.collectSentiment(text); }datetime = new Date(message.localTimestamp).toString();
+            if (indexImport._textAnalyticsKey) { sentimentScore = await this.collectSentiment(text); }datetime = new Date(message.localTimestamp).toString();
             datetime = new Date(message.localTimestamp).toString();
         }
 
@@ -193,7 +193,7 @@ export class MongooseProvider implements Provider {
         if(text == null || text == '') return;
         let _sentimentUrl = 'https://westus.api.cognitive.microsoft.com/text/analytics/v2.0/sentiment';
         let _sentimentId = 'bot-analytics';
-        let _sentimentKey = indexImport._textAnalyiticsKey;
+        let _sentimentKey = indexImport._textAnalyticsKey;
 
         let options = {
             url: _sentimentUrl,

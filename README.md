@@ -20,7 +20,7 @@ See [example folder](https://github.com/palindromed/Bot-HandOff/tree/npm-handoff
 // Imports
 const express = require('express');
 const builder = require('botbuilder');
-const bot_handoff = require('bot_handoff');
+const handoff = require('botbuilder-handoff');
 
 // Setup Express Server (N.B: If you are already using restify for your bot, you will need replace it with an express server)
 const app = express();
@@ -37,12 +37,12 @@ const isAgent = (session) => session.message.user.name.startsWith("Agent");
     isAgent: function to determine when agent is talking to the bot
     options: { }
         - mongodbProvider and directlineSecret are required (both can be left out of setup options if provided in environment variables.)
-        - textAnalyiticsKey is optional. This is the Microsoft Cognitive Services Text Analytics key. Providing this value will result in running sentiment analysis on all user text, saving the sentiment score to the transcript in mongodb.
+        - textAnalyticsKey is optional. This is the Microsoft Cognitive Services Text Analytics key. Providing this value will result in running sentiment analysis on all user text, saving the sentiment score to the transcript in mongodb.
 **/
-bot_handoff.setup(bot, app, isAgent, {
+handoff.setup(bot, app, isAgent, {
     mongodbProvider: process.env.MONGODB_PROVIDER,
     directlineSecret: process.env.MICROSOFT_DIRECTLINE_SECRET,
-    textAnalyiticsKey: process.env.CG_SENTIMENT_KEY
+    textAnalyticsKey: process.env.CG_SENTIMENT_KEY
 });
 
 ```
