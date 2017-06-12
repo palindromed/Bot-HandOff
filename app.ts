@@ -42,5 +42,5 @@ const isAgent = (session: builder.Session) => session.message.user.name.startsWi
 bot_handoff.setup(bot, app, isAgent, {
     mongodbProvider: process.env.MONGODB_PROVIDER,
     directlineSecret: process.env.MICROSOFT_DIRECTLINE_SECRET,
-    textAnalyiticsKey: process.env.CS_TEXT_ANALYITCS_KEY
+    textAnalyiticsKey: process.env.CG_SENTIMENT_KEY
 });

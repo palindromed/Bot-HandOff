@@ -28,10 +28,10 @@ let setup = (bot, app, isAgent, options) => {
         _directLineSecret = options.directlineSecret || process.env.MICROSOFT_DIRECTLINE_SECRET;
     }
 
-    if (!options.textAnalyiticsKey && !process.env.CS_TEXT_ANALYITCS_KEY) {
-        console.warn('Bot-Handoff: Microsoft Cognitive Services Text Analytics Key was not provided in setup options or the environment variable CS_TEXT_ANALYITCS_KEY. Sentiment will not be analysed in the transcript, the score will be recorded as -1 for all text.');
+    if (!options.textAnalyiticsKey && !process.env.CG_SENTIMENT_KEY) {
+        console.warn('Bot-Handoff: Microsoft Cognitive Services Text Analytics Key was not provided in setup options or the environment variable CG_SENTIMENT_KEY. Sentiment will not be analysed in the transcript, the score will be recorded as -1 for all text.');
     }else{
-        _textAnalyiticsKey = options.textAnalyiticsKey || process.env.CS_TEXT_ANALYITCS_KEY;
+        _textAnalyiticsKey = options.textAnalyiticsKey || process.env.CG_SENTIMENT_KEY;
         exports._textAnalyiticsKey = _textAnalyiticsKey;
     }
 
