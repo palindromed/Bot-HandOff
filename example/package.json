@@ -15,7 +15,7 @@
   "dependencies": {
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.2",
-    "botbuilder-handoff": "^0.1.0",
+    "botbuilder-handoff": "^0.1.1",
     "botbuilder": "^3.7.0",
     "cors": "2.8.3",
     "express": "^4.14.0",
