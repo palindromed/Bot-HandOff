@@ -13,13 +13,14 @@ const convertToPromise = <T>(value: T): Promise<T> => {
 
 // Update
 
-const addToTranscript = async (by: By, text: string, from: string): Promise<boolean> => {
+const addToTranscript = async (by: By, message: builder.IMessage, from: string): Promise<boolean> => {
     const conversation = await getConversation(by);
+    let text = message.text;
     if (!conversation)
         return convertToPromise<boolean>(false);
 
     conversation.transcript.push({
-        timestamp: Date.now(),
+        timestamp: message.localTimestamp,
         from: by.agentConversationId ? 'Agent' : 'Customer',
         sentimentScore: 1,
         text

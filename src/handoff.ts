@@ -40,7 +40,7 @@ export interface Provider {
 
     // Update
 
-    addToTranscript: (by: By, text: string, from: string) => Promise<boolean>;
+    addToTranscript: (by: By, message: builder.IMessage, from: string) => Promise<boolean>;
     connectCustomerToAgent: (by: By, agentAddress: builder.IAddress) => Promise<Conversation>;
     connectCustomerToBot: (by: By) => Promise<boolean>;
     queueCustomerForAgent: (by: By) => Promise<boolean>;
@@ -109,7 +109,7 @@ export class Handoff {
         const message = session.message;
         // method will either return existing conversation or a newly created conversation if this is first time we've heard from customer
         const conversation = await this.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
-        await this.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
+        await this.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message);
 
         switch (conversation.state) {
             case ConversationState.Bot:
@@ -133,7 +133,7 @@ export class Handoff {
 
     // These methods are wrappers around provider which handles data
     private transcribeMessageFromBot(message: builder.IMessage, next: Function) {
-        this.provider.addToTranscript({ customerConversationId: message.address.conversation.id }, message.text, 'Bot');
+        this.provider.addToTranscript({ customerConversationId: message.address.conversation.id }, message, 'Bot');
         next();
     }
 
@@ -149,9 +149,9 @@ export class Handoff {
         return await this.provider.queueCustomerForAgent(by);
     }
 
-    public addToTranscript = async (by: By, text: string): Promise<boolean> => {
+    public addToTranscript = async (by: By, message: builder.IMessage): Promise<boolean> => {
         let from = by.agentConversationId ? 'Agent' : 'Customer';
-        return await this.provider.addToTranscript(by, text, from);
+        return await this.provider.addToTranscript(by, message, from);
     }
 
     public getConversation = async (by: By, customerAddress?: builder.IAddress): Promise<Conversation> => {

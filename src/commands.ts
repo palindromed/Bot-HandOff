@@ -86,7 +86,7 @@ async function customerCommand(session: builder.Session, next: Function, handoff
         // lookup the conversation (create it if one doesn't already exist)
         const conversation = await handoff.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
         if (conversation.state == ConversationState.Bot) {
-            await handoff.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
+            await handoff.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message);
             await handoff.queueCustomerForAgent({ customerConversationId: conversation.customer.conversation.id });
             session.endConversation("Connecting you to the next available agent.");
             return;
