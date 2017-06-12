@@ -10,9 +10,9 @@ This project is in heavy flux, but is now in a usable state. However this should
 
 This project is written in TypeScript.
 
-[Source Code](https://github.com/liliankasem/Bot-HandOff/tree/v.1.0.0)
+[Source Code](https://github.com/palindromed/Bot-HandOff/tree/npm-handoff)
 
-See [example folder](https://github.com/liliankasem/Bot-HandOff/tree/v.1.0.0/example) for a full bot example.
+See [example folder](https://github.com/palindromed/Bot-HandOff/tree/npm-handoff/example) for a full bot example.
 
 ## Basic Usage
 
@@ -47,7 +47,7 @@ bot_handoff.setup(bot, app, isAgent, {
 
 ```
 
-If you want the sample `/webchat` endpoint to work (endpoint for the example agent / call center), you will need to include this [`public` folder](https://github.com/liliankasem/Bot-HandOff/tree/v.1.0.0/example/public) in the root directory of your project, or replace with your own.
+If you want the sample `/webchat` endpoint to work (endpoint for the example agent / call center), you will need to include this [`public` folder](https://github.com/palindromed/Bot-HandOff/tree/npm-handoff/example/public) in the root directory of your project, or replace with your own.
 
 Required environment variables:
 ```
