@@ -95,7 +95,7 @@ function customerCommand(session, next, handoff) {
     });
 }
 function sendAgentCommandOptions(session) {
-    const commands = ' ### Agent Options\n - Type *connect* to connect to customer who has been waiting longest.\n - Type *connect { user name }* to connect to a specific conversation\n - Type *list* to see a list of all current conversations.\n - Type *disconnect* while talking to a user to end a conversation.\n - Type *options* at any time to see these options again.';
+    const commands = ' ### Agent Options\n - Type *waiting* to connect to customer who has been waiting longest.\n - Type *connect { user name }* to connect to a specific conversation\n - Type *watch { user name }* to monitor a customer conversation\n - Type *history { user name }* to see a transcript of a given user\n - Type *list* to see a list of all current conversations.\n - Type *disconnect* while talking to a user to end a conversation.\n - Type *options* at any time to see these options again.';
     session.send(commands);
     return;
 }
@@ -118,9 +118,19 @@ function currentConversations(handoff) {
                 case 'Waiting':
                     text += starterText + ' is waiting to talk to an agent\n';
                     break;
+                case 'Watch':
+                    text += starterText + ' is being monitored by an agent\n';
+                    break;
             }
         });
         return text;
+    });
+}
+function disconnectCustomer(conversation, handoff, session) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (yield handoff.connectCustomerToBot({ customerConversationId: conversation.customer.conversation.id })) {
+            session.send("Customer " + conversation.customer.user.name + " is now connected to the bot.");
+        }
     });
 }
 //# sourceMappingURL=commands.js.map
