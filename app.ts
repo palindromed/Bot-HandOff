@@ -1,6 +1,6 @@
 import * as express from 'express';
 import * as builder from 'botbuilder';
-import * as bot_handoff from 'botbuilder-handoff';
+import * as handoff from 'botbuilder-handoff';
 
 //=========================================================
 // Bot Setup
@@ -37,10 +37,10 @@ const isAgent = (session: builder.Session) => session.message.user.name.startsWi
     isAgent: function to determine when agent is talking to the bot
     options: { }
         - mongodbProvider and directlineSecret are required (both can be left out of setup options if provided in environment variables.)
-        - textAnalyiticsKey is optional. This is the Microsoft Cognitive Services Text Analytics key. Providing this value will result in running sentiment analysis on all user text, saving the sentiment score to the transcript in mongodb.
+        - textAnalyticsKey is optional. This is the Microsoft Cognitive Services Text Analytics key. Providing this value will result in running sentiment analysis on all user text, saving the sentiment score to the transcript in mongodb.
 **/
-bot_handoff.setup(bot, app, isAgent, {
+handoff.setup(bot, app, isAgent, {
     mongodbProvider: process.env.MONGODB_PROVIDER,
     directlineSecret: process.env.MICROSOFT_DIRECTLINE_SECRET,
-    textAnalyiticsKey: process.env.CG_SENTIMENT_KEY
+    textAnalyticsKey: process.env.CG_SENTIMENT_KEY
 });
