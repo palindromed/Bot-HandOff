@@ -85,7 +85,7 @@ class MongooseProvider {
                 if (indexImport._textAnalyticsKey) {
                     sentimentScore = yield this.collectSentiment(text);
                 }
-                datetime = new Date(message.localTimestamp).toString() || new Date(message.timestamp).toString();
+                datetime = message.localTimestamp ? new Date(message.localTimestamp).toString() : new Date(message.timestamp).toString();
             }
             conversation.transcript.push({
                 timestamp: datetime,
@@ -130,7 +130,7 @@ class MongooseProvider {
             }
             else {
                 conversation.state = handoff_1.ConversationState.Bot;
-                if (process.env.RETAIN_DATA) {
+                if (process.env.RETAIN_DATA === "true") {
                     return yield this.updateConversation(conversation);
                 }
                 else {
