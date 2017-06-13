@@ -85,8 +85,7 @@ class MongooseProvider {
                 if (indexImport._textAnalyticsKey) {
                     sentimentScore = yield this.collectSentiment(text);
                 }
-                datetime = new Date(message.localTimestamp).toString();
-                datetime = new Date(message.localTimestamp).toString();
+                datetime = new Date(message.localTimestamp).toString() || new Date(message.timestamp).toString();
             }
             conversation.transcript.push({
                 timestamp: datetime,
@@ -131,11 +130,16 @@ class MongooseProvider {
             }
             else {
                 conversation.state = handoff_1.ConversationState.Bot;
-                if (conversation.agent) {
-                    return yield this.deleteConversation(conversation);
+                if (process.env.RETAIN_DATA) {
+                    return yield this.updateConversation(conversation);
                 }
                 else {
-                    return yield this.updateConversation(conversation);
+                    if (conversation.agent) {
+                        return yield this.deleteConversation(conversation);
+                    }
+                    else {
+                        return yield this.updateConversation(conversation);
+                    }
                 }
             }
         });
