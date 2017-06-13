@@ -47,6 +47,12 @@ handoff.setup(bot, app, isAgent, {
 
 ```
 
+If you want to keep the data after a hand off, you must add this environment variable. Otherwise, after an agent disconnects from talking to the user, the entire conversation object will be delered from the database.
+
+```
+"RETAIN_DATA" : true  
+```
+
 If you want the sample `/webchat` endpoint to work (endpoint for the example agent / call center), you will need to include this [`public` folder](https://github.com/palindromed/Bot-HandOff/tree/npm-handoff/example/public) in the root directory of your project, or replace with your own.
 
 Required environment variables:

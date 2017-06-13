@@ -72,7 +72,7 @@ export { mongoose };
 // Mongoose Provider
 // -----------------
 export class MongooseProvider implements Provider {
-    public init(): void {}
+    public init(): void { }
     async addToTranscript(by: By, message: builder.IMessage, from: string): Promise<boolean> {
         let sentimentScore = -1;
         let text = message.text;
@@ -82,8 +82,8 @@ export class MongooseProvider implements Provider {
         if (!conversation) return false;
 
         if (from == "Customer") {
-            if (indexImport._textAnalyticsKey) { sentimentScore = await this.collectSentiment(text); }datetime = new Date(message.localTimestamp).toString();
-            datetime = new Date(message.localTimestamp).toString();
+            if (indexImport._textAnalyticsKey) { sentimentScore = await this.collectSentiment(text); }
+            datetime = new Date(message.localTimestamp).toString() || new Date(message.timestamp).toString();
         }
 
         conversation.transcript.push({
@@ -125,10 +125,15 @@ export class MongooseProvider implements Provider {
             return false;
         } else {
             conversation.state = ConversationState.Bot;
-            if (conversation.agent) {
-                return await this.deleteConversation(conversation);
-            } else {
+            if (process.env.RETAIN_DATA) {
                 return await this.updateConversation(conversation);
+            } else {
+                if (conversation.agent) {
+                    return await this.deleteConversation(conversation);
+                } else {
+                    return await this.updateConversation(conversation);
+                }
+
             }
         }
     }
@@ -190,7 +195,7 @@ export class MongooseProvider implements Provider {
     }
 
     private async collectSentiment(text: string): Promise<number> {
-        if(text == null || text == '') return;
+        if (text == null || text == '') return;
         let _sentimentUrl = 'https://westus.api.cognitive.microsoft.com/text/analytics/v2.0/sentiment';
         let _sentimentId = 'bot-analytics';
         let _sentimentKey = indexImport._textAnalyticsKey;

@@ -58,7 +58,7 @@ class Handoff {
             send: (event, next) => __awaiter(this, void 0, void 0, function* () {
                 // Messages sent from the bot do not need to be routed
                 // Not all messages from the bot are type message, we only want to record the actual messages  
-                if (event.type === 'message') {
+                if (event.type === 'message' && !event.entities) {
                     this.transcribeMessageFromBot(event, next);
                 }
                 else {
@@ -79,7 +79,8 @@ class Handoff {
     routeAgentMessage(session) {
         return __awaiter(this, void 0, void 0, function* () {
             const message = session.message;
-            const conversation = yield this.getConversation({ agentConversationId: message.address.conversation.id });
+            const conversation = yield this.getConversation({ agentConversationId: message.address.conversation.id }, message.address);
+            yield this.addToTranscript({ agentConversationId: message.address.conversation.id }, message);
             // if the agent is not in conversation, no further routing is necessary
             if (!conversation)
                 return;
@@ -89,7 +90,7 @@ class Handoff {
                 return;
             }
             // send text that agent typed to the customer they are in conversation with
-            this.bot.send(new builder.Message().address(conversation.customer).text(message.text));
+            this.bot.send(new builder.Message().address(conversation.customer).text(message.text).addEntity({ "agent": true }));
         });
     }
     routeCustomerMessage(session, next) {

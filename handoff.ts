@@ -68,10 +68,10 @@ export class Handoff {
                     this.routeMessage(session, next);
                 }
             },
-            send: async (event: builder.IEvent, next: Function) => {
+            send: async (event: builder.IMessage, next: Function) => {
                 // Messages sent from the bot do not need to be routed
                 // Not all messages from the bot are type message, we only want to record the actual messages  
-                if (event.type === 'message') {
+                if (event.type === 'message' && !event.entities) {
                     this.transcribeMessageFromBot(event as builder.IMessage, next);
                 } else {
                     //If not a message (text), just send to user without transcribing
@@ -91,7 +91,8 @@ export class Handoff {
 
     private async routeAgentMessage(session: builder.Session) {
         const message = session.message;
-        const conversation = await this.getConversation({ agentConversationId: message.address.conversation.id });
+        const conversation = await this.getConversation({ agentConversationId: message.address.conversation.id }, message.address);
+        await this.addToTranscript({ agentConversationId: message.address.conversation.id }, message);
         // if the agent is not in conversation, no further routing is necessary
         if (!conversation)
             return;
@@ -101,7 +102,7 @@ export class Handoff {
             session.send("Shouldn't be in this state - agent should have been cleared out.");
             return;
         // send text that agent typed to the customer they are in conversation with
-        this.bot.send(new builder.Message().address(conversation.customer).text(message.text));
+        this.bot.send(new builder.Message().address(conversation.customer).text(message.text).addEntity({ "agent": true }));
     }
 
     private async routeCustomerMessage(session: builder.Session, next: Function) {
