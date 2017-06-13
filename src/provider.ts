@@ -23,6 +23,7 @@ const addToTranscript = async (by: By, message: builder.IMessage, from: string):
         timestamp: message.localTimestamp,
         from: by.agentConversationId ? 'Agent' : 'Customer',
         sentimentScore: 1,
+        state: conversation.state,
         text
     });
 

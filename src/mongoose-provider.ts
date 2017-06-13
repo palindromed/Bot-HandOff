@@ -42,6 +42,7 @@ export const TranscriptLineSchema = new mongoose.Schema({
     timestamp: {},
     from: String,
     sentimentScore: Number,
+    state: Number,
     text: String
 });
 
@@ -90,6 +91,7 @@ export class MongooseProvider implements Provider {
             timestamp: datetime,
             from: from,
             sentimentScore: sentimentScore,
+            state: conversation.state, 
             text
         });
 
