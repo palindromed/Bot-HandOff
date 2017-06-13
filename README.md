@@ -50,10 +50,26 @@ handoff.setup(bot, app, isAgent, {
 If you want to keep the data after a hand off, you must add this environment variable. Otherwise, after an agent disconnects from talking to the user, the entire conversation object will be delered from the database.
 
 ```
-"RETAIN_DATA" : true  
+"RETAIN_DATA" : "true"  
 ```
 
 If you want the sample `/webchat` endpoint to work (endpoint for the example agent / call center), you will need to include this [`public` folder](https://github.com/palindromed/Bot-HandOff/tree/npm-handoff/example/public) in the root directory of your project, or replace with your own.
+
+Required environment variables:
+```
+"MICROSOFT_APP_ID" : "",
+"MICROSOFT_APP_PASSWORD" : "",
+"MICROSOFT_DIRECTLINE_SECRET" : "",
+"MONGODB_PROVIDER" : ""      
+```
+
+Optional environment variables:
+```
+"CG_SENTIMENT_KEY" : ""
+"RETAIN_DATA: "true" or "false"
+```
+
+## Hand Off Details
 
 Depending on how your bot is written, this could happen via any or all of:
 
@@ -185,19 +201,6 @@ Aside from providing your own bot logic, you'll likely want to build call center
 * a persistant data provider
 
 Good luck!
-
-Required environment variables:
-```
-"MICROSOFT_APP_ID" : "",
-"MICROSOFT_APP_PASSWORD" : "",
-"MICROSOFT_DIRECTLINE_SECRET" : "",
-"MONGODB_PROVIDER" : ""      
-```
-
-Optional environment variables:
-```
-"CG_SENTIMENT_KEY" : ""
-```
 
 ## License
 

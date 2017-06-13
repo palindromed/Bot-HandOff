@@ -83,7 +83,7 @@ export class MongooseProvider implements Provider {
 
         if (from == "Customer") {
             if (indexImport._textAnalyticsKey) { sentimentScore = await this.collectSentiment(text); }
-            datetime = new Date(message.localTimestamp).toString() || new Date(message.timestamp).toString();
+            datetime = message.localTimestamp ? new Date(message.localTimestamp).toString() : new Date(message.timestamp).toString();
         }
 
         conversation.transcript.push({
@@ -125,7 +125,7 @@ export class MongooseProvider implements Provider {
             return false;
         } else {
             conversation.state = ConversationState.Bot;
-            if (process.env.RETAIN_DATA) {
+            if (process.env.RETAIN_DATA === "true") {
                 return await this.updateConversation(conversation);
             } else {
                 if (conversation.agent) {
