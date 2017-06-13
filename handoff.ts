@@ -16,6 +16,7 @@ export interface TranscriptLine {
     timestamp: any,
     from: string,
     sentimentScore: number,
+    state: number,
     text: string
 }
 

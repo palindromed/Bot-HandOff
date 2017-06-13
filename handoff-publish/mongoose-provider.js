@@ -47,6 +47,7 @@ exports.TranscriptLineSchema = new mongoose.Schema({
     timestamp: {},
     from: String,
     sentimentScore: Number,
+    state: Number,
     text: String
 });
 exports.ConversationSchema = new mongoose.Schema({
@@ -91,6 +92,7 @@ class MongooseProvider {
                 timestamp: datetime,
                 from: from,
                 sentimentScore: sentimentScore,
+                state: conversation.state,
                 text
             });
             return yield this.updateConversation(conversation);
