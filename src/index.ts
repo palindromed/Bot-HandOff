@@ -4,17 +4,21 @@ import { commandsMiddleware } from './commands';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
+let appInsights = require('applicationinsights');
 
-let setup = (bot, app, isAgent, options) => {  
+let setup = (bot, app, isAgent, options) => {
 
+    let appInsightsClient = null;
+    let mongooseProvider = null;
     let _directLineSecret = null;
     let _mongodbProvider = null;
-    let mongooseProvider = null;
     let _textAnalyticsKey = null;
+    let _appInsightsInstrumentationKey = null;
+    const handoff = new Handoff(bot, isAgent);
 
     options = options || {};
 
-    if (!options.mongodbProvider && !process.env.MONGODB_PROVIDER){
+    if (!options.mongodbProvider && !process.env.MONGODB_PROVIDER) {
         throw new Error('Bot-Handoff: Mongo DB Connection String was not provided in setup options or the environment variable MONGODB_PROVIDER');
     } else {
         _mongodbProvider = options.mongodbProvider || process.env.MONGODB_PROVIDER;
@@ -30,12 +34,19 @@ let setup = (bot, app, isAgent, options) => {
 
     if (!options.textAnalyticsKey && !process.env.CG_SENTIMENT_KEY) {
         console.warn('Bot-Handoff: Microsoft Cognitive Services Text Analytics Key was not provided in setup options or the environment variable CG_SENTIMENT_KEY. Sentiment will not be analysed in the transcript, the score will be recorded as -1 for all text.');
-    }else{
+    } else {
         _textAnalyticsKey = options.textAnalyticsKey || process.env.CG_SENTIMENT_KEY;
         exports._textAnalyticsKey = _textAnalyticsKey;
     }
 
-    const handoff = new Handoff(bot, isAgent);
+    if (!options.appInsightsInstrumentationKey && !process.env.APPINSIGHTS_INSTRUMENTATIONKEY) {
+        console.warn('Bot-Handoff: Microsoft Application Insights Instrumentation Key was not provided in setup options or the environment variable APPINSIGHTS_INSTRUMENTATIONKEY. The conversation object will not be logged to Application Insights.');
+    } else {
+        _appInsightsInstrumentationKey = options.appInsightsInstrumentationKey || process.env.APPINSIGHTS_INSTRUMENTATIONKEY;
+        appInsights.setup(_appInsightsInstrumentationKey).start();
+        appInsightsClient = appInsights.getClient;
+        exports._appInsightsClient = appInsightsClient;
+    }
 
     if (bot) {
         bot.use(
@@ -44,7 +55,7 @@ let setup = (bot, app, isAgent, options) => {
         )
     }
 
-    if(app && _directLineSecret != null){
+    if (app && _directLineSecret != null) {
         app.use(cors({ origin: '*' }));
         app.use(bodyParser.json());
 
@@ -82,9 +93,9 @@ let setup = (bot, app, isAgent, options) => {
                 res.status(401).send({ "code": 401, "message": "Not Authorized" });
             }
         });
-    }else{
+    } else {
         throw new Error('Microsoft Bot Builder Direct Line Secret was not provided in options or the environment variable MICROSOFT_DIRECTLINE_SECRET');
     }
 }
 
-module.exports = {setup}
+module.exports = { setup }

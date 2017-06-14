@@ -38,11 +38,13 @@ const isAgent = (session) => session.message.user.name.startsWith("Agent");
     options: { }
         - mongodbProvider and directlineSecret are required (both can be left out of setup options if provided in environment variables.)
         - textAnalyticsKey is optional. This is the Microsoft Cognitive Services Text Analytics key. Providing this value will result in running sentiment analysis on all user text, saving the sentiment score to the transcript in mongodb.
+        - appInsightsInstrumentationKey is optional. This is the Microsoft Application Insights Instrumentation Key. Providing this value will result in logging all of the conversation objects to application insights as a custom event called 'Conversation'
 **/
 handoff.setup(bot, app, isAgent, {
     mongodbProvider: process.env.MONGODB_PROVIDER,
     directlineSecret: process.env.MICROSOFT_DIRECTLINE_SECRET,
-    textAnalyticsKey: process.env.CG_SENTIMENT_KEY
+    textAnalyticsKey: process.env.CG_SENTIMENT_KEY,
+    appInsightsInstrumentationKey: process.env.APPINSIGHTS_INSTRUMENTATIONKEY
 });
 
 ```
@@ -65,7 +67,8 @@ Required environment variables:
 
 Optional environment variables:
 ```
-"CG_SENTIMENT_KEY" : ""
+"CG_SENTIMENT_KEY" : "",
+"APPINSIGHTS_INSTRUMENTATIONKEY" : "",
 "RETAIN_DATA: "true" or "false"
 ```
 

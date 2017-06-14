@@ -13,13 +13,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "bluebird": "^3.5.0",
-    "body-parser": "^1.17.2",
-    "botbuilder-handoff": "^0.1.4",
+    "botbuilder-handoff": "^0.1.5",
     "botbuilder": "^3.7.0",
-    "cors": "2.8.3",
     "express": "^4.14.0",
-    "mongoose": "^4.9.7",
     "typescript": "^2.1.4"
   },
   "devDependencies": {
