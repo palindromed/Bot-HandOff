@@ -14,11 +14,15 @@ const commands_1 = require("./commands");
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+let appInsights = require('applicationinsights');
 let setup = (bot, app, isAgent, options) => {
+    let appInsightsClient = null;
+    let mongooseProvider = null;
     let _directLineSecret = null;
     let _mongodbProvider = null;
-    let mongooseProvider = null;
     let _textAnalyticsKey = null;
+    let _appInsightsInstrumentationKey = null;
+    const handoff = new handoff_1.Handoff(bot, isAgent);
     options = options || {};
     if (!options.mongodbProvider && !process.env.MONGODB_PROVIDER) {
         throw new Error('Bot-Handoff: Mongo DB Connection String was not provided in setup options or the environment variable MONGODB_PROVIDER');
@@ -41,7 +45,15 @@ let setup = (bot, app, isAgent, options) => {
         _textAnalyticsKey = options.textAnalyticsKey || process.env.CG_SENTIMENT_KEY;
         exports._textAnalyticsKey = _textAnalyticsKey;
     }
-    const handoff = new handoff_1.Handoff(bot, isAgent);
+    if (!options.appInsightsInstrumentationKey && !process.env.APPINSIGHTS_INSTRUMENTATIONKEY) {
+        console.warn('Bot-Handoff: Microsoft Application Insights Instrumentation Key was not provided in setup options or the environment variable APPINSIGHTS_INSTRUMENTATIONKEY. The conversation object will not be logged to Application Insights.');
+    }
+    else {
+        _appInsightsInstrumentationKey = options.appInsightsInstrumentationKey || process.env.APPINSIGHTS_INSTRUMENTATIONKEY;
+        appInsights.setup(_appInsightsInstrumentationKey).start();
+        appInsightsClient = appInsights.getClient;
+        exports._appInsightsClient = appInsightsClient;
+    }
     if (bot) {
         bot.use(commands_1.commandsMiddleware(handoff), handoff.routingMiddleware());
     }

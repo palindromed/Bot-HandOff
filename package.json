@@ -1,6 +1,6 @@
 {
   "name": "botbuilder-handoff",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "license": "MIT",
   "description": "Bot hand off module for the Microsoft Bot Framework. It allows you to transfer a customer from talking to a bot to talking to a human.",
   "main": "dist/index.js",
@@ -24,6 +24,7 @@
     "bot framework"
   ],
   "dependencies": {
+    "applicationinsights": "^0.20.1",
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.2",
     "botbuilder": "^3.7.0",
