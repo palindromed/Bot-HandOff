@@ -111,7 +111,7 @@ export class MongooseProvider implements Provider {
                 x['agentChannelId'] = conversation.agent.channelId;
                 x['agentConversationId'] = conversation.agent.conversation.id;
             }
-            indexImport._appInsights.client.trackEvent("Conversation", x);    
+            indexImport._appInsights.client.trackEvent("Transcript", x);    
         }
 
         return await this.updateConversation(conversation);
