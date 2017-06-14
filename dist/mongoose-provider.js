@@ -111,7 +111,7 @@ class MongooseProvider {
                     x['agentChannelId'] = conversation.agent.channelId;
                     x['agentConversationId'] = conversation.agent.conversation.id;
                 }
-                indexImport._appInsights.client.trackEvent("Conversation", x);
+                indexImport._appInsights.client.trackEvent("Transcript", x);
             }
             return yield this.updateConversation(conversation);
         });
