@@ -95,24 +95,23 @@ export class MongooseProvider implements Provider {
             text
         });
 
-        if (indexImport._appInsights) {
-            for (var i = 0; i < conversation.transcript.length; i++) {
-                // You can't log embedded json objects in application insights, so we are flattening the object to one item.
-                // Also, have to stringify the object so functions from mongodb don't get logged 
-                let x = JSON.parse(JSON.stringify(conversation.transcript[i]));
-                x['botId'] = conversation.customer.bot.id;
-                x['customerId'] = conversation.customer.user.id;
-                x['customerName'] = conversation.customer.user.name;
-                x['userChannelId'] = conversation.customer.channelId;
-                x['userConversationId'] = conversation.customer.conversation.id;
-                if (conversation.agent) {
-                    x['agentId'] = conversation.agent.user.id;
-                    x['agentName'] = conversation.agent.user.name;
-                    x['agentChannelId'] = conversation.agent.channelId;
-                    x['agentConversationId'] = conversation.agent.conversation.id;
-                }
-                indexImport._appInsights.client.trackEvent("Conversation", x);
+        if (indexImport._appInsights) {   
+            // You can't log embedded json objects in application insights, so we are flattening the object to one item.
+            // Also, have to stringify the object so functions from mongodb don't get logged 
+            let latestTranscriptItem = conversation.transcript.length-1;
+            let x = JSON.parse(JSON.stringify(conversation.transcript[latestTranscriptItem]));
+            x['botId'] = conversation.customer.bot.id;
+            x['customerId'] = conversation.customer.user.id;
+            x['customerName'] = conversation.customer.user.name;
+            x['userChannelId'] = conversation.customer.channelId;
+            x['userConversationId'] = conversation.customer.conversation.id;
+            if (conversation.agent) {
+                x['agentId'] = conversation.agent.user.id;
+                x['agentName'] = conversation.agent.user.name;
+                x['agentChannelId'] = conversation.agent.channelId;
+                x['agentConversationId'] = conversation.agent.conversation.id;
             }
+            indexImport._appInsights.client.trackEvent("Conversation", x);    
         }
 
         return await this.updateConversation(conversation);
