@@ -95,9 +95,7 @@ export class MongooseProvider implements Provider {
             text
         });
 
-        if(indexImport._appInsightsClient){
-            indexImport._appInsightsClient.trackEvent("Conversation", conversation);
-        }
+        if(indexImport._appInsights){ indexImport._appInsights.client.trackEvent("Conversation", conversation); }
 
         return await this.updateConversation(conversation);
     }

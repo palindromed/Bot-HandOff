@@ -95,8 +95,8 @@ class MongooseProvider {
                 state: conversation.state,
                 text
             });
-            if (indexImport._appInsightsClient) {
-                indexImport._appInsightsClient.trackEvent("Conversation", conversation);
+            if (indexImport._appInsights) {
+                indexImport._appInsights.client.trackEvent("Conversation", conversation);
             }
             return yield this.updateConversation(conversation);
         });
