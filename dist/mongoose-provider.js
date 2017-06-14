@@ -96,7 +96,20 @@ class MongooseProvider {
                 text
             });
             if (indexImport._appInsights) {
-                indexImport._appInsights.client.trackEvent("Conversation", conversation);
+                for (var i = 0; i < conversation.transcript.length; i++) {
+                    //You can't log embedded json objects in application insights, so we are flattening the object to one item 
+                    let x = conversation.transcript[i];
+                    x['customerId'] = conversation.customer.user.id;
+                    x['customerName'] = conversation.customer.user.name;
+                    x['userChannelId'] = conversation.customer.channelId;
+                    x['userConversationId'] = conversation.customer.conversation.id;
+                    x['agentId'] = conversation.agent.user.id;
+                    x['agentName'] = conversation.agent.user.name;
+                    x['agentChannelId'] = conversation.agent.channelId;
+                    x['agentConversationId'] = conversation.agent.conversation.id;
+                    x['botId'] = conversation.customer.bot.id;
+                    indexImport._appInsights.client.trackEvent("Conversation", x);
+                }
             }
             return yield this.updateConversation(conversation);
         });
