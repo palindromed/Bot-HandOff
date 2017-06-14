@@ -16,7 +16,6 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 let appInsights = require('applicationinsights');
 let setup = (bot, app, isAgent, options) => {
-    let appInsightsClient = null;
     let mongooseProvider = null;
     let _directLineSecret = null;
     let _mongodbProvider = null;
@@ -51,8 +50,7 @@ let setup = (bot, app, isAgent, options) => {
     else {
         _appInsightsInstrumentationKey = options.appInsightsInstrumentationKey || process.env.APPINSIGHTS_INSTRUMENTATIONKEY;
         appInsights.setup(_appInsightsInstrumentationKey).start();
-        appInsightsClient = appInsights.getClient;
-        exports._appInsightsClient = appInsightsClient;
+        exports._appInsights = appInsights;
     }
     if (bot) {
         bot.use(commands_1.commandsMiddleware(handoff), handoff.routingMiddleware());
