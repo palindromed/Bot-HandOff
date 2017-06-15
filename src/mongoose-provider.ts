@@ -101,10 +101,10 @@ export class MongooseProvider implements Provider {
             let latestTranscriptItem = conversation.transcript.length-1;
             let x = JSON.parse(JSON.stringify(conversation.transcript[latestTranscriptItem]));
             x['botId'] = conversation.customer.bot.id;
-            x['userId'] = conversation.customer.user.id;
-            x['userName'] = conversation.customer.user.name;
-            x['userChannelId'] = conversation.customer.channelId;
-            x['userConversationId'] = conversation.customer.conversation.id;
+            x['customerId'] = conversation.customer.user.id;
+            x['customerName'] = conversation.customer.user.name;
+            x['customerChannelId'] = conversation.customer.channelId;
+            x['customerConversationId'] = conversation.customer.conversation.id;
             if (conversation.agent) {
                 x['agentId'] = conversation.agent.user.id;
                 x['agentName'] = conversation.agent.user.name;
