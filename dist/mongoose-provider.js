@@ -86,7 +86,7 @@ class MongooseProvider {
                 if (indexExports._textAnalyticsKey) {
                     sentimentScore = yield this.collectSentiment(text);
                 }
-                datetime = message.localTimestamp ? new Date(message.localTimestamp).toString() : new Date(message.timestamp).toString();
+                datetime = message.localTimestamp ? message.localTimestamp : message.timestamp;
             }
             conversation.transcript.push({
                 timestamp: datetime,

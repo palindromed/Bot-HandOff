@@ -62,7 +62,7 @@ let setup = (bot, app, isAgent, options) => {
         exports._retainData = _retainData;
     }
     if (!options.customerStartHandoffCommand && !process.env.CUSTOMER_START_HANDOFF_COMMAND) {
-        console.warn('Bot-Handoff: The customer command to start the handoff was not provided in setup options (customerStartHandoffCommand) or in the environment variables (CUSTOMER_START_HANDOFF_COMMAND). The default command will be set to help.');
+        console.warn('Bot-Handoff: The customer command to start the handoff was not provided in setup options (customerStartHandoffCommand) or in the environment variables (CUSTOMER_START_HANDOFF_COMMAND). The default command will be set to help. Regex is used on this command to make sure the activation of the handoff only works if the user types the exact phrase provided in this property.');
         _customerStartHandoffCommand = "help";
         exports._customerStartHandoffCommand = _customerStartHandoffCommand;
     }

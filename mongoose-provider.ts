@@ -84,7 +84,7 @@ export class MongooseProvider implements Provider {
 
         if (from == "Customer") {
             if (indexExports._textAnalyticsKey) { sentimentScore = await this.collectSentiment(text); }
-            datetime = message.localTimestamp ? new Date(message.localTimestamp).toString() : new Date(message.timestamp).toString();
+            datetime = message.localTimestamp ? message.localTimestamp : message.timestamp
         }
 
         conversation.transcript.push({
