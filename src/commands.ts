@@ -1,5 +1,6 @@
 import * as builder from 'botbuilder';
 import { Conversation, ConversationState, Handoff } from './handoff';
+const indexExports = require('./index');
 
 export function commandsMiddleware(handoff: Handoff) {
     return {
@@ -81,8 +82,9 @@ async function agentCommand(
 }
 
 async function customerCommand(session: builder.Session, next: Function, handoff: Handoff) {
-    const message = session.message;
-    if (message.text === 'help') {
+    const message = session.message;   
+    const customerStartHandoffCommandRegex = new RegExp("^" + indexExports._customerStartHandoffCommand + "$", "gi");
+    if (customerStartHandoffCommandRegex.test(message.text)) {
         // lookup the conversation (create it if one doesn't already exist)
         const conversation = await handoff.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
         if (conversation.state == ConversationState.Bot) {

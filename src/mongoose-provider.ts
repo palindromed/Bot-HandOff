@@ -7,7 +7,7 @@ mongoose.Promise = bluebird;
 
 import { By, Conversation, Provider, ConversationState } from './handoff';
 
-const indexImport = require('./index');
+const indexExports = require('./index');
 
 // -------------------
 // Bot Framework types
@@ -53,7 +53,7 @@ export const ConversationSchema = new mongoose.Schema({
         type: Number,
         required: true,
         min: 0,
-        max: 2
+        max: 3
     },
     transcript: [TranscriptLineSchema]
 });
@@ -83,7 +83,7 @@ export class MongooseProvider implements Provider {
         if (!conversation) return false;
 
         if (from == "Customer") {
-            if (indexImport._textAnalyticsKey) { sentimentScore = await this.collectSentiment(text); }
+            if (indexExports._textAnalyticsKey) { sentimentScore = await this.collectSentiment(text); }
             datetime = message.localTimestamp ? new Date(message.localTimestamp).toString() : new Date(message.timestamp).toString();
         }
 
@@ -95,7 +95,7 @@ export class MongooseProvider implements Provider {
             text
         });
 
-        if (indexImport._appInsights) {   
+        if (indexExports._appInsights) {   
             // You can't log embedded json objects in application insights, so we are flattening the object to one item.
             // Also, have to stringify the object so functions from mongodb don't get logged 
             let latestTranscriptItem = conversation.transcript.length-1;
@@ -111,7 +111,7 @@ export class MongooseProvider implements Provider {
                 x['agentChannelId'] = conversation.agent.channelId;
                 x['agentConversationId'] = conversation.agent.conversation.id;
             }
-            indexImport._appInsights.client.trackEvent("Transcript", x);    
+            indexExports._appInsights.client.trackEvent("Transcript", x);    
         }
 
         return await this.updateConversation(conversation);
@@ -146,7 +146,7 @@ export class MongooseProvider implements Provider {
             return false;
         } else {
             conversation.state = ConversationState.Bot;
-            if (process.env.RETAIN_DATA === "true") {
+            if (indexExports._retainData === "true") {
                 return await this.updateConversation(conversation);
             } else {
                 if (conversation.agent) {
@@ -219,7 +219,7 @@ export class MongooseProvider implements Provider {
         if (text == null || text == '') return;
         let _sentimentUrl = 'https://westus.api.cognitive.microsoft.com/text/analytics/v2.0/sentiment';
         let _sentimentId = 'bot-analytics';
-        let _sentimentKey = indexImport._textAnalyticsKey;
+        let _sentimentKey = indexExports._textAnalyticsKey;
 
         let options = {
             url: _sentimentUrl,

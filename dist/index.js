@@ -17,14 +17,16 @@ const cors = require("cors");
 let appInsights = require('applicationinsights');
 let setup = (bot, app, isAgent, options) => {
     let mongooseProvider = null;
+    let _retainData = null;
     let _directLineSecret = null;
     let _mongodbProvider = null;
     let _textAnalyticsKey = null;
     let _appInsightsInstrumentationKey = null;
+    let _customerStartHandoffCommand = null;
     const handoff = new handoff_1.Handoff(bot, isAgent);
     options = options || {};
     if (!options.mongodbProvider && !process.env.MONGODB_PROVIDER) {
-        throw new Error('Bot-Handoff: Mongo DB Connection String was not provided in setup options or the environment variable MONGODB_PROVIDER');
+        throw new Error('Bot-Handoff: Mongo DB Connection String was not provided in setup options (mongodbProvider) or in the environment variables (MONGODB_PROVIDER)');
     }
     else {
         _mongodbProvider = options.mongodbProvider || process.env.MONGODB_PROVIDER;
@@ -32,25 +34,41 @@ let setup = (bot, app, isAgent, options) => {
         mongoose_provider_1.mongoose.connect(_mongodbProvider);
     }
     if (!options.directlineSecret && !process.env.MICROSOFT_DIRECTLINE_SECRET) {
-        throw new Error('Bot-Handoff: Microsoft Bot Builder Direct Line Secret was not provided in setup options or the environment variable MICROSOFT_DIRECTLINE_SECRET');
+        throw new Error('Bot-Handoff: Microsoft Bot Builder Direct Line Secret was not provided in setup options (directlineSecret) or in the environment variables (MICROSOFT_DIRECTLINE_SECRET)');
     }
     else {
         _directLineSecret = options.directlineSecret || process.env.MICROSOFT_DIRECTLINE_SECRET;
     }
     if (!options.textAnalyticsKey && !process.env.CG_SENTIMENT_KEY) {
-        console.warn('Bot-Handoff: Microsoft Cognitive Services Text Analytics Key was not provided in setup options or the environment variable CG_SENTIMENT_KEY. Sentiment will not be analysed in the transcript, the score will be recorded as -1 for all text.');
+        console.warn('Bot-Handoff: Microsoft Cognitive Services Text Analytics Key was not provided in setup options (textAnalyticsKey) or in the environment variables (CG_SENTIMENT_KEY). Sentiment will not be analysed in the transcript, the score will be recorded as -1 for all text.');
     }
     else {
         _textAnalyticsKey = options.textAnalyticsKey || process.env.CG_SENTIMENT_KEY;
         exports._textAnalyticsKey = _textAnalyticsKey;
     }
     if (!options.appInsightsInstrumentationKey && !process.env.APPINSIGHTS_INSTRUMENTATIONKEY) {
-        console.warn('Bot-Handoff: Microsoft Application Insights Instrumentation Key was not provided in setup options or the environment variable APPINSIGHTS_INSTRUMENTATIONKEY. The conversation object will not be logged to Application Insights.');
+        console.warn('Bot-Handoff: Microsoft Application Insights Instrumentation Key was not provided in setup options (appInsightsInstrumentationKey) or in the environment variables (APPINSIGHTS_INSTRUMENTATIONKEY). The conversation object will not be logged to Application Insights.');
     }
     else {
         _appInsightsInstrumentationKey = options.appInsightsInstrumentationKey || process.env.APPINSIGHTS_INSTRUMENTATIONKEY;
         appInsights.setup(_appInsightsInstrumentationKey).start();
         exports._appInsights = appInsights;
+    }
+    if (!options.retainData && !process.env.RETAIN_DATA) {
+        console.warn('Bot-Handoff: Retain data value was not provided in setup options (retainData) or in the environment variables (RETAIN_DATA). Not providing this value or setting it to "false" means that if a customer speaks to an agent, the conversation record with that customer will be deleted after an agent disconnects the conversation. Set to "true" to keep all data records in the mongo database.');
+    }
+    else {
+        _retainData = options.retainData || process.env.RETAIN_DATA;
+        exports._retainData = _retainData;
+    }
+    if (!options.customerStartHandoffCommand && !process.env.CUSTOMER_START_HANDOFF_COMMAND) {
+        console.warn('Bot-Handoff: The customer command to start the handoff was not provided in setup options (customerStartHandoffCommand) or in the environment variables (CUSTOMER_START_HANDOFF_COMMAND). The default command will be set to help.');
+        _customerStartHandoffCommand = "help";
+        exports._customerStartHandoffCommand = _customerStartHandoffCommand;
+    }
+    else {
+        _customerStartHandoffCommand = options.customerStartHandoffCommand || process.env.CUSTOMER_START_HANDOFF_COMMAND;
+        exports._customerStartHandoffCommand = _customerStartHandoffCommand;
     }
     if (bot) {
         bot.use(commands_1.commandsMiddleware(handoff), handoff.routingMiddleware());
