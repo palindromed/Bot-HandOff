@@ -13,7 +13,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "botbuilder-handoff": "^0.1.6",
+    "botbuilder-handoff": "^0.1.7",
     "botbuilder": "^3.7.0",
     "express": "^4.14.0",
     "typescript": "^2.1.4"
