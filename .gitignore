@@ -1,4 +1,6 @@
 node_modules
-dist
+dist/
 .vscode/launch.json
 example/.vscode/launch.json
+./dist
+**/*.map

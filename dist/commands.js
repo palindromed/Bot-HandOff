@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const handoff_1 = require("./handoff");
+const indexExports = require('./index');
 function commandsMiddleware(handoff) {
     return {
         botbuilder: (session, next) => {
@@ -81,7 +82,8 @@ function agentCommand(session, next, handoff) {
 function customerCommand(session, next, handoff) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = session.message;
-        if (message.text === 'help') {
+        const customerStartHandoffCommandRegex = new RegExp("^" + indexExports._customerStartHandoffCommand + "$", "gi");
+        if (customerStartHandoffCommandRegex.test(message.text)) {
             // lookup the conversation (create it if one doesn't already exist)
             const conversation = yield handoff.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
             if (conversation.state == handoff_1.ConversationState.Bot) {
