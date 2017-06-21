@@ -78,7 +78,7 @@ class MongooseProvider {
         return __awaiter(this, void 0, void 0, function* () {
             let sentimentScore = -1;
             let text = message.text;
-            let datetime = new Date().toString();
+            let datetime = new Date().toISOString();
             const conversation = yield this.getConversation(by);
             if (!conversation)
                 return false;
