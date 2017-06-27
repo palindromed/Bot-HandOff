@@ -77,7 +77,7 @@ export class MongooseProvider implements Provider {
     async addToTranscript(by: By, message: builder.IMessage, from: string): Promise<boolean> {
         let sentimentScore = -1;
         let text = message.text;
-        let datetime = new Date().toString();
+        let datetime = new Date().toISOString();
         const conversation: Conversation = await this.getConversation(by);
 
         if (!conversation) return false;
