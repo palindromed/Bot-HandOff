@@ -69,6 +69,7 @@ export class Handoff {
                     return this.routeMessage(session, next);
                 }
 
+                // allow non message types through
                 next();
             },
             send: async (event: builder.IMessage, next: Function) => {
