@@ -16,6 +16,10 @@ function commandsMiddleware(handoff) {
             if (session.message.type === 'message') {
                 command(session, next, handoff);
             }
+            else {
+                // allow messages of non 'message' type through 
+                next();
+            }
         }
     };
 }

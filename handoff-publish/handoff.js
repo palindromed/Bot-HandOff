@@ -54,6 +54,10 @@ class Handoff {
                 if (session.message.type === 'message') {
                     this.routeMessage(session, next);
                 }
+                else {
+                    // allow messages of non 'message' type through 
+                    next();
+                }
             },
             send: (event, next) => __awaiter(this, void 0, void 0, function* () {
                 // Messages sent from the bot do not need to be routed
