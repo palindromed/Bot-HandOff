@@ -13,8 +13,9 @@
     "nodewatch": "nodemon dist/index.js",
     "start": "node dist/index.js",
     "stopTestDb": "mongo --port 26017 --eval \"db.getSiblingDB('admin').shutdownServer()\"",
+    "startTestDb": "mongod --fork --logpath ./testDb/logs/mongo.log --dbpath ./testDb --port 26017",
     "cleanDb": "rm -rf ./testDb && mkdir -p ./testDb/logs",
-    "pretest": "npm run stopTestDb &> /dev/null; npm run cleanDb && mongod --fork --logpath ./testDb/logs/mongo.log --dbpath ./testDb --port 26017",
+    "pretest": "npm run stopTestDb &> /dev/null; npm run cleanDb && npm run startTestDb",
     "test": "npm run rebuild && node_modules/mocha/bin/_mocha --require node_modules/ts-node/register test/handoff.spec.ts",
     "posttest": "npm run stopTestDb &> /dev/null"
   },

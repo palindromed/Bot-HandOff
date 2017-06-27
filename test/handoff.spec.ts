@@ -1,18 +1,16 @@
 import { BotTester } from 'bot-tester';
-import * as handoff from './../src';
-import * as chai from 'chai';
-import 'mocha';
-import * as Promise from 'bluebird';
 import * as builder from 'botbuilder';
+import * as Promise from 'bluebird';
+import * as chai from 'chai';
 import { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS } from 'constants';
 import * as express from 'express';
+import 'mocha';
+import * as handoff from './../src';
 
 const { MongoClient } = require('mongodb');
 const { expect } = chai;
 
 const isAgent = (session: builder.Session) => session.message.user.name.startsWith("Agent");
-
-console.log(handoff);
 
 const userAddress: builder.IAddress = { channelId: 'console',
     user: { id: 'user', name: 'user' }, 
@@ -89,18 +87,15 @@ describe('handoff tests', () => {
         const connectMessage = new builder.Message().text('connect user').address(agentAddress).toMessage();
         const testSendUserMessage = new builder.Message().text('Hi there home slice!').address(agentAddress).toMessage();
         const testSendUserReceiveMessage = new builder.Message().text('Hi there home slice!').address(userAddress).toMessage();
-        const testUserResponseMessage = new builder.Message().text('how are you? I am a user').address(userAddress);
-        const testAgentReceiveUserResponseMessage = new builder.Message().text('how are you? I am a user').address(agentAddress);;
+        const testUserResponseMessage = new builder.Message().text('how are you? I am a user').address(userAddress).toMessage()
+        const testAgentReceiveUserResponseMessage = new builder.Message().text('how are you? I am a user').address(agentAddress).toMessage();
+
         return executeDialogTest([
             new SendMessageToBotDialogStep('hey', 'Echo hey'),
             new SendMessageToBotDialogStep(userMessage, 'Connecting you to the next available agent.'),
             new SendMessageToBotDialogStep(connectMessage, 'You are connected to user', agentAddress),
             new SendMessageToBotDialogStep(testSendUserMessage, testSendUserReceiveMessage),
-            new SendMessageToBotDialogStep(testUserResponseMessage, testAgentReceiveUserResponseMessage),
+            new SendMessageToBotDialogStep(testUserResponseMessage, testAgentReceiveUserResponseMessage)
         ]);
-    });
-
-    it('can do more things', () => {
-        expect(true).to.be.true;
     });
 });
