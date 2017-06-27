@@ -6,7 +6,7 @@ import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
 let appInsights = require('applicationinsights');
 
-let setup = (bot, app, isAgent, options) => {
+export function setup(bot, app, isAgent, options) {
 
     let mongooseProvider = null;
     let _retainData = null;

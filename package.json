@@ -8,10 +8,15 @@
   "scripts": {
     "postinstall": "tsc",
     "build": "tsc",
+    "rebuild": "rm -rf dist && npm run build",
     "watch": "tsc -w",
     "nodewatch": "nodemon dist/index.js",
     "start": "node dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "stopTestDb": "mongo --port 26017 --eval \"db.getSiblingDB('admin').shutdownServer()\"",
+    "cleanDb": "rm -rf ./testDb && mkdir -p ./testDb/logs",
+    "pretest": "npm run stopTestDb &> /dev/null; npm run cleanDb && mongod --fork --logpath ./testDb/logs/mongo.log --dbpath ./testDb --port 26017",
+    "test": "npm run rebuild && node_modules/mocha/bin/_mocha --require node_modules/ts-node/register test/handoff.spec.ts",
+    "posttest": "npm run stopTestDb &> /dev/null"
   },
   "repository": {
     "type": "git",
@@ -27,16 +32,23 @@
     "applicationinsights": "^0.20.1",
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.2",
-    "botbuilder": "^3.7.0",
+    "botbuilder": "^3.8.4",
     "cors": "2.8.3",
     "express": "^4.14.0",
     "mongoose": "^4.9.7",
     "typescript": "^2.1.4"
   },
   "devDependencies": {
+    "@types/chai": "^4.0.1",
     "@types/express": "^4.0.34",
+    "@types/mocha": "^2.2.41",
     "@types/mongoose": "^4.7.11",
     "@types/node": "^6.0.59",
-    "nodemon": "^1.11.0"
+    "bot-tester": "0.0.29",
+    "chai": "^4.0.2",
+    "mocha": "^3.4.2",
+    "mongodb": "^2.2.29",
+    "nodemon": "^1.11.0",
+    "ts-node": "^3.1.0"
   }
 }
