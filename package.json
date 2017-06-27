@@ -3,7 +3,7 @@
   "version": "0.1.7",
   "license": "MIT",
   "description": "Bot hand off module for the Microsoft Bot Framework. It allows you to transfer a customer from talking to a bot to talking to a human.",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "homepage": "https://github.com/palindromed/Bot-HandOff/tree/npm-handoff",
   "scripts": {
     "postinstall": "tsc",
@@ -46,7 +46,7 @@
     "@types/mocha": "^2.2.41",
     "@types/mongoose": "^4.7.11",
     "@types/node": "^6.0.59",
-    "bot-tester": "0.0.29",
+    "bot-tester": "0.0.30",
     "chai": "^4.0.2",
     "mocha": "^3.4.2",
     "mongodb": "^2.2.29",
