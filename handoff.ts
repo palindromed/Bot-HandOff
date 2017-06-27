@@ -67,6 +67,9 @@ export class Handoff {
                 // Pass incoming messages to routing method
                 if (session.message.type === 'message') {
                     this.routeMessage(session, next);
+                } else {
+                    // allow messages of non 'message' type through 
+                    next();
                 }
             },
             send: async (event: builder.IMessage, next: Function) => {
