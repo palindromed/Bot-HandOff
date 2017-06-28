@@ -56,9 +56,8 @@ describe('handoff tests', () => {
                     console.log('Server Up');
                 });
 
-
                 handoff.setup(bot, app, isAgent, {
-                    mongodbProvider: testWithMongo.getConnectionSring('testdb'),
+                    mongodbProvider: testWithMongo.getConnectionString('testdb'),
                     directlineSecret: 'this can be anything',
                     retainData: false,
                     customerStartHandoffCommand: 'HELP'

@@ -7,7 +7,9 @@
   "homepage": "https://github.com/palindromed/Bot-HandOff/tree/npm-handoff",
   "scripts": {
     "postinstall": "tsc",
+    "clean": "rm -rf dist",
     "build": "tsc",
+    "rebuild": "npm run clean && npm run build",
     "watch": "tsc -w",
     "nodewatch": "nodemon dist/index.js",
     "start": "node dist/index.js",
@@ -44,7 +46,7 @@
     "mocha": "^3.4.2",
     "mongodb": "^2.2.29",
     "nodemon": "^1.11.0",
-    "test-with-mongo": "0.0.2",
+    "test-with-mongo": "0.0.8",
     "ts-node": "^3.1.0"
   }
 }
