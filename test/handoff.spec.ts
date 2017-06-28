@@ -2,7 +2,6 @@ import { BotTester } from 'bot-tester';
 import * as builder from 'botbuilder';
 import * as Promise from 'bluebird';
 import * as chai from 'chai';
-import { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS } from 'constants';
 import * as express from 'express';
 import 'mocha';
 import * as handoff from './../src';
