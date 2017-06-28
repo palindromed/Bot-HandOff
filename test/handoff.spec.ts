@@ -7,6 +7,8 @@ import * as express from 'express';
 import 'mocha';
 import * as handoff from './../src';
 
+const { TestWithMongo } = require('test-with-mongo');
+
 const { MongoClient } = require('mongodb');
 const { expect } = chai;
 
@@ -27,51 +29,51 @@ const agentAddress: builder.IAddress= { channelId: 'console',
 const MONGO_PORT = 26017;
 const MONGO_CONNECTION_STRING = `mongodb://localhost:${MONGO_PORT}/test`;
 
+const testWithMongo = new TestWithMongo(MONGO_PORT);
+
+const DB_NAME = 'test';
+
 describe('handoff tests', () => {
     let db;
     let app;
     let bot;
     let server;
 
-    before((done) => {
-        MongoClient.connect(MONGO_CONNECTION_STRING, (err, database) => {
-            if(err) throw err;
+    before(() => {
+        return testWithMongo.startMongoServer()
+            .then(() => {
+                console.log("HEY BROTHA!")
+                const connector = new builder.ConsoleConnector();
+                app = express();
 
-            db = database;
+                bot = new builder.UniversalBot(connector);
 
-            const connector = new builder.ConsoleConnector();
-            app = express();
+                connector.listen();
 
-            bot = new builder.UniversalBot(connector);
+                bot.dialog('/', (session) => {
+                    session.send('Echo ' + session.message.text)
+                });
 
-            connector.listen();
+                server = app.listen(3978, '::', () => {
+                    console.log('Server Up');
+                });
 
-            bot.dialog('/', (session) => {
-                session.send('Echo ' + session.message.text)
+
+                handoff.setup(bot, app, isAgent, {
+                    mongodbProvider: MONGO_CONNECTION_STRING,
+                    directlineSecret: 'this can be anything',
+                    retainData: false,
+                    customerStartHandoffCommand: 'HELP'
+                });
             });
-
-            server = app.listen(3978, '::', () => {
-                console.log('Server Up');
-            });
-
-
-            handoff.setup(bot, app, isAgent, {
-                mongodbProvider: MONGO_CONNECTION_STRING,
-                directlineSecret: 'this can be anything',
-                retainData: false,
-                customerStartHandoffCommand: 'HELP'
-            });
-
-            done()
-        });
     });
 
     after((done) => {
-        server.close(() => db.close(done));
+        server.close(() => testWithMongo.clean().then(done));
     })
 
-    afterEach((done) => {
-        db.dropDatabase(done);
+    afterEach(() => {
+        return testWithMongo.dropDb(DB_NAME);
     })
 
     it('can switch from bot to agent control', () => {

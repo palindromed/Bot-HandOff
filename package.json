@@ -8,17 +8,10 @@
   "scripts": {
     "postinstall": "tsc",
     "build": "tsc",
-    "rebuild": "rm -rf dist && npm run build",
     "watch": "tsc -w",
     "nodewatch": "nodemon dist/index.js",
     "start": "node dist/index.js",
-    "stopTestDb": "mongo --port 26017 --eval \"db.getSiblingDB('admin').shutdownServer()\"",
-    "startTestDb": "mongod --fork --logpath ./testDb/logs/mongo.log --dbpath ./testDb --port 26017",
-    "deleteDb": "rm -rf ./testDb",
-    "cleanDb": "npm run deleteDb && mkdir -p ./testDb/logs",
-    "pretest": "npm run stopTestDb &> /dev/null; npm run cleanDb && npm run startTestDb",
-    "test": "npm run rebuild && node_modules/mocha/bin/_mocha --require node_modules/ts-node/register test/handoff.spec.ts",
-    "posttest": "npm run stopTestDb &> /dev/null && npm run deleteDb"
+    "test": "node_modules/mocha/bin/_mocha --require node_modules/ts-node/register test/handoff.spec.ts"
   },
   "repository": {
     "type": "git",
@@ -51,6 +44,7 @@
     "mocha": "^3.4.2",
     "mongodb": "^2.2.29",
     "nodemon": "^1.11.0",
+    "test-with-mongo": "^0.0.2",
     "ts-node": "^3.1.0"
   }
 }
