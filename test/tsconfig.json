@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es6",
+        "noImplicitAny": false,
+        "outDir": "../dist",
+        "sourceMap": true
+    },
+    "files": [
+        "../src/index.ts",
+        "./handoff.spec.ts"
+    ]
+}

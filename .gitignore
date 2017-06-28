@@ -1,5 +1,5 @@
 node_modules
 dist
-.vscode/launch.json
+.vscode/*
 example/.vscode/launch.json
 *.map
