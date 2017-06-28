@@ -41,7 +41,6 @@ describe('handoff tests', () => {
     before(() => {
         return testWithMongo.startMongoServer()
             .then(() => {
-                console.log("HEY BROTHA!")
                 const connector = new builder.ConsoleConnector();
                 app = express();
 
@@ -59,7 +58,7 @@ describe('handoff tests', () => {
 
 
                 handoff.setup(bot, app, isAgent, {
-                    mongodbProvider: MONGO_CONNECTION_STRING,
+                    mongodbProvider: testWithMongo.getConnectionSring('testdb'),
                     directlineSecret: 'this can be anything',
                     retainData: false,
                     customerStartHandoffCommand: 'HELP'
