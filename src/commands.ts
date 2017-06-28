@@ -6,7 +6,10 @@ export function commandsMiddleware(handoff: Handoff) {
     return {
         botbuilder: (session: builder.Session, next: Function) => {
             if (session.message.type === 'message') {
-                return command(session, next, handoff);
+                command(session, next, handoff);
+            } else {
+                // allow messages of non 'message' type through 
+                next();
             }
 
             // allow non message types through

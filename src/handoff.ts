@@ -66,7 +66,10 @@ export class Handoff {
             botbuilder: (session: builder.Session, next: Function) => {
                 // Pass incoming messages to routing method
                 if (session.message.type === 'message') {
-                    return this.routeMessage(session, next);
+                    this.routeMessage(session, next);
+                } else {
+                    // allow messages of non 'message' type through 
+                    next();
                 }
 
                 // allow non message types through

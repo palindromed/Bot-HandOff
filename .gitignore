@@ -1,6 +1,12 @@
 node_modules
 dist
+
 .vscode/symbols.json
 .vscode.settings.json
 example/.vscode/launch.json
 testDb*
+
+.vscode/launch.json
+example/.vscode/launch.json
+*.map
+
