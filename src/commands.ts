@@ -11,9 +11,6 @@ export function commandsMiddleware(handoff: Handoff) {
                 // allow messages of non 'message' type through 
                 next();
             }
-
-            // allow non message types through
-            next();
         }
     }
 }

@@ -71,9 +71,6 @@ export class Handoff {
                     // allow messages of non 'message' type through 
                     next();
                 }
-
-                // allow non message types through
-                next();
             },
             send: async (event: builder.IMessage, next: Function) => {
                 // Messages sent from the bot do not need to be routed
