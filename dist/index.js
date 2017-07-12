@@ -71,7 +71,7 @@ let setup = (bot, app, isAgent, options) => {
         exports._customerStartHandoffCommand = _customerStartHandoffCommand;
     }
     if (bot) {
-        bot.use(commands_1.commandsMiddleware(handoff), handoff.routingMiddleware());
+        bot.use(commands_1.commandsMiddleware(bot, handoff), handoff.routingMiddleware());
     }
     if (app && _directLineSecret != null) {
         app.use(cors({ origin: '*' }));

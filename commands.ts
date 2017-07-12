@@ -2,11 +2,11 @@ import * as builder from 'botbuilder';
 import { Conversation, ConversationState, Handoff } from './handoff';
 const indexExports = require('./index');
 
-export function commandsMiddleware(handoff: Handoff) {
+export function commandsMiddleware(bot: builder.UniversalBot, handoff: Handoff) {
     return {
         botbuilder: (session: builder.Session, next: Function) => {
             if (session.message.type === 'message') {
-                command(session, next, handoff);
+                command(session, next, handoff, bot);
             } else {
                 // allow messages of non 'message' type through 
                 next();
@@ -15,15 +15,21 @@ export function commandsMiddleware(handoff: Handoff) {
     }
 }
 
-function command(session: builder.Session, next: Function, handoff: Handoff) {
+function command(session: builder.Session, next: Function, handoff: Handoff, bot: builder.UniversalBot) {
     if (handoff.isAgent(session)) {
-        agentCommand(session, next, handoff);
+        agentCommand(session, next, handoff, bot);
     } else {
         customerCommand(session, next, handoff);
     }
 }
 
-async function agentCommand(session: builder.Session, next: Function, handoff: Handoff) {
+async function agentCommand(
+    session: builder.Session,
+    next: Function,
+    handoff: Handoff,
+    bot: builder.UniversalBot
+) {
+
     const message = session.message;
     const conversation = await handoff.getConversation({ agentConversationId: message.address.conversation.id });
     const inputWords = message.text.split(' ');
@@ -48,7 +54,7 @@ async function agentCommand(session: builder.Session, next: Function, handoff: H
             sendAgentCommandOptions(session);
             return;
         case 'list':
-            session.send( await currentConversations(handoff));
+            session.send(await currentConversations(handoff));
             return;
         case 'history':
             await handoff.getCustomerTranscript(
@@ -93,17 +99,23 @@ async function agentCommand(session: builder.Session, next: Function, handoff: H
                 );
             }
 
-        if (message.text === 'disconnect') {
-            if (await handoff.connectCustomerToBot({ customerConversationId: conversation.customer.conversation.id })) {
-                session.send("Customer " + conversation.customer.user.name + " is now connected to the bot.");
+            if (message.text === 'disconnect') {
+                if (await handoff.connectCustomerToBot({ customerConversationId: conversation.customer.conversation.id })) {
+                    //Send message to agent
+                    session.send("Customer " + conversation.customer.user.name + " is now connected to the bot.");
+
+                    //Send message to customer
+                    var reply = new builder.Message()
+                        .address(conversation.customer)
+                        .text('Agent has disconnected, you are now speaking to the bot.');
+                    bot.send(reply);
+                }
             }
-            return;
-        }
     }
 }
 
 async function customerCommand(session: builder.Session, next: Function, handoff: Handoff) {
-    const message = session.message;   
+    const message = session.message;
     const customerStartHandoffCommandRegex = new RegExp("^" + indexExports._customerStartHandoffCommand + "$", "gi");
     if (customerStartHandoffCommandRegex.test(message.text)) {
         // lookup the conversation (create it if one doesn't already exist)

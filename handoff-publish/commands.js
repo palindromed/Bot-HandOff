@@ -8,13 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const builder = require("botbuilder");
 const handoff_1 = require("./handoff");
 const indexExports = require('./index');
-function commandsMiddleware(handoff) {
+function commandsMiddleware(bot, handoff) {
     return {
         botbuilder: (session, next) => {
             if (session.message.type === 'message') {
-                command(session, next, handoff);
+                command(session, next, handoff, bot);
             }
             else {
                 // allow messages of non 'message' type through 
@@ -24,15 +25,15 @@ function commandsMiddleware(handoff) {
     };
 }
 exports.commandsMiddleware = commandsMiddleware;
-function command(session, next, handoff) {
+function command(session, next, handoff, bot) {
     if (handoff.isAgent(session)) {
-        agentCommand(session, next, handoff);
+        agentCommand(session, next, handoff, bot);
     }
     else {
         customerCommand(session, next, handoff);
     }
 }
-function agentCommand(session, next, handoff) {
+function agentCommand(session, next, handoff, bot) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = session.message;
         const conversation = yield handoff.getConversation({ agentConversationId: message.address.conversation.id });
@@ -76,7 +77,13 @@ function agentCommand(session, next, handoff) {
         }
         if (message.text === 'disconnect') {
             if (yield handoff.connectCustomerToBot({ customerConversationId: conversation.customer.conversation.id })) {
+                //Send message to agent
                 session.send("Customer " + conversation.customer.user.name + " is now connected to the bot.");
+                //Send message to customer
+                var reply = new builder.Message()
+                    .address(conversation.customer)
+                    .text('Agent has disconnected, you are now speaking to the bot.');
+                bot.send(reply);
             }
             return;
         }

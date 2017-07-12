@@ -67,7 +67,7 @@ let setup = (bot, app, isAgent, options) => {
 
     if (bot) {
         bot.use(
-            commandsMiddleware(handoff),
+            commandsMiddleware(bot, handoff),
             handoff.routingMiddleware(),
         )
     }
