@@ -69,11 +69,13 @@ export const BySchema = new mongoose.Schema({
 export interface ByDocument extends By, mongoose.Document { }
 export const ByModel = mongoose.model<ByDocument>('By', BySchema);
 export { mongoose };
+
 // -----------------
 // Mongoose Provider
 // -----------------
 export class MongooseProvider implements Provider {
     public init(): void { }
+    
     async addToTranscript(by: By, message: builder.IMessage, from: string): Promise<boolean> {
         let sentimentScore = -1;
         let text = message.text;

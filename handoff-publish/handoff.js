@@ -26,7 +26,7 @@ class Handoff {
         this.bot = bot;
         this.isAgent = isAgent;
         this.provider = provider;
-        this.connectCustomerToAgent = (by, agentAddress) => __awaiter(this, void 0, void 0, function* () {
+        this.connectCustomerToAgent = (by, nextState, agentAddress) => __awaiter(this, void 0, void 0, function* () {
             return yield this.provider.connectCustomerToAgent(by, agentAddress);
         });
         this.connectCustomerToBot = (by) => __awaiter(this, void 0, void 0, function* () {
@@ -127,6 +127,17 @@ class Handoff {
     transcribeMessageFromBot(message, next) {
         this.provider.addToTranscript({ customerConversationId: message.address.conversation.id }, message, 'Bot');
         next();
+    }
+    getCustomerTranscript(by, session) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const customerConversation = yield this.getConversation(by);
+            if (customerConversation) {
+                customerConversation.transcript.forEach(transcriptLine => session.send(transcriptLine.text));
+            }
+            else {
+                session.send('No Transcript to show. Try entering a username or try again when connected to a customer');
+            }
+        });
     }
 }
 exports.Handoff = Handoff;

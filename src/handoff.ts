@@ -40,7 +40,6 @@ export interface Provider {
     init();
 
     // Update
-
     addToTranscript: (by: By, message: builder.IMessage, from: string) => Promise<boolean>;
     connectCustomerToAgent: (by: By, agentAddress: builder.IAddress) => Promise<Conversation>;
     connectCustomerToBot: (by: By) => Promise<boolean>;
@@ -48,7 +47,6 @@ export interface Provider {
 
     // Get
     getConversation: (by: By, customerAddress?: builder.IAddress) => Promise<Conversation>;
-    currentConversations: () => Promise<Conversation[]>;
 }
 
 export class Handoff {
@@ -105,8 +103,10 @@ export class Handoff {
             // error state -- should not happen
             session.send("Shouldn't be in this state - agent should have been cleared out.");
             return;
+        }
         // send text that agent typed to the customer they are in conversation with
         this.bot.send(new builder.Message().address(conversation.customer).text(message.text).addEntity({ "agent": true }));
+
     }
 
     private async routeCustomerMessage(session: builder.Session, next: Function) {
@@ -141,7 +141,7 @@ export class Handoff {
         next();
     }
 
-     public async getCustomerTranscript(by: By, session: builder.Session) {
+    public async getCustomerTranscript(by: By, session: builder.Session) {
         const customerConversation = await this.getConversation(by);
         if (customerConversation) {
             customerConversation.transcript.forEach(transcriptLine =>
@@ -152,7 +152,7 @@ export class Handoff {
     }
 
     public connectCustomerToAgent = async (by: By, nextState: ConversationState, agentAddress: builder.IAddress) => {
-        return await this.provider.connectCustomerToAgent(by, nextState, agentAddress);
+        return await this.provider.connectCustomerToAgent(by, agentAddress);
     }
 
     public connectCustomerToBot = async (by: By) => {
