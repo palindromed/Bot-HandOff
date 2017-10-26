@@ -1,11 +1,11 @@
 import { MongooseProvider, mongoose } from './mongoose-provider';
-import { Handoff } from './handoff';
+import { Handoff, ConversationState } from './handoff';
 import { commandsMiddleware } from './commands';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
 let appInsights = require('applicationinsights');
-
+let handoff;
 let setup = (bot, app, isAgent, options) => {
 
     let mongooseProvider = null;
@@ -16,7 +16,7 @@ let setup = (bot, app, isAgent, options) => {
     let _appInsightsInstrumentationKey = null;
     let _customerStartHandoffCommand = null;
 
-    const handoff = new Handoff(bot, isAgent);
+    handoff = new Handoff(bot, isAgent);
 
     options = options || {};
 
@@ -58,8 +58,8 @@ let setup = (bot, app, isAgent, options) => {
 
     if (!options.customerStartHandoffCommand && !process.env.CUSTOMER_START_HANDOFF_COMMAND) {
         console.warn('Bot-Handoff: The customer command to start the handoff was not provided in setup options (customerStartHandoffCommand) or in the environment variables (CUSTOMER_START_HANDOFF_COMMAND). The default command will be set to help. Regex is used on this command to make sure the activation of the handoff only works if the user types the exact phrase provided in this property.');
-         _customerStartHandoffCommand = "help";
-         exports._customerStartHandoffCommand = _customerStartHandoffCommand;
+        _customerStartHandoffCommand = "help";
+        exports._customerStartHandoffCommand = _customerStartHandoffCommand;
     } else {
         _customerStartHandoffCommand = options.customerStartHandoffCommand || process.env.CUSTOMER_START_HANDOFF_COMMAND;
         exports._customerStartHandoffCommand = _customerStartHandoffCommand;
@@ -115,4 +115,16 @@ let setup = (bot, app, isAgent, options) => {
     }
 }
 
-module.exports = { setup }
+//this method is to trigger the handoff (useful for when you want a luis dialog to trigger the handoff, instead of the keyword)
+async function triggerHandoff(session) {
+    const message = session.message;
+    const conversation = await handoff.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
+    if (conversation.state == ConversationState.Bot) {
+        await handoff.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message);
+        await handoff.queueCustomerForAgent({ customerConversationId: conversation.customer.conversation.id });
+        session.endConversation("Connecting you to the next available agent.");
+        return;
+    }
+}
+
+module.exports = { setup, triggerHandoff }

@@ -64,7 +64,8 @@ export const BySchema = new mongoose.Schema({
     bestChoice: Boolean,
     agentConversationId: String,
     customerConversationId: String,
-    customerName: String
+    customerName: String,
+    customerId: String,
 });
 export interface ByDocument extends By, mongoose.Document { }
 export const ByModel = mongoose.model<ByDocument>('By', BySchema);
@@ -120,7 +121,7 @@ export class MongooseProvider implements Provider {
     }
 
     async connectCustomerToAgent(by: By, agentAddress: builder.IAddress): Promise<Conversation> {
-        const conversation = await this.getConversation(by);
+        const conversation: Conversation = await this.getConversation(by);
         if (conversation) {
             conversation.state = ConversationState.Agent;
             conversation.agent = agentAddress;
@@ -133,7 +134,7 @@ export class MongooseProvider implements Provider {
     }
 
     async queueCustomerForAgent(by: By): Promise<boolean> {
-        const conversation = await this.getConversation(by);
+        const conversation: Conversation = await this.getConversation(by);
         if (!conversation) {
             return false;
         } else {
@@ -143,27 +144,40 @@ export class MongooseProvider implements Provider {
     }
 
     async connectCustomerToBot(by: By): Promise<boolean> {
-        const conversation = await this.getConversation(by);
+        const conversation: Conversation = await this.getConversation(by);
         if (!conversation) {
             return false;
         } else {
             conversation.state = ConversationState.Bot;
             if (indexExports._retainData === "true") {
-                return await this.updateConversation(conversation);
+                //if retain data is true, AND the user has spoken to an agent - delete the agent record  
+                //this is necessary to avoid a bug where the agent cannot connect to another user after disconnecting with a user
+                if (conversation.agent) {
+                    conversation.agent = null;
+                    return await this.updateConversation(conversation);
+                } else {
+                    //otherwise, just update the conversation
+                    return await this.updateConversation(conversation);
+                }
             } else {
+                //if retain data is false, delete the whole conversation after talking to agent
                 if (conversation.agent) {
                     return await this.deleteConversation(conversation);
                 } else {
+                    //otherwise, just update the conversation
                     return await this.updateConversation(conversation);
                 }
-
             }
         }
     }
 
     async getConversation(by: By, customerAddress?: builder.IAddress): Promise<Conversation> {
         if (by.customerName) {
-            return await ConversationModel.findOne({ 'customer.user.name': by.customerName });
+            const conversation = await ConversationModel.findOne({ 'customer.user.name': by.customerName });
+            return conversation;
+        } else if (by.customerId) {
+            const conversation = await ConversationModel.findOne({ 'customer.user.id': by.customerId });
+            return conversation;
         } else if (by.agentConversationId) {
             const conversation = await ConversationModel.findOne({ 'agent.conversation.id': by.agentConversationId });
             if (conversation) return conversation;
@@ -174,6 +188,12 @@ export class MongooseProvider implements Provider {
                 conversation = await this.createConversation(customerAddress);
             }
             return conversation;
+        } else if (by.bestChoice){
+            const waitingLongest = await this.getCurrentConversations();
+            waitingLongest
+                .filter(conversation => conversation.state === ConversationState.Waiting)
+                .sort((x, y) => y.transcript[y.transcript.length - 1].timestamp - x.transcript[x.transcript.length - 1].timestamp);
+            return waitingLongest.length > 0 && waitingLongest[0];
         }
         return null;
     }

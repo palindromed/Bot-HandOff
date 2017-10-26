@@ -66,7 +66,8 @@ exports.BySchema = new mongoose.Schema({
     bestChoice: Boolean,
     agentConversationId: String,
     customerConversationId: String,
-    customerName: String
+    customerName: String,
+    customerId: String,
 });
 exports.ByModel = mongoose.model('By', exports.BySchema);
 // -----------------
@@ -151,13 +152,24 @@ class MongooseProvider {
             else {
                 conversation.state = handoff_1.ConversationState.Bot;
                 if (indexExports._retainData === "true") {
-                    return yield this.updateConversation(conversation);
+                    //if retain data is true, AND the user has spoken to an agent - delete the agent record  
+                    //this is necessary to avoid a bug where the agent cannot connect to another user after disconnecting with a user
+                    if (conversation.agent) {
+                        conversation.agent = null;
+                        return yield this.updateConversation(conversation);
+                    }
+                    else {
+                        //otherwise, just update the conversation
+                        return yield this.updateConversation(conversation);
+                    }
                 }
                 else {
+                    //if retain data is false, delete the whole conversation after talking to agent
                     if (conversation.agent) {
                         return yield this.deleteConversation(conversation);
                     }
                     else {
+                        //otherwise, just update the conversation
                         return yield this.updateConversation(conversation);
                     }
                 }
@@ -167,7 +179,12 @@ class MongooseProvider {
     getConversation(by, customerAddress) {
         return __awaiter(this, void 0, void 0, function* () {
             if (by.customerName) {
-                return yield exports.ConversationModel.findOne({ 'customer.user.name': by.customerName });
+                const conversation = yield exports.ConversationModel.findOne({ 'customer.user.name': by.customerName });
+                return conversation;
+            }
+            else if (by.customerId) {
+                const conversation = yield exports.ConversationModel.findOne({ 'customer.user.id': by.customerId });
+                return conversation;
             }
             else if (by.agentConversationId) {
                 const conversation = yield exports.ConversationModel.findOne({ 'agent.conversation.id': by.agentConversationId });
@@ -182,6 +199,13 @@ class MongooseProvider {
                     conversation = yield this.createConversation(customerAddress);
                 }
                 return conversation;
+            }
+            else if (by.bestChoice) {
+                const waitingLongest = yield this.getCurrentConversations();
+                waitingLongest
+                    .filter(conversation => conversation.state === handoff_1.ConversationState.Waiting)
+                    .sort((x, y) => y.transcript[y.transcript.length - 1].timestamp - x.transcript[x.transcript.length - 1].timestamp);
+                return waitingLongest.length > 0 && waitingLongest[0];
             }
             return null;
         });

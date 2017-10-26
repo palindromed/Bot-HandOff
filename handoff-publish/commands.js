@@ -41,16 +41,6 @@ function agentCommand(session, next, handoff, bot) {
         if (inputWords.length == 0)
             return;
         // Commands to execute whether connected to a customer or not
-        if (inputWords[0] === 'options') {
-            sendAgentCommandOptions(session);
-            return;
-        }
-        else if (inputWords[0] === 'list') {
-            session.send(yield currentConversations(handoff));
-            return;
-        }
-        // Commands to execute when not connected to a customer
-        // Commands to execute whether connected to a customer or not
         switch (inputWords[0]) {
             case 'options':
                 sendAgentCommandOptions(session);
@@ -60,45 +50,41 @@ function agentCommand(session, next, handoff, bot) {
                 return;
             case 'history':
                 yield handoff.getCustomerTranscript(inputWords.length > 1
-                    ? { customerName: inputWords.slice(1).join(' ') }
+                    ? { customerId: inputWords.slice(1).join(' ') }
                     : { agentConversationId: message.address.conversation.id }, session);
                 return;
             case 'waiting':
                 if (conversation) {
-                    //disconnect from current conversation if already watching/talking
-                    disconnectCustomer(conversation, handoff, session);
+                    //disconnect from current conversation if already talking
+                    disconnectCustomer(conversation, handoff, session, bot);
                 }
-                const waitingConversation = yield handoff.connectCustomerToAgent({ bestChoice: true }, handoff_1.ConversationState.Agent, message.address);
+                const waitingConversation = yield handoff.connectCustomerToAgent({ bestChoice: true }, message.address);
                 if (waitingConversation) {
-                    session.send("You are connected to " + waitingConversation.customer.user.name);
+                    session.send(`You are connected to ${waitingConversation.customer.user.name} (${waitingConversation.customer.user.id})`);
                 }
                 else {
                     session.send("No customers waiting.");
                 }
                 return;
             case 'connect':
-            case 'watch':
-                let newConversation;
-                if (inputWords[0] === 'connect') {
-                    newConversation = yield handoff.connectCustomerToAgent(inputWords.length > 1
-                        ? { customerName: inputWords.slice(1).join(' ') }
-                        : { customerConversationId: conversation.customer.conversation.id }, handoff_1.ConversationState.Agent, message.address);
+                const newConversation = yield handoff.connectCustomerToAgent(inputWords.length > 1
+                    ? { customerId: inputWords.slice(1).join(' ') }
+                    : { bestChoice: true }, message.address);
+                if (newConversation) {
+                    session.send(`You are connected to ${newConversation.customer.user.name} (${newConversation.customer.user.id})`);
                 }
                 else {
-                    // watch currently only supports specifying a customer to watch
-                    newConversation = yield handoff.connectCustomerToAgent({ customerName: inputWords.slice(1).join(' ') }, handoff_1.ConversationState.Watch, message.address);
+                    session.send("No customers waiting.");
                 }
                 if (message.text === 'disconnect') {
-                    if (yield handoff.connectCustomerToBot({ customerConversationId: conversation.customer.conversation.id })) {
-                        //Send message to agent
-                        session.send("Customer " + conversation.customer.user.name + " is now connected to the bot.");
-                        //Send message to customer
-                        var reply = new builder.Message()
-                            .address(conversation.customer)
-                            .text('Agent has disconnected, you are now speaking to the bot.');
-                        bot.send(reply);
-                    }
+                    disconnectCustomer(conversation, handoff, session, bot);
                 }
+                return;
+            case 'disconnect':
+                disconnectCustomer(conversation, handoff, session, bot);
+                return;
+            default:
+                return next();
         }
     });
 }
@@ -120,7 +106,7 @@ function customerCommand(session, next, handoff) {
     });
 }
 function sendAgentCommandOptions(session) {
-    const commands = ' ### Agent Options\n - Type *waiting* to connect to customer who has been waiting longest.\n - Type *connect { user name }* to connect to a specific conversation\n - Type *watch { user name }* to monitor a customer conversation\n - Type *history { user name }* to see a transcript of a given user\n - Type *list* to see a list of all current conversations.\n - Type *disconnect* while talking to a user to end a conversation.\n - Type *options* at any time to see these options again.';
+    const commands = ' ### Agent Options\n - Type *waiting* to connect to customer who has been waiting longest.\n - Type *connect { user id }* to connect to a specific conversation\n - Type *history { user id }* to see a transcript of a given user\n - Type *list* to see a list of all current conversations.\n - Type *disconnect* while talking to a user to end a conversation.\n - Type *options* at any time to see these options again.';
     session.send(commands);
     return;
 }
@@ -131,8 +117,9 @@ function currentConversations(handoff) {
             return "No customers are in conversation.";
         }
         let text = '### Current Conversations \n';
+        text += "Please use the user's ID to connect with them.\n\n";
         conversations.forEach(conversation => {
-            const starterText = ' - *' + conversation.customer.user.name + '*';
+            const starterText = ` - *${conversation.customer.user.name} (ID: ${conversation.customer.user.id})*`;
             switch (handoff_1.ConversationState[conversation.state]) {
                 case 'Bot':
                     text += starterText + ' is talking to the bot\n';
@@ -143,18 +130,23 @@ function currentConversations(handoff) {
                 case 'Waiting':
                     text += starterText + ' is waiting to talk to an agent\n';
                     break;
-                case 'Watch':
-                    text += starterText + ' is being monitored by an agent\n';
-                    break;
             }
         });
         return text;
     });
 }
-function disconnectCustomer(conversation, handoff, session) {
+function disconnectCustomer(conversation, handoff, session, bot) {
     return __awaiter(this, void 0, void 0, function* () {
         if (yield handoff.connectCustomerToBot({ customerConversationId: conversation.customer.conversation.id })) {
-            session.send("Customer " + conversation.customer.user.name + " is now connected to the bot.");
+            //Send message to agent
+            session.send(`Customer ${conversation.customer.user.name} (${conversation.customer.user.id}) is now connected to the bot.`);
+            if (bot) {
+                //Send message to customer
+                var reply = new builder.Message()
+                    .address(conversation.customer)
+                    .text('Agent has disconnected, you are now speaking to the bot.');
+                bot.send(reply);
+            }
         }
     });
 }

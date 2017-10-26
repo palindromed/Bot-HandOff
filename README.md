@@ -48,6 +48,17 @@ handoff.setup(bot, app, isAgent, {
 
 ```
 
+You can also manually trigger a handoff using the following example. Make sure you run `handoff.setup(...)` first.
+
+```javascript
+bot.dialog('/connectToHuman', (session)=>{
+    session.send("Hold on, buddy! Connecting you to the next available agent!");
+    handoff.triggerHandoff(session);
+}).triggerAction({
+    matches:  /^agent/i,
+});
+```
+
 ### Settings
 
 You can either provide these settings in the options of `handoff.setup()` or just provide them as environment variables.

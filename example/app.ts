@@ -48,3 +48,11 @@ handoff.setup(bot, app, isAgent, {
     retainData: process.env.RETAIN_DATA,
     customerStartHandoffCommand: process.env.CUSTOMER_START_HANDOFF_COMMAND
 });
+
+//triggerHandoff manually
+bot.dialog('/connectToHuman', (session)=>{
+    session.send("Hold on, buddy! Connecting you to the next available agent!");
+    handoff.triggerHandoff(session);
+}).triggerAction({
+    matches:  /^agent/i,
+});

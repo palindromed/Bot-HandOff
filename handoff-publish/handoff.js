@@ -17,7 +17,6 @@ var ConversationState;
     ConversationState[ConversationState["Bot"] = 0] = "Bot";
     ConversationState[ConversationState["Waiting"] = 1] = "Waiting";
     ConversationState[ConversationState["Agent"] = 2] = "Agent";
-    ConversationState[ConversationState["Watch"] = 3] = "Watch";
 })(ConversationState = exports.ConversationState || (exports.ConversationState = {}));
 ;
 class Handoff {
@@ -26,7 +25,7 @@ class Handoff {
         this.bot = bot;
         this.isAgent = isAgent;
         this.provider = provider;
-        this.connectCustomerToAgent = (by, nextState, agentAddress) => __awaiter(this, void 0, void 0, function* () {
+        this.connectCustomerToAgent = (by, agentAddress) => __awaiter(this, void 0, void 0, function* () {
             return yield this.provider.connectCustomerToAgent(by, agentAddress);
         });
         this.connectCustomerToBot = (by) => __awaiter(this, void 0, void 0, function* () {
@@ -88,6 +87,7 @@ class Handoff {
             // if the agent is not in conversation, no further routing is necessary
             if (!conversation)
                 return;
+            //if state of conversation is not 2, don't route agent message
             if (conversation.state !== ConversationState.Agent) {
                 // error state -- should not happen
                 session.send("Shouldn't be in this state - agent should have been cleared out.");
@@ -109,9 +109,6 @@ class Handoff {
                 case ConversationState.Waiting:
                     session.send("Connecting you to the next available agent.");
                     return;
-                case ConversationState.Watch:
-                    this.bot.send(new builder.Message().address(conversation.agent).text(message.text));
-                    return next();
                 case ConversationState.Agent:
                     if (!conversation.agent) {
                         session.send("No agent address present while customer in state Agent");

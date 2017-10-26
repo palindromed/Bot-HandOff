@@ -7,16 +7,15 @@ import { MongooseProvider } from './mongoose-provider';
 export enum ConversationState {
     Bot,
     Waiting,
-    Agent,
-    Watch
+    Agent
 }
 
 // What an entry in the customer transcript will have
 export interface TranscriptLine {
     timestamp: any,
     from: string,
-    sentimentScore: number,
-    state: number,
+    sentimentScore?: number,
+    state?: number,
     text: string
 }
 
@@ -33,15 +32,16 @@ export interface By {
     bestChoice?: true,
     agentConversationId?: string,
     customerConversationId?: string,
-    customerName?: string
+    customerName?: string,
+    customerId?: string
 }
 
 export interface Provider {
     init();
 
     // Update
-    addToTranscript: (by: By, message: builder.IMessage, from: string) => Promise<boolean>;
-    connectCustomerToAgent: (by: By, agentAddress: builder.IAddress) => Promise<Conversation>;
+    addToTranscript: (by: By, message: builder.IMessage, from?: string) => Promise<boolean>;
+    connectCustomerToAgent: (by: By, agentAddress: builder.IAddress, nextState?: ConversationState) => Promise<Conversation>;
     connectCustomerToBot: (by: By) => Promise<boolean>;
     queueCustomerForAgent: (by: By) => Promise<boolean>;
 
@@ -99,6 +99,7 @@ export class Handoff {
         if (!conversation)
             return;
 
+        //if state of conversation is not 2, don't route agent message
         if (conversation.state !== ConversationState.Agent) {
             // error state -- should not happen
             session.send("Shouldn't be in this state - agent should have been cleared out.");
@@ -121,9 +122,6 @@ export class Handoff {
             case ConversationState.Waiting:
                 session.send("Connecting you to the next available agent.");
                 return;
-            case ConversationState.Watch:
-                this.bot.send(new builder.Message().address(conversation.agent).text(message.text));
-                return next();
             case ConversationState.Agent:
                 if (!conversation.agent) {
                     session.send("No agent address present while customer in state Agent");
@@ -151,7 +149,7 @@ export class Handoff {
         }
     }
 
-    public connectCustomerToAgent = async (by: By, nextState: ConversationState, agentAddress: builder.IAddress) => {
+    public connectCustomerToAgent = async (by: By, agentAddress: builder.IAddress) => {
         return await this.provider.connectCustomerToAgent(by, agentAddress);
     }
 

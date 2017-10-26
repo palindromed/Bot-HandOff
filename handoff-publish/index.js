@@ -15,6 +15,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 let appInsights = require('applicationinsights');
+let handoff;
 let setup = (bot, app, isAgent, options) => {
     let mongooseProvider = null;
     let _retainData = null;
@@ -23,7 +24,7 @@ let setup = (bot, app, isAgent, options) => {
     let _textAnalyticsKey = null;
     let _appInsightsInstrumentationKey = null;
     let _customerStartHandoffCommand = null;
-    const handoff = new handoff_1.Handoff(bot, isAgent);
+    handoff = new handoff_1.Handoff(bot, isAgent);
     options = options || {};
     if (!options.mongodbProvider && !process.env.MONGODB_PROVIDER) {
         throw new Error('Bot-Handoff: Mongo DB Connection String was not provided in setup options (mongodbProvider) or in the environment variables (MONGODB_PROVIDER)');
@@ -115,5 +116,18 @@ let setup = (bot, app, isAgent, options) => {
         throw new Error('Microsoft Bot Builder Direct Line Secret was not provided in options or the environment variable MICROSOFT_DIRECTLINE_SECRET');
     }
 };
-module.exports = { setup };
+//this method is to trigger the handoff (useful for when you want a luis dialog to trigger the handoff, instead of the keyword)
+function triggerHandoff(session) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const message = session.message;
+        const conversation = yield handoff.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
+        if (conversation.state == handoff_1.ConversationState.Bot) {
+            yield handoff.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message);
+            yield handoff.queueCustomerForAgent({ customerConversationId: conversation.customer.conversation.id });
+            session.endConversation("Connecting you to the next available agent.");
+            return;
+        }
+    });
+}
+module.exports = { setup, triggerHandoff };
 //# sourceMappingURL=index.js.map
