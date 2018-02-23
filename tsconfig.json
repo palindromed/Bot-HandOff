@@ -2,7 +2,9 @@
     "compilerOptions": {
         "module": "commonjs",
         "target": "es6",
-        "noImplicitAny": false,
+        "noImplicitAny": true,
+        "noUnusedLocals": true,
+        "noImplicitReturns": true,
         "outDir": "./dist"
     },
     "files": [

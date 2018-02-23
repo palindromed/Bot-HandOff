@@ -1,10 +1,16 @@
-import * as builder from 'botbuilder';
+import { ConversationReference } from 'botbuilder';
 import { Provider, Conversation, By, ConversationState } from './handoff';
 
 export let conversations: Conversation[];
 
 export const init = () => {
     conversations = [];
+}
+
+export interface Transcript {
+    timestamp: number,
+    from: 'agent' | 'customer',
+    text: string
 }
 
 // Update
@@ -21,8 +27,7 @@ const addToTranscript = (by: By, text: string) => {
 
     return true;
 }
-
-const connectCustomerToAgent = (by: By, stateUpdate: ConversationState, agentAddress: builder.IAddress) => {
+const connectCustomerToAgent = (by: By, stateUpdate: ConversationState, agentAddress: ConversationReference) => {
     const conversation = getConversation(by);
     if (conversation) {
         conversation.state = stateUpdate;
@@ -59,14 +64,14 @@ const connectCustomerToBot = (by: By) => {
 // Get
 const getConversation = (
     by: By,
-    customerAddress?: builder.IAddress // if looking up by customerConversationId, create new conversation if one doesn't already exist
+    customerAddress?: ConversationReference // if looking up by customerConversationId, create new conversation if one doesn't already exist
 ) => {
     // local function to create a conversation if customer does not already have one
-    const createConversation = (customerAddress: builder.IAddress) => {
+    const createConversation = (customerAddress: ConversationReference) => {
         const conversation = {
             customer: customerAddress,
             state: ConversationState.Bot,
-            transcript: []
+            transcript: [] as Transcript[]
         };
         conversations.push(conversation);
         return conversation;

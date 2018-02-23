@@ -1,0 +1,1 @@
+export type NextFunc<T> = () => Promise<T>;

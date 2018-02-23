@@ -1,6 +1,6 @@
-import * as builder from 'botbuilder';
-import { Express } from 'express';
+import { Bot, ConversationReference, Activity, Middleware, ResourceResponse } from 'botbuilder';
 import { defaultProvider } from './provider';
+import { NextFunc } from './util';
 
 // Options for state of a conversation
 // Customer talking to bot, waiting for next available agent or talking to an agent
@@ -20,8 +20,8 @@ export interface TranscriptLine {
 
 // What is stored in a conversation. Agent only included if customer is talking to an agent
 export interface Conversation {
-    customer: builder.IAddress,
-    agent?: builder.IAddress,
+    customer: ConversationReference,
+    agent?: ConversationReference,
     state: ConversationState,
     transcript: TranscriptLine[]
 };
@@ -35,119 +35,128 @@ export interface By {
 }
 
 export interface Provider {
-    init();
+    init(): void;
 
     // Update
     addToTranscript: (by: By, text: string) => boolean;
-    connectCustomerToAgent: (by: By, nextState: ConversationState, agentAddress: builder.IAddress) => Conversation;
+    connectCustomerToAgent: (by: By, nextState: ConversationState, agentAddress: ConversationReference) => Conversation;
     connectCustomerToBot: (by: By) => boolean;
     queueCustomerForAgent: (by: By) => boolean;
 
     // Get
-    getConversation: (by: By, customerAddress?: builder.IAddress) => Conversation;
+    getConversation: (by: By, customerAddress?: ConversationReference) => Conversation;
     currentConversations: () => Conversation[];
 }
 
 export class Handoff {
     // if customizing, pass in your own check for isAgent and your own versions of methods in defaultProvider
     constructor(
-        private bot: builder.UniversalBot,
-        public isAgent: (session: builder.Session) => boolean,
+        private bot: Bot,
+        public isAgent: (context: BotContext) => boolean,
         private provider = defaultProvider
     ) {
         this.provider.init();
     }
 
-    public routingMiddleware() {
+    public routingMiddleware(): Middleware {
         return {
-            botbuilder: (session: builder.Session, next: Function) => {
+            receiveActivity: (context: BotContext, next: NextFunc<void>): Promise<void> => {
                 // Pass incoming messages to routing method
-                if (session.message.type === 'message') {
-                    this.routeMessage(session, next);
+                if (context.request.type === 'message') {
+                    return this.routeMessage(context, next);
                 }
+                return next();
             },
-            send: (event: builder.IEvent, next: Function) => {
-                // Messages sent from the bot do not need to be routed
-                const message = event as builder.IMessage;
-                const customerConversation = this.getConversation({ customerConversationId: event.address.conversation.id });
-                // send message to agent observing conversation
-                if (customerConversation.state === ConversationState.Watch) {
-                    this.bot.send(new builder.Message().address(customerConversation.agent).text(message.text));
-                }
-                this.trancribeMessageFromBot(message, next);
-
+            postActivity: (context: BotContext, activities: Activity[], next: NextFunc<ResourceResponse[]>): any => {
+                // Messages sent from the bot do not need to be routed                
+                activities.forEach((activity) => {
+                    const customerConversation = this.getConversation({ customerConversationId: activity.conversation.id });
+                    if (customerConversation) {
+                        // send message to agent observing conversation
+                        if (customerConversation.state === ConversationState.Watch) {
+                            this.sendToConversation(customerConversation.agent, activity.text)
+                        }
+                        this.trancribeMessageFromBot(activity);
+                    }
+                });
+                return next();
             }
         }
     }
 
     private routeMessage(
-        session: builder.Session,
+        context: BotContext,
         next: Function
-    ) {
-        if (this.isAgent(session)) {
-            this.routeAgentMessage(session)
+    ): Promise<void> {
+        if (this.isAgent(context)) {
+            return this.routeAgentMessage(context);
         } else {
-            this.routeCustomerMessage(session, next);
+            return this.routeCustomerMessage(context, next);
         }
     }
 
-    private routeAgentMessage(session: builder.Session) {
-        const message = session.message;
-        const conversation = this.getConversation({ agentConversationId: message.address.conversation.id });
+    private routeAgentMessage(context: BotContext): Promise<void> {
+        const request = context.request;
+        const conversation = this.getConversation({ agentConversationId: request.conversation.id });
 
         // if the agent is not in conversation, no further routing is necessary
         if (!conversation)
-            return;
+            return Promise.resolve();
         // if the agent is observing a customer, no need to route message
         if (conversation.state !== ConversationState.Agent)
-            return;
+            return Promise.resolve();
         // send text that agent typed to the customer they are in conversation with
-        this.bot.send(new builder.Message().address(conversation.customer).text(message.text));
+        this.sendToConversation(conversation.customer, request.text);
+        return Promise.resolve();
     }
 
-    private routeCustomerMessage(session: builder.Session, next: Function) {
-        const message = session.message;
+    private routeCustomerMessage(context: BotContext, next: Function): Promise<void> {
+        const request = context.request;
         // method will either return existing conversation or a newly created conversation if this is first time we've heard from customer
-        const conversation = this.getConversation({ customerConversationId: message.address.conversation.id }, message.address);
-        this.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, message.text);
+        const conversation = this.getConversation({ customerConversationId: request.conversation.id }, context.conversationReference as ConversationReference);
+        this.addToTranscript({ customerConversationId: conversation.customer.conversation.id }, request.text);
 
         switch (conversation.state) {
             case ConversationState.Bot:
                 return next();
             case ConversationState.Waiting:
-                session.send("Connecting you to the next available agent.");
-                return;
+                context.reply("Connecting you to the next available agent.");
+                return Promise.resolve();
             case ConversationState.Watch:
-                this.bot.send(new builder.Message().address(conversation.agent).text(message.text));
+                this.sendToConversation(conversation.agent, request.text)
                 return next();
             case ConversationState.Agent:
                 if (!conversation.agent) {
-                    session.send("No agent address present while customer in state Agent");
+                    context.reply("No agent address present while customer in state Agent");
                     console.log("No agent address present while customer in state Agent");
-                    return;
+                    return Promise.resolve();
                 }
-                this.bot.send(new builder.Message().address(conversation.agent).text(message.text));
-                return;
+                this.sendToConversation(conversation.agent, request.text);
+                return Promise.resolve();
         }
+        return Promise.resolve();
     }
 
     // These methods are wrappers around provider which handles data
-    private trancribeMessageFromBot(message: builder.IMessage, next: Function) {
-        this.provider.addToTranscript({ customerConversationId: message.address.conversation.id }, message.text);
-        next();
+    private trancribeMessageFromBot(message: Activity) {
+        this.provider.addToTranscript({ customerConversationId: message.conversation.id }, message.text);
     }
 
-    public getCustomerTranscript(by: By, session: builder.Session) {
+    private sendToConversation = (conversationReference: ConversationReference, text: string) =>
+        this.bot.createContext(conversationReference, (context) => { context.reply(text) });
+
+
+    public getCustomerTranscript(by: By, context: BotContext) {
         const customerConversation = this.getConversation(by);
         if (customerConversation) {
             customerConversation.transcript.forEach(transcriptLine =>
-                session.send(transcriptLine.text));
+                context.reply(transcriptLine.text));
         } else {
-            session.send('No Transcript to show. Try entering a username or try again when connected to a customer');
+            context.reply('No Transcript to show. Try entering a username or try again when connected to a customer');
         }
     }
 
-    public connectCustomerToAgent = (by: By, nextState: ConversationState, agentAddress: builder.IAddress) =>
+    public connectCustomerToAgent = (by: By, nextState: ConversationState, agentAddress: ConversationReference) =>
         this.provider.connectCustomerToAgent(by, nextState, agentAddress);
 
     public connectCustomerToBot = (by: By) =>
@@ -159,7 +168,7 @@ export class Handoff {
     public addToTranscript = (by: By, text: string) =>
         this.provider.addToTranscript(by, text);
 
-    public getConversation = (by: By, customerAddress?: builder.IAddress) =>
+    public getConversation = (by: By, customerAddress?: ConversationReference) =>
         this.provider.getConversation(by, customerAddress);
 
     public currentConversations = () =>
